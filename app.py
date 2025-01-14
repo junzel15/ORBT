@@ -12,48 +12,57 @@ from home_page_booking.components.bars import BarsPage
 from home_page_booking.components.experience import ExperiencePage
 
 
-def main(page: ft.Page):
-    def go_to(route):
+def go_to(route, page):
+    if route == "/booking":
         page.views.clear()
-        view = None
 
-        if route == "/splash":
-            view = SplashScreen(page, go_to)
-        elif route == "/onboarding1":
-            view = OnboardingStep1(page, go_to)
-        elif route == "/onboarding2":
-            view = OnboardingStep2(page, go_to)
-        elif route == "/onboarding3":
-            view = OnboardingStep3(page, go_to)
-        elif route == "/registration":
-            view = RegistrationPage(page, go_to)
-        if route == "/booking":
-            booking_page = BookingPage(page, go_to)
-            view = booking_page.render()
-        elif route == "/dining/coffee":
-            dining_page = DiningCoffeePage(page, go_to)
-            view = dining_page.render()
-        elif route == "/dining/brunch":
-            dining_page = DiningBrunchPage(page, go_to)
-            view = dining_page.render()
-        elif route == "/dining/diner":
-            dining_page = DiningDinerPage(page, go_to)
-            view = dining_page.render()
-        elif route == "/bars":
-            bars_page = BarsPage(page, go_to)
-            view = bars_page.render()
-        elif route == "/experience":
-            experience_page = ExperiencePage(page, go_to)
-            view = experience_page.render()
-        else:
-            print(f"Unknown route: {route}")
+    view = None
+    if route == "/splash":
+        view = SplashScreen(page, lambda r: go_to(r, page))
+    elif route == "/onboarding1":
+        view = OnboardingStep1(page, lambda r: go_to(r, page))
+    elif route == "/onboarding2":
+        view = OnboardingStep2(page, lambda r: go_to(r, page))
+    elif route == "/onboarding3":
+        view = OnboardingStep3(page, lambda r: go_to(r, page))
+    elif route == "/registration":
+        view = RegistrationPage(page, lambda r: go_to(r, page))
+    elif route == "/booking":
+        booking_page = BookingPage(page, lambda r: go_to(r, page))
+        view = booking_page.render()
+    elif route == "/dining/coffee":
+        dining_page = DiningCoffeePage(page, lambda r: go_to(r, page))
+        view = dining_page.render()
+    elif route == "/dining/brunch":
+        dining_page = DiningBrunchPage(page, lambda r: go_to(r, page))
+        view = dining_page.render()
+    elif route == "/dining/diner":
+        dining_page = DiningDinerPage(page, lambda r: go_to(r, page))
+        view = dining_page.render()
+    elif route == "/bars":
+        bars_page = BarsPage(page, lambda r: go_to(r, page))
+        view = bars_page.render()
+    elif route == "/experience":
+        experience_page = ExperiencePage(page, lambda r: go_to(r, page))
+        view = experience_page.render()
+    else:
+        print(f"Unknown route: {route}")
 
-        if view:
+    if view:
+
+        if len(page.views) == 0 or page.views[-1].route != route:
             page.views.append(view)
-            page.update()
+        else:
 
-    page.on_route_change = lambda _: go_to(page.route)
-    go_to("/booking")
+            page.views.pop()
+
+        page.go(page.views[-1].route)
+        page.update()
+
+
+def main(page: ft.Page):
+    page.on_route_change = lambda _: go_to(page.route, page)
+    go_to("/booking", page)
 
 
 ft.app(target=main)

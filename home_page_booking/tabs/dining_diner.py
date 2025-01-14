@@ -462,6 +462,7 @@ class DiningDinerPage:
                 ],
                 spacing=20,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                scroll="always",
             ),
             expand=True,
             padding=ft.padding.all(16),

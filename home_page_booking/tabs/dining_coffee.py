@@ -20,8 +20,18 @@ class DiningCoffeePage:
         self.before_content_ref = ft.Ref[ft.Container]()
         self.expect_content_ref = ft.Ref[ft.Container]()
 
-    def on_resize(self, e):
+        self.page.on_resize = self.on_resize
+
+    def on_resize(self):
         pass
+
+    def go_back(self):
+        if len(self.page.views) > 1:
+            self.page.views.pop()
+            self.page.go(self.page.views[-1].route)
+        else:
+            self.page.go("/booking")
+        self.page.update()
 
     def render(self):
         self.page.on_resize = self.on_resize
@@ -81,8 +91,8 @@ class DiningCoffeePage:
                 src="assets/images/Dark Background 2 Screen.png",
                 fit=ft.ImageFit.COVER,
             ),
-            width=400,
-            height=900,
+            width=self.page.window_width,
+            height=self.page.window_height,
             alignment=ft.alignment.center,
         )
 
@@ -113,10 +123,7 @@ class DiningCoffeePage:
                     icon=ft.icons.CLOSE,
                     icon_color="white",
                     icon_size=22,
-                    on_click=lambda e: (
-                        self.page.views.pop(),
-                        self.page.go("/booking"),
-                    ),
+                    on_click=lambda e: self.go_back(),
                 ),
             ],
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -463,6 +470,7 @@ class DiningCoffeePage:
                 ],
                 spacing=20,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                scroll="always",
             ),
             expand=True,
             padding=ft.padding.all(16),
