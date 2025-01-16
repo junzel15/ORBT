@@ -7,7 +7,6 @@ class BookingPage:
         self.go_to = go_to
 
     def render(self):
-
         is_mobile = self.page.window_width < 600
 
         return ft.View(
@@ -213,55 +212,56 @@ class BookingPage:
                 ft.Container(
                     content=ft.Row(
                         controls=[
-                            ft.IconButton(
-                                content=ft.Image(
-                                    src="assets/images/Home.png",
-                                    width=(24 if not is_mobile else 20),
-                                    height=24 if not is_mobile else 20,
+                            ft.Container(
+                                content=ft.IconButton(
+                                    content=ft.Image(
+                                        src="assets/images/Home.png",
+                                        width=(24 if not is_mobile else 20),
+                                        height=24 if not is_mobile else 20,
+                                    ),
+                                    icon_size=24,
+                                    icon_color="#000000",
                                 ),
-                                icon_size=24,
-                                icon_color="#000000",
                             ),
-                            ft.IconButton(
-                                content=ft.Image(
-                                    src="assets/images/Star.png",
-                                    width=24 if not is_mobile else 20,
-                                    height=24 if not is_mobile else 20,
+                            ft.Container(
+                                content=ft.IconButton(
+                                    content=ft.Image(
+                                        src="assets/images/Star.png",
+                                        width=(24 if not is_mobile else 20),
+                                        height=24 if not is_mobile else 20,
+                                    ),
+                                    icon_size=24,
+                                    icon_color="#000000",
                                 ),
-                                icon_size=24,
-                                icon_color="#000000",
                             ),
-                            ft.IconButton(
-                                content=ft.Image(
-                                    src="assets/images/Message.png",
-                                    width=24 if not is_mobile else 20,
-                                    height=24 if not is_mobile else 20,
+                            ft.Container(
+                                content=ft.IconButton(
+                                    content=ft.Image(
+                                        src="assets/images/Message.png",
+                                        width=(24 if not is_mobile else 20),
+                                        height=24 if not is_mobile else 20,
+                                    ),
+                                    icon_size=24,
+                                    icon_color="#000000",
                                 ),
-                                icon_size=24,
-                                icon_color="#000000",
                             ),
-                            ft.IconButton(
-                                content=ft.Image(
-                                    src="assets/images/Profile.png",
-                                    width=24 if not is_mobile else 20,
-                                    height=24 if not is_mobile else 20,
+                            ft.Container(
+                                content=ft.IconButton(
+                                    content=ft.Image(
+                                        src="assets/images/Profile.png",
+                                        width=(24 if not is_mobile else 20),
+                                        height=24 if not is_mobile else 20,
+                                    ),
+                                    icon_size=24,
+                                    icon_color="#000000",
+                                    on_click=lambda e: self.go_to("/profile"),
                                 ),
-                                icon_size=24,
-                                icon_color="#000000",
                             ),
                         ],
                         alignment=ft.MainAxisAlignment.SPACE_AROUND,
                     ),
-                    padding=ft.padding.symmetric(vertical=12, horizontal=8),
                     bgcolor="#FFFFFF",
-                    border_radius=ft.border_radius.all(24),
-                    shadow=ft.BoxShadow(
-                        spread_radius=4,
-                        blur_radius=8,
-                        color="#00000022",
-                        offset=ft.Offset(0, 2),
-                    ),
-                    margin=ft.margin.all(16),
+                    border_radius=30,
                 ),
             ],
             padding=ft.padding.all(0),

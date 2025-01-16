@@ -10,6 +10,7 @@ from home_page_booking.tabs.dining_brunch import DiningBrunchPage
 from home_page_booking.tabs.dining_diner import DiningDinerPage
 from home_page_booking.components.bars import BarsPage
 from home_page_booking.components.experience import ExperiencePage
+from profile_pages.profile import ProfilePage  # Add this import
 
 
 def go_to(route, page):
@@ -45,18 +46,23 @@ def go_to(route, page):
     elif route == "/experience":
         experience_page = ExperiencePage(page, lambda r: go_to(r, page))
         view = experience_page.render()
+    elif route == "/profile":
+        profile_page = ProfilePage(page, lambda r: go_to(r, page))
+        view = profile_page.render()
     else:
         print(f"Unknown route: {route}")
 
     if view:
-
         if len(page.views) == 0 or page.views[-1].route != route:
             page.views.append(view)
         else:
-
             page.views.pop()
 
-        page.go(page.views[-1].route)
+        if hasattr(view, "route"):
+            page.go(view.route)
+        else:
+            print("Error: View does not have a 'route' attribute.")
+
         page.update()
 
 
