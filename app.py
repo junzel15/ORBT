@@ -10,7 +10,7 @@ from home_page_booking.tabs.dining_brunch import DiningBrunchPage
 from home_page_booking.tabs.dining_diner import DiningDinerPage
 from home_page_booking.components.bars import BarsPage
 from home_page_booking.components.experience import ExperiencePage
-from profile_pages.profile import ProfilePage  # Add this import
+from profile_pages.profile import ProfilePage
 
 
 def go_to(route, page):
