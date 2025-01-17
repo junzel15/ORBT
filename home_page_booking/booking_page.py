@@ -243,6 +243,7 @@ class BookingPage:
                                     ),
                                     icon_size=24,
                                     icon_color="#000000",
+                                    on_click=lambda e: self.go_to("/messages"),
                                 ),
                             ),
                             ft.Container(

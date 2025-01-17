@@ -33,10 +33,11 @@ class ProfilePage:
                                 alignment="start",
                                 vertical_alignment="center",
                             ),
-                            ft.Icon(
-                                name=ft.Icons.MORE_VERT,
-                                size=24,
-                                color="black",
+                            ft.IconButton(
+                                icon=ft.Icons.MORE_VERT,
+                                icon_size=24,
+                                bgcolor="transparent",
+                                on_click=lambda e: self.go_to("/profile/settings"),
                             ),
                         ],
                         alignment="spaceBetween",
@@ -52,53 +53,25 @@ class ProfilePage:
                         ),
                         alignment=ft.alignment.center,
                     ),
-                    ft.Container(
-                        content=ft.Image(
-                            src="assets/images/Group 33832.png",
-                            width=80,
-                            fit=ft.ImageFit.CONTAIN,
-                        ),
-                        alignment=ft.alignment.center,
-                    ),
                     ft.Row(
                         [
                             ft.Text("CJ Agpaoa", size=20, weight="bold"),
-                            ft.Icon(ft.Icons.VERIFIED, color="#1DA1F2", size=18),
                         ],
                         alignment="center",
                     ),
                     ft.Container(
-                        content=ft.Image(
-                            src="assets/images/Group 33817.png",
-                            width=150,
-                            fit=ft.ImageFit.CONTAIN,
-                        ),
-                        alignment=ft.alignment.center,
-                    ),
-                    ft.Container(
-                        content=ft.Image(
-                            src="assets/images/Group 33839.png",
-                            width=200,
-                            fit=ft.ImageFit.CONTAIN,
+                        content=ft.Text(
+                            "123 Main Street, New York, NY",
+                            size=14,
+                            color="gray",
+                            weight="normal",
                         ),
                         alignment=ft.alignment.center,
                     ),
                     ft.Row(
                         [
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/action_1.png",
-                                    width=120,
-                                    fit=ft.ImageFit.CONTAIN,
-                                ),
-                            ),
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/Actions.png",
-                                    width=120,
-                                    fit=ft.ImageFit.CONTAIN,
-                                ),
-                            ),
+                            ft.Text("350 following", size=14, weight="bold"),
+                            ft.Text("647 followers", size=14, weight="bold"),
                         ],
                         alignment="center",
                         spacing=20,
@@ -109,101 +82,6 @@ class ProfilePage:
             ),
             padding=15,
             alignment=ft.alignment.center,
-        )
-
-        self.friend_list_section = ft.Container(
-            content=ft.Column(
-                [
-                    ft.Row(
-                        [
-                            ft.Text("Friend List", size=16, weight="bold"),
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/Group 33791.png",
-                                    fit=ft.ImageFit.CONTAIN,
-                                ),
-                                on_click=lambda _: print("Friend list clicked"),
-                            ),
-                        ],
-                        alignment="spaceBetween",
-                    ),
-                    ft.Row(
-                        spacing=10,
-                        controls=[
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/friendOne.jpg",
-                                    width=50,
-                                    height=50,
-                                    fit=ft.ImageFit.COVER,
-                                    border_radius=25,
-                                ),
-                            ),
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/friendTwo.jpg",
-                                    width=50,
-                                    height=50,
-                                    fit=ft.ImageFit.COVER,
-                                    border_radius=25,
-                                ),
-                            ),
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/friendThree.jpg",
-                                    width=50,
-                                    height=50,
-                                    fit=ft.ImageFit.COVER,
-                                    border_radius=25,
-                                ),
-                            ),
-                        ],
-                        alignment="start",
-                    ),
-                ],
-            ),
-            padding=15,
-        )
-
-        self.event_section = ft.Container(
-            content=ft.Column(
-                [
-                    ft.Row(
-                        [
-                            ft.Text("Events", size=16, weight="bold"),
-                            ft.Container(
-                                content=ft.Image(
-                                    src="assets/images/Group 33791.png",
-                                    fit=ft.ImageFit.CONTAIN,
-                                ),
-                                on_click=lambda _: print("Events list clicked"),
-                            ),
-                        ],
-                        alignment="spaceBetween",
-                    ),
-                    ft.Container(
-                        content=ft.Row(
-                            [
-                                ft.Container(
-                                    content=ft.Image(
-                                        src="assets/images/Group 33741.png",
-                                        fit=ft.ImageFit.COVER,
-                                        width=350,
-                                        height=200,
-                                    ),
-                                    alignment=ft.alignment.center,
-                                    padding=ft.padding.all(5),
-                                ),
-                            ],
-                            alignment="start",
-                            spacing=10,
-                        ),
-                        padding=ft.padding.all(10),
-                    ),
-                ],
-                spacing=10,
-            ),
-            padding=ft.padding.all(10),
         )
 
         self.bio_section = ft.Container(
@@ -268,53 +146,77 @@ class ProfilePage:
             padding=15,
         )
 
+        is_mobile = self.page.window_width < 600
+
         self.bottom_nav = ft.Container(
             content=ft.Row(
-                [
-                    ft.IconButton(
-                        icon=ft.icons.HOME, on_click=lambda _: print("Home clicked")
+                controls=[
+                    ft.Container(
+                        content=ft.IconButton(
+                            content=ft.Image(
+                                src="assets/images/Home.png",
+                                width=(24 if not is_mobile else 20),
+                                height=(24 if not is_mobile else 20),
+                            ),
+                            icon_size=24,
+                            icon_color="#000000",
+                        ),
                     ),
-                    ft.IconButton(
-                        icon=ft.icons.FAVORITE,
-                        on_click=lambda _: print("Heart clicked"),
+                    ft.Container(
+                        content=ft.IconButton(
+                            content=ft.Image(
+                                src="assets/images/Star.png",
+                                width=(24 if not is_mobile else 20),
+                                height=(24 if not is_mobile else 20),
+                            ),
+                            icon_size=24,
+                            icon_color="#000000",
+                        ),
                     ),
-                    ft.IconButton(
-                        icon=ft.icons.MESSAGE,
-                        on_click=lambda _: print("Message clicked"),
+                    ft.Container(
+                        content=ft.IconButton(
+                            content=ft.Image(
+                                src="assets/images/Message.png",
+                                width=(24 if not is_mobile else 20),
+                                height=(24 if not is_mobile else 20),
+                            ),
+                            icon_size=24,
+                            icon_color="#000000",
+                            on_click=lambda e: self.go_to("/messages"),
+                        ),
                     ),
-                    ft.IconButton(
-                        icon=ft.icons.LOCATION_ON,
-                        on_click=lambda _: print("Location clicked"),
-                    ),
-                    ft.IconButton(
-                        icon=ft.icons.ACCOUNT_CIRCLE,
-                        on_click=lambda _: print("Profile clicked"),
+                    ft.Container(
+                        content=ft.IconButton(
+                            content=ft.Image(
+                                src="assets/images/Profile.png",
+                                width=(24 if not is_mobile else 20),
+                                height=(24 if not is_mobile else 20),
+                            ),
+                            icon_size=24,
+                            icon_color="#000000",
+                            on_click=lambda e: self.go_to("/profile"),
+                        ),
                     ),
                 ],
-                alignment="spaceAround",
+                alignment=ft.MainAxisAlignment.SPACE_AROUND,
             ),
-            bgcolor="white",
-            padding=10,
-            shadow=ft.BoxShadow(blur_radius=10, color="#00000022"),
+            bgcolor="#FFFFFF",
+            border_radius=30,
         )
 
-        self.main_content = ft.Container(
-            content=ft.Column(
-                controls=[
-                    self.profile_header,
-                    self.friend_list_section,
-                    self.event_section,
-                    self.bio_section,
-                    self.interest_section,
-                    self.bottom_nav,
-                ],
-                spacing=10,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                scroll="always",
-            ),
+        self.main_content = ft.ListView(
+            controls=[
+                self.profile_header,
+                self.bio_section,
+                self.interest_section,
+                self.bottom_nav,
+            ],
             expand=True,
             padding=ft.padding.all(16),
         )
 
     def render(self):
-        return self.main_content
+        return ft.Column(
+            controls=[self.main_content],
+            expand=True,
+        )

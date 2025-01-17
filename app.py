@@ -11,6 +11,9 @@ from home_page_booking.tabs.dining_diner import DiningDinerPage
 from home_page_booking.components.bars import BarsPage
 from home_page_booking.components.experience import ExperiencePage
 from profile_pages.profile import ProfilePage
+from profile_pages.profile_settings import ProfileSettingsPage
+from profile_pages.profile_edit import ProfileEditPage
+from messages_pages.messages import MessagesPage
 
 
 def go_to(route, page):
@@ -49,11 +52,24 @@ def go_to(route, page):
     elif route == "/profile":
         profile_page = ProfilePage(page, lambda r: go_to(r, page))
         view = profile_page.render()
+    elif route == "/profile/settings":
+        profile_settings_page = ProfileSettingsPage(page, lambda r: go_to(r, page))
+        view = profile_settings_page.render()
+    elif route == "/profile/edit":
+        profile_edit_page = ProfileEditPage(page, lambda r: go_to(r, page))
+        view = profile_edit_page.render()
+    elif route == "/messages":
+        messages_page = MessagesPage(page, lambda r: go_to(r, page))
+        view = messages_page.render()
     else:
         print(f"Unknown route: {route}")
 
     if view:
-        if len(page.views) == 0 or page.views[-1].route != route:
+        if (
+            len(page.views) == 0
+            or not hasattr(page.views[-1], "route")
+            or page.views[-1].route != route
+        ):
             page.views.append(view)
         else:
             page.views.pop()
@@ -68,7 +84,7 @@ def go_to(route, page):
 
 def main(page: ft.Page):
     page.on_route_change = lambda _: go_to(page.route, page)
-    go_to("/booking", page)
+    go_to("/profile/edit", page)
 
 
 ft.app(target=main)
