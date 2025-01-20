@@ -1,19 +1,22 @@
 import flet as ft
-from splash_screen_pages.splash_screen import SplashScreen
+from splashscreens.splash_screen import SplashScreen
 from registration.registration_page import RegistrationPage
-from onboarding_pages.onboarding_step1 import OnboardingStep1
-from onboarding_pages.onboarding_step2 import OnboardingStep2
-from onboarding_pages.onboarding_step3 import OnboardingStep3
-from home_page_booking.booking_page import BookingPage
-from home_page_booking.tabs.dining_coffee import DiningCoffeePage
-from home_page_booking.tabs.dining_brunch import DiningBrunchPage
-from home_page_booking.tabs.dining_diner import DiningDinerPage
-from home_page_booking.components.bars import BarsPage
-from home_page_booking.components.experience import ExperiencePage
-from profile_pages.profile import ProfilePage
-from profile_pages.profile_settings import ProfileSettingsPage
-from profile_pages.profile_edit import ProfileEditPage
-from messages_pages.messages import MessagesPage
+from onboarding.onboarding_step1 import OnboardingStep1
+from onboarding.onboarding_step2 import OnboardingStep2
+from onboarding.onboarding_step3 import OnboardingStep3
+from homepage.booking_page import BookingPage
+from homepage.tabs.dining_coffee import DiningCoffeePage
+from homepage.tabs.dining_brunch import DiningBrunchPage
+from homepage.tabs.dining_diner import DiningDinerPage
+from homepage.components.bars import BarsPage
+from homepage.components.experience import ExperiencePage
+from profiles.profile import ProfilePage
+from profiles.profile_settings import ProfileSettingsPage
+from profiles.profile_edit import ProfileEditPage
+from messages.messages import MessagesPage
+from bookingpage.upcoming import UpcomingPage
+from bookingpage.completed import CompletedPage
+from bookingpage.cancelled import CancelledPage
 
 
 def go_to(route, page):
@@ -61,6 +64,15 @@ def go_to(route, page):
     elif route == "/messages":
         messages_page = MessagesPage(page, lambda r: go_to(r, page))
         view = messages_page.render()
+    elif route == "/bookings/upcoming":
+        upcoming_page = UpcomingPage(page, lambda r: go_to(r, page))
+        view = upcoming_page.render()
+    elif route == "/bookings/completed":
+        completed_page = CompletedPage(page, lambda r: go_to(r, page))
+        view = completed_page.render()
+    elif route == "/bookings/cancelled":
+        cancelled_page = CancelledPage(page, lambda r: go_to(r, page))
+        view = cancelled_page.render()
     else:
         print(f"Unknown route: {route}")
 
@@ -84,7 +96,7 @@ def go_to(route, page):
 
 def main(page: ft.Page):
     page.on_route_change = lambda _: go_to(page.route, page)
-    go_to("/profile/edit", page)
+    go_to("/booking", page)
 
 
 ft.app(target=main)

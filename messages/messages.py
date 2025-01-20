@@ -12,9 +12,10 @@ class MessagesPage(ft.UserControl):
         self.page.padding = 0
         self.page.bgcolor = "#F8F9FA"
 
-        self.main_content = self.build()
+        self.main_content = self.build_main_content()
+        self.bottom_nav = self.build_bottom_nav()
 
-    def build(self):
+    def build_main_content(self):
         def message_item(icon, name, message, time, color="white"):
             return ft.Container(
                 padding=10,
@@ -75,52 +76,6 @@ class MessagesPage(ft.UserControl):
             ),
         ]
 
-        is_mobile = self.page.window_width < 600
-
-        bottom_navbar = ft.Row(
-            controls=[
-                ft.IconButton(
-                    content=ft.Image(
-                        src="assets/images/Home.png",
-                        width=(24 if not is_mobile else 20),
-                        height=(24 if not is_mobile else 20),
-                    ),
-                    icon_size=24,
-                    icon_color="#000000",
-                ),
-                ft.IconButton(
-                    content=ft.Image(
-                        src="assets/images/Star.png",
-                        width=(24 if not is_mobile else 20),
-                        height=(24 if not is_mobile else 20),
-                    ),
-                    icon_size=24,
-                    icon_color="#000000",
-                ),
-                ft.IconButton(
-                    content=ft.Image(
-                        src="assets/images/Message.png",
-                        width=(24 if not is_mobile else 20),
-                        height=(24 if not is_mobile else 20),
-                    ),
-                    icon_size=24,
-                    icon_color="#000000",
-                    on_click=lambda e: self.go_to("/messages"),
-                ),
-                ft.IconButton(
-                    content=ft.Image(
-                        src="assets/images/Profile.png",
-                        width=(24 if not is_mobile else 20),
-                        height=(24 if not is_mobile else 20),
-                    ),
-                    icon_size=24,
-                    icon_color="#000000",
-                    on_click=lambda e: self.go_to("/profile"),
-                ),
-            ],
-            alignment=ft.MainAxisAlignment.SPACE_AROUND,
-        )
-
         return ft.ListView(
             controls=[
                 ft.Row(
@@ -140,13 +95,74 @@ class MessagesPage(ft.UserControl):
                 filter_buttons,
                 ft.Divider(height=10, thickness=1),
                 *messages_list,
-                ft.Divider(height=10, thickness=1),
-                bottom_navbar,
             ],
             spacing=10,
             expand=True,
             padding=ft.padding.all(16),
         )
 
+    def build_bottom_nav(self):
+        is_mobile = self.page.window_width < 600
+
+        return ft.Container(
+            content=ft.Row(
+                controls=[
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Home.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
+                        ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/booking"),
+                    ),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Star.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
+                        ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/bookings/upcoming"),
+                    ),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Message.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
+                        ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda e: self.go_to("/messages"),
+                    ),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Profile.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
+                        ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda e: self.go_to("/profile"),
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_AROUND,
+            ),
+            bgcolor="#FFFFFF",
+            padding=ft.padding.symmetric(vertical=10),
+        )
+
     def render(self):
-        return self.main_content
+        return ft.Column(
+            controls=[
+                ft.Container(
+                    content=self.main_content,
+                    expand=True,
+                ),
+                self.bottom_nav,
+            ],
+            expand=True,
+            spacing=0,
+        )

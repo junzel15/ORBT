@@ -4,7 +4,7 @@ from navigation import go_to
 
 def main(page: ft.Page):
 
-    page.title = "Orbt Onboarding"
+    page.title = "ORBT"
     page.theme_mode = ft.ThemeMode.DARK
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER

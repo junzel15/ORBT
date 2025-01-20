@@ -160,6 +160,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
+                            on_click=lambda _: self.go_to("/booking"),
                         ),
                     ),
                     ft.Container(
@@ -171,6 +172,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
+                            on_click=lambda _: self.go_to("/bookings/upcoming"),
                         ),
                     ),
                     ft.Container(
@@ -209,7 +211,6 @@ class ProfilePage:
                 self.profile_header,
                 self.bio_section,
                 self.interest_section,
-                self.bottom_nav,
             ],
             expand=True,
             padding=ft.padding.all(16),
@@ -217,6 +218,13 @@ class ProfilePage:
 
     def render(self):
         return ft.Column(
-            controls=[self.main_content],
+            controls=[
+                ft.Container(
+                    content=self.main_content,
+                    expand=True,
+                ),
+                self.bottom_nav,
+            ],
             expand=True,
+            spacing=0,
         )
