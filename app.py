@@ -19,79 +19,48 @@ from bookingpage.completed import CompletedPage
 from bookingpage.cancelled import CancelledPage
 
 
+ROUTES = {
+    "/splash": SplashScreen,
+    "/registration": RegistrationPage,
+    "/onboarding1": OnboardingStep1,
+    "/onboarding2": OnboardingStep2,
+    "/onboarding3": OnboardingStep3,
+    "/booking": BookingPage,
+    "/dining/coffee": DiningCoffeePage,
+    "/dining/brunch": DiningBrunchPage,
+    "/dining/diner": DiningDinerPage,
+    "/bars": BarsPage,
+    "/experience": ExperiencePage,
+    "/profile": ProfilePage,
+    "/profile/settings": ProfileSettingsPage,
+    "/profile/edit": ProfileEditPage,
+    "/messages": MessagesPage,
+    "/bookings/upcoming": UpcomingPage,
+    "/bookings/completed": CompletedPage,
+    "/bookings/cancelled": CancelledPage,
+}
+
+
 def go_to(route, page):
+    if route not in ROUTES:
+        print(f"Unknown route: {route}")
+        return
+
     if route == "/booking":
         page.views.clear()
 
-    view = None
-    if route == "/splash":
-        view = SplashScreen(page, lambda r: go_to(r, page))
-    elif route == "/onboarding1":
-        view = OnboardingStep1(page, lambda r: go_to(r, page))
-    elif route == "/onboarding2":
-        view = OnboardingStep2(page, lambda r: go_to(r, page))
-    elif route == "/onboarding3":
-        view = OnboardingStep3(page, lambda r: go_to(r, page))
-    elif route == "/registration":
-        view = RegistrationPage(page, lambda r: go_to(r, page))
-    elif route == "/booking":
-        booking_page = BookingPage(page, lambda r: go_to(r, page))
-        view = booking_page.render()
-    elif route == "/dining/coffee":
-        dining_page = DiningCoffeePage(page, lambda r: go_to(r, page))
-        view = dining_page.render()
-    elif route == "/dining/brunch":
-        dining_page = DiningBrunchPage(page, lambda r: go_to(r, page))
-        view = dining_page.render()
-    elif route == "/dining/diner":
-        dining_page = DiningDinerPage(page, lambda r: go_to(r, page))
-        view = dining_page.render()
-    elif route == "/bars":
-        bars_page = BarsPage(page, lambda r: go_to(r, page))
-        view = bars_page.render()
-    elif route == "/experience":
-        experience_page = ExperiencePage(page, lambda r: go_to(r, page))
-        view = experience_page.render()
-    elif route == "/profile":
-        profile_page = ProfilePage(page, lambda r: go_to(r, page))
-        view = profile_page.render()
-    elif route == "/profile/settings":
-        profile_settings_page = ProfileSettingsPage(page, lambda r: go_to(r, page))
-        view = profile_settings_page.render()
-    elif route == "/profile/edit":
-        profile_edit_page = ProfileEditPage(page, lambda r: go_to(r, page))
-        view = profile_edit_page.render()
-    elif route == "/messages":
-        messages_page = MessagesPage(page, lambda r: go_to(r, page))
-        view = messages_page.render()
-    elif route == "/bookings/upcoming":
-        upcoming_page = UpcomingPage(page, lambda r: go_to(r, page))
-        view = upcoming_page.render()
-    elif route == "/bookings/completed":
-        completed_page = CompletedPage(page, lambda r: go_to(r, page))
-        view = completed_page.render()
-    elif route == "/bookings/cancelled":
-        cancelled_page = CancelledPage(page, lambda r: go_to(r, page))
-        view = cancelled_page.render()
-    else:
-        print(f"Unknown route: {route}")
+    view_class = ROUTES[route]
+    view_instance = view_class(page, lambda r: go_to(r, page))
+    view = view_instance.render() if hasattr(view_instance, "render") else view_instance
 
-    if view:
-        if (
-            len(page.views) == 0
-            or not hasattr(page.views[-1], "route")
-            or page.views[-1].route != route
-        ):
-            page.views.append(view)
-        else:
-            page.views.pop()
+    if not hasattr(view, "route"):
+        view = ft.View(route=route, controls=[view])
 
-        if hasattr(view, "route"):
-            page.go(view.route)
-        else:
-            print("Error: View does not have a 'route' attribute.")
+    if not page.views or page.views[-1].route != route:
+        page.views.append(view)
 
-        page.update()
+    page.go(view.route)
+    page.update()
 
 
 def main(page: ft.Page):
