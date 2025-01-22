@@ -1,6 +1,9 @@
 import flet as ft
+
+
 from splashscreens.splash_screen import SplashScreen
 from registration.registration_page import RegistrationPage
+from registration.components.verification import verification
 from onboarding.onboarding_step1 import OnboardingStep1
 from onboarding.onboarding_step2 import OnboardingStep2
 from onboarding.onboarding_step3 import OnboardingStep3
@@ -17,11 +20,15 @@ from messages.messages import MessagesPage
 from bookingpage.upcoming import UpcomingPage
 from bookingpage.completed import CompletedPage
 from bookingpage.cancelled import CancelledPage
+from login.login_page import LoginPage
 
 
 ROUTES = {
     "/splash": SplashScreen,
     "/registration": RegistrationPage,
+    "/verification": lambda page, phone_number: verification(
+        "Verification", phone_number
+    ),
     "/onboarding1": OnboardingStep1,
     "/onboarding2": OnboardingStep2,
     "/onboarding3": OnboardingStep3,
@@ -38,10 +45,11 @@ ROUTES = {
     "/bookings/upcoming": UpcomingPage,
     "/bookings/completed": CompletedPage,
     "/bookings/cancelled": CancelledPage,
+    "/login": LoginPage,
 }
 
 
-def go_to(route, page):
+def go_to(route, page, **kwargs):
     if route not in ROUTES:
         print(f"Unknown route: {route}")
         return
@@ -50,7 +58,18 @@ def go_to(route, page):
         page.views.clear()
 
     view_class = ROUTES[route]
-    view_instance = view_class(page, lambda r: go_to(r, page))
+
+    if route == "/booking":
+        view_instance = view_class(page, go_to, **kwargs)
+    else:
+
+        if hasattr(view_class, "__init__"):
+
+            view_instance = view_class(page, go_to, **kwargs)
+        else:
+
+            view_instance = view_class(page)
+
     view = view_instance.render() if hasattr(view_instance, "render") else view_instance
 
     if not hasattr(view, "route"):
@@ -65,7 +84,7 @@ def go_to(route, page):
 
 def main(page: ft.Page):
     page.on_route_change = lambda _: go_to(page.route, page)
-    go_to("/booking", page)
+    go_to("/login", page)
 
 
 ft.app(target=main)

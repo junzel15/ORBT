@@ -2,9 +2,11 @@ import flet as ft
 
 
 class BookingPage:
-    def __init__(self, page: ft.Page, go_to):
+
+    def __init__(self, page: ft.Page, go_to, user_name=None):
         self.page = page
         self.go_to = go_to
+        self.user_name = user_name
 
     def render(self):
         is_mobile = self.page.window_width < 600
@@ -54,7 +56,7 @@ class BookingPage:
                                 text_align=ft.TextAlign.CENTER,
                             ),
                             ft.Text(
-                                "John!",
+                                self.user_name + "!",
                                 size=16 if not is_mobile else 14,
                                 style="Instrument Sans",
                                 color="#6D28D9",
@@ -222,7 +224,7 @@ class BookingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/home"),
+                            on_click=lambda _: self.go_to("/home", self.page),
                         ),
                     ),
                     ft.Container(
@@ -234,7 +236,9 @@ class BookingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings/upcoming"),
+                            on_click=lambda _: self.go_to(
+                                "/bookings/upcoming", self.page
+                            ),
                         ),
                     ),
                     ft.Container(
@@ -246,7 +250,7 @@ class BookingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/messages"),
+                            on_click=lambda _: self.go_to("/messages", self.page),
                         ),
                     ),
                     ft.Container(
@@ -258,7 +262,7 @@ class BookingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/profile"),
+                            on_click=lambda _: self.go_to("/profile", self.page),
                         ),
                     ),
                 ],
@@ -290,3 +294,10 @@ class BookingPage:
             expand=True,
             spacing=0,
         )
+
+
+def render(self):
+    if self.user_name:
+        return ft.Column(controls=[ft.Text(f"Hello, {self.user_name}")])
+    else:
+        return ft.Column(controls=[ft.Text("No user logged in")])
