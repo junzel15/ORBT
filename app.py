@@ -49,27 +49,20 @@ ROUTES = {
 }
 
 
+user_name = None
+
+
 def go_to(route, page, **kwargs):
-    if route not in ROUTES:
-        print(f"Unknown route: {route}")
-        return
+    global user_name
+    if "user_name" in kwargs:
+        user_name = kwargs["user_name"]
 
-    if route == "/booking":
-        page.views.clear()
-
+    print(f"Navigating to {route} with kwargs: {kwargs}")
     view_class = ROUTES[route]
-
     if route == "/booking":
-        view_instance = view_class(page, go_to, **kwargs)
+        view_instance = view_class(page, go_to, user_name=user_name)
     else:
-
-        if hasattr(view_class, "__init__"):
-
-            view_instance = view_class(page, go_to, **kwargs)
-        else:
-
-            view_instance = view_class(page)
-
+        view_instance = view_class(page, go_to)
     view = view_instance.render() if hasattr(view_instance, "render") else view_instance
 
     if not hasattr(view, "route"):

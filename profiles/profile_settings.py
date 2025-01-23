@@ -1,7 +1,7 @@
 import flet as ft
 
 
-class ProfileSettingsPage:
+class ProfileSettingsPage(ft.UserControl):
     def __init__(self, page: ft.Page, go_to):
         self.page = page
         self.go_to = go_to
@@ -47,13 +47,14 @@ class ProfileSettingsPage:
                 on_click=on_click,
             )
 
-        header = ft.Container(
+        # Header section for settings page
+        self.header_section = ft.Container(
             content=ft.Row(
                 [
                     ft.IconButton(
                         icon=ft.icons.ARROW_BACK,
                         icon_size=24,
-                        on_click=lambda e: self.go_to("/profile"),
+                        on_click=lambda e: self.go_to("/profile", self.page),
                     ),
                     ft.Text("Settings", size=20, weight="bold", color="#000000"),
                 ],
@@ -65,30 +66,39 @@ class ProfileSettingsPage:
             bgcolor="#FFFFFF",
         )
 
-        items = [
-            create_list_item(
-                ft.icons.EDIT,
-                "Edit Profile",
-                on_click=lambda e: self.go_to("/profile/edit"),
+        # List items for settings page
+        self.items_section = ft.Container(
+            content=ft.ListView(
+                controls=[
+                    create_list_item(
+                        ft.icons.EDIT,
+                        "Edit Profile",
+                        on_click=lambda e: self.go_to("/profile/edit", self.page),
+                    ),
+                    create_list_item(ft.icons.BLOCK, "Blocked"),
+                    create_list_item(
+                        ft.icons.NOTIFICATIONS,
+                        "Notifications",
+                        trailing=ft.Switch(value=True, active_color="blue"),
+                    ),
+                    create_list_item(ft.icons.LOCK, "Change Password"),
+                    create_list_item(ft.icons.PAYMENT, "Payments"),
+                    create_list_item(
+                        ft.icons.LANGUAGE,
+                        "Language",
+                        trailing=ft.Text("English (US)", size=14, color="#6c757d"),
+                    ),
+                    create_list_item(ft.icons.SECURITY, "Account & Security"),
+                    create_list_item(ft.icons.HELP, "Help Centre"),
+                    create_list_item(ft.icons.STAR, "Rate Us"),
+                ],
+                spacing=10,
+                padding=10,
             ),
-            create_list_item(ft.icons.BLOCK, "Blocked"),
-            create_list_item(
-                ft.icons.NOTIFICATIONS,
-                "Notifications",
-                trailing=ft.Switch(value=True, active_color="blue"),
-            ),
-            create_list_item(ft.icons.LOCK, "Change Password"),
-            create_list_item(ft.icons.PAYMENT, "Payments"),
-            create_list_item(
-                ft.icons.LANGUAGE,
-                "Language",
-                trailing=ft.Text("English (US)", size=14, color="#6c757d"),
-            ),
-            create_list_item(ft.icons.SECURITY, "Account & Security"),
-            create_list_item(ft.icons.HELP, "Help Centre"),
-            create_list_item(ft.icons.STAR, "Rate Us"),
-        ]
+            expand=True,
+        )
 
+        # Logout section
         self.logout_item = ft.Container(
             content=ft.Row(
                 [
@@ -102,43 +112,18 @@ class ProfileSettingsPage:
             ink=True,
         )
 
-        self.main_content = items
+        # Combine header, items, and logout sections into main_content
+        self.main_content = ft.Column(
+            controls=[
+                self.header_section,
+                self.items_section,
+                self.logout_item,
+            ],
+            expand=True,
+        )
 
     def render(self):
         return ft.Column(
-            controls=[
-                ft.Container(
-                    content=ft.Row(
-                        [
-                            ft.IconButton(
-                                icon=ft.icons.ARROW_BACK,
-                                icon_size=24,
-                                on_click=lambda e: self.go_to("/profile"),
-                            ),
-                            ft.Text(
-                                "Settings", size=20, weight="bold", color="#000000"
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.START,
-                        spacing=10,
-                    ),
-                    padding=ft.padding.symmetric(horizontal=10, vertical=15),
-                    height=60,
-                    bgcolor="#FFFFFF",
-                ),
-                ft.Container(
-                    content=ft.ListView(
-                        controls=self.main_content,
-                        spacing=10,
-                        padding=10,
-                        expand=True,
-                    ),
-                    expand=True,
-                ),
-                ft.Container(
-                    content=self.logout_item,
-                    padding=ft.padding.symmetric(vertical=10, horizontal=10),
-                ),
-            ],
+            controls=[self.main_content],
             expand=True,
         )

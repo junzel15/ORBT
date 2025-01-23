@@ -4,7 +4,7 @@ from flet import TextStyle, FontWeight
 
 class BarsPage:
     def __init__(self, page: ft.Page, go_to):
-        # Page and navigation setup
+
         self.page = page
         self.go_to = go_to
         self.page.title = "Bars"
@@ -14,17 +14,16 @@ class BarsPage:
         self.text_size = 12
         self.expanded_state = {"before": False, "expect": False}
 
-        # References for toggle and content sections
         self.before_toggle_ref = ft.Ref[ft.Text]()
         self.expect_toggle_ref = ft.Ref[ft.Text]()
         self.before_content_ref = ft.Ref[ft.Container]()
         self.expect_content_ref = ft.Ref[ft.Container]()
 
     def on_resize(self, e):
-        pass  # Prevents the AttributeError
+        pass
 
     def render(self):
-        self.page.on_resize = self.on_resize  # Attach resize handler
+        self.page.on_resize = self.on_resize
 
     def toggle_tile(self, tile):
         """Toggle the visibility of a content tile."""
@@ -80,7 +79,6 @@ class BarsPage:
             alignment=ft.alignment.center,
         )
 
-        # Header
         header = ft.Row(
             controls=[
                 ft.Container(
@@ -110,7 +108,7 @@ class BarsPage:
                     icon_size=22,
                     on_click=lambda e: (
                         self.page.views.pop(),
-                        self.page.go("/booking"),
+                        self.page.go("/booking", self.page),
                     ),
                 ),
             ],
@@ -243,7 +241,6 @@ class BarsPage:
             on_click=toggle_dropdown,
         )
 
-        # Sections
         def create_section(title, tile_key, contents):
             toggle_ref = (
                 self.before_toggle_ref
@@ -287,7 +284,6 @@ class BarsPage:
                 padding=ft.padding.all(16),
             )
 
-        # BEFORE YOU BOOK SECTION
         before_you_book = create_section(
             "BEFORE YOU BOOK",
             "before",
@@ -305,7 +301,6 @@ class BarsPage:
             ],
         )
 
-        # WHAT TO EXPECT SECTION
         what_to_expect = create_section(
             "WHAT TO EXPECT",
             "expect",
@@ -393,7 +388,6 @@ class BarsPage:
             width=self.page.width * 0.95,
         )
 
-        # Book Now Button
         book_now_button = ft.Container(
             content=ft.ElevatedButton(
                 text="Book Now",
@@ -413,7 +407,6 @@ class BarsPage:
             padding=ft.padding.only(top=16, bottom=32),
         )
 
-        # Main Content
         main_content = ft.Container(
             content=ft.Column(
                 controls=[
@@ -432,7 +425,6 @@ class BarsPage:
             padding=ft.padding.all(16),
         )
 
-        # Return the full view
         return ft.View(
             route="/dining",
             controls=[ft.Stack(controls=[background, main_content], expand=True)],

@@ -24,7 +24,7 @@ class UpcomingPage:
                                 icon=ft.icons.ARROW_BACK,
                                 icon_size=20,
                                 icon_color="#FFFFFF",
-                                on_click=lambda _: self.go_to("/booking"),
+                                on_click=lambda _: self.go_to("/booking", self.page),
                             ),
                             ft.Text(
                                 "My Bookings", size=18, color="#FFFFFF", weight="bold"
@@ -70,7 +70,9 @@ class UpcomingPage:
                                             horizontal=16, vertical=8
                                         ),
                                     ),
-                                    on_click=lambda _: self.go_to("/bookings/upcoming"),
+                                    on_click=lambda _: self.go_to(
+                                        "/bookings/upcoming", self.page
+                                    ),
                                 ),
                                 ft.TextButton(
                                     text="Completed",
@@ -85,7 +87,7 @@ class UpcomingPage:
                                         ),
                                     ),
                                     on_click=lambda _: self.go_to(
-                                        "/bookings/completed"
+                                        "/bookings/completed", self.page
                                     ),
                                 ),
                                 ft.TextButton(
@@ -101,7 +103,7 @@ class UpcomingPage:
                                         ),
                                     ),
                                     on_click=lambda _: self.go_to(
-                                        "/bookings/cancelled"
+                                        "/bookings/cancelled", self.page
                                     ),
                                 ),
                             ],
@@ -224,7 +226,7 @@ class UpcomingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/booking"),
+                            on_click=lambda _: self.go_to("/booking", self.page),
                         ),
                     ),
                     ft.Container(
@@ -236,7 +238,9 @@ class UpcomingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings/upcoming"),
+                            on_click=lambda _: self.go_to(
+                                "/bookings/upcoming", self.page
+                            ),
                         ),
                     ),
                     ft.Container(
@@ -248,7 +252,7 @@ class UpcomingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda e: self.go_to("/messages"),
+                            on_click=lambda e: self.go_to("/messages", self.page),
                         ),
                     ),
                     ft.Container(
@@ -260,7 +264,7 @@ class UpcomingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda e: self.go_to("/profile"),
+                            on_click=lambda e: self.go_to("/profile", self.page),
                         ),
                     ),
                 ],

@@ -1,8 +1,9 @@
 import flet as ft
 
 
-class ProfileEditPage:
+class ProfileEditPage(ft.UserControl):
     def __init__(self, page: ft.Page, go_to: callable = None):
+        super().__init__()
         self.page = page
         self.go_to = go_to
 
@@ -15,7 +16,8 @@ class ProfileEditPage:
         self.build_ui()
 
     def build_ui(self):
-        avatar_section = ft.Container(
+        # Avatar section
+        self.avatar_section = ft.Container(
             content=ft.Stack(
                 controls=[
                     ft.CircleAvatar(
@@ -41,6 +43,7 @@ class ProfileEditPage:
             alignment=ft.alignment.center,
         )
 
+        # Input field component
         def input_field(icon, label, value="", password=False):
             return ft.Container(
                 content=ft.Row(
@@ -63,6 +66,7 @@ class ProfileEditPage:
                 margin=ft.margin.symmetric(vertical=5),
             )
 
+        # Dropdown field component
         def dropdown_field(icon, label, options, value=""):
             return ft.Container(
                 content=ft.Row(
@@ -84,7 +88,8 @@ class ProfileEditPage:
                 margin=ft.margin.symmetric(vertical=5),
             )
 
-        bio_field = ft.Container(
+        # Bio field component
+        self.bio_field = ft.Container(
             content=ft.Column(
                 [
                     ft.Text("My Bio", size=14, weight="bold", color="#000000"),
@@ -103,58 +108,55 @@ class ProfileEditPage:
             margin=ft.margin.symmetric(vertical=5),
         )
 
-        def interests_section():
-            return ft.Container(
-                content=ft.Column(
-                    [
-                        ft.Text(
-                            "My Interests", size=14, weight="bold", color="#000000"
-                        ),
-                        ft.TextField(
-                            hint_text="Add Interests",
-                            border=ft.InputBorder.OUTLINE,
-                            border_color="#D6D6D6",
-                            bgcolor="#FFFFFF",
-                            height=40,
-                        ),
-                        ft.Row(
-                            controls=[
-                                ft.Container(
-                                    content=ft.Text(
-                                        interest,
-                                        size=12,
-                                        weight="bold",
-                                        color="white",
-                                    ),
-                                    bgcolor=color,
-                                    padding=ft.padding.symmetric(
-                                        horizontal=10, vertical=5
-                                    ),
-                                    border_radius=ft.border_radius.all(15),
-                                    margin=ft.margin.all(5),
-                                )
-                                for interest, color in [
-                                    ("Online Games", "#6C757D"),
-                                    ("Concert", "#DC3545"),
-                                    ("R&B Music", "#DC3545"),
-                                    ("Art", "#6F42C1"),
-                                    ("Movies", "#28A745"),
-                                    ("Coffee", "#17A2B8"),
-                                ]
-                            ],
-                            wrap=True,
-                            spacing=5,
-                        ),
-                    ],
-                    spacing=10,
-                ),
-                padding=ft.padding.all(10),
-                bgcolor="#FFFFFF",
-                border_radius=ft.border_radius.all(8),
-                margin=ft.margin.symmetric(vertical=5),
-            )
+        # Interests section
+        self.interests_section = ft.Container(
+            content=ft.Column(
+                [
+                    ft.Text("My Interests", size=14, weight="bold", color="#000000"),
+                    ft.TextField(
+                        hint_text="Add Interests",
+                        border=ft.InputBorder.OUTLINE,
+                        border_color="#D6D6D6",
+                        bgcolor="#FFFFFF",
+                        height=40,
+                    ),
+                    ft.Row(
+                        controls=[
+                            ft.Container(
+                                content=ft.Text(
+                                    interest,
+                                    size=12,
+                                    weight="bold",
+                                    color="white",
+                                ),
+                                bgcolor=color,
+                                padding=ft.padding.symmetric(horizontal=10, vertical=5),
+                                border_radius=ft.border_radius.all(15),
+                                margin=ft.margin.all(5),
+                            )
+                            for interest, color in [
+                                ("Online Games", "#6C757D"),
+                                ("Concert", "#DC3545"),
+                                ("R&B Music", "#DC3545"),
+                                ("Art", "#6F42C1"),
+                                ("Movies", "#28A745"),
+                                ("Coffee", "#17A2B8"),
+                            ]
+                        ],
+                        wrap=True,
+                        spacing=5,
+                    ),
+                ],
+                spacing=10,
+            ),
+            padding=ft.padding.all(10),
+            bgcolor="#FFFFFF",
+            border_radius=ft.border_radius.all(8),
+            margin=ft.margin.symmetric(vertical=5),
+        )
 
-        save_button = ft.Container(
+        # Save button
+        self.save_button = ft.Container(
             content=ft.ElevatedButton(
                 text="Save changes",
                 style=ft.ButtonStyle(
@@ -169,17 +171,18 @@ class ProfileEditPage:
             margin=ft.margin.symmetric(vertical=10),
         )
 
+        # Main content collection
         self.main_content = [
-            avatar_section,
+            self.avatar_section,
             input_field(ft.icons.PERSON, "Full Name", "New Name"),
             input_field(ft.icons.EMAIL, "Email", "newemail@example.com"),
             input_field(ft.icons.LOCK, "Password", "newpassword", password=True),
             input_field(ft.icons.PHONE, "Phone Number", "+63 9123456789"),
             dropdown_field(ft.icons.WC, "Gender", ["Male", "Female"], "Male"),
             input_field(ft.icons.CALENDAR_MONTH, "Date of Birth", "09/12/1990"),
-            bio_field,
-            interests_section(),
-            save_button,
+            self.bio_field,
+            self.interests_section,
+            self.save_button,
         ]
 
     def render(self):
@@ -192,7 +195,9 @@ class ProfileEditPage:
                                 ft.IconButton(
                                     icon=ft.icons.ARROW_BACK,
                                     icon_size=24,
-                                    on_click=lambda e: self.go_to("/profile/settings"),
+                                    on_click=lambda e: self.go_to(
+                                        "/profile/settings", self.page
+                                    ),
                                 ),
                                 ft.Text("Edit Profile", size=20, weight="bold"),
                             ],

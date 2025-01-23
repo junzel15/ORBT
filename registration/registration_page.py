@@ -33,6 +33,9 @@ class RegistrationPage:
                 size=24,
                 weight=ft.FontWeight.BOLD,
                 color="black",
+                style=ft.TextStyle(
+                    font_family="Sora",
+                ),
             ),
             alignment=ft.alignment.top_center,
             padding=ft.padding.only(top=10),
@@ -44,6 +47,9 @@ class RegistrationPage:
                 size=14,
                 color="gray",
                 text_align=ft.TextAlign.CENTER,
+                style=ft.TextStyle(
+                    font_family="Instrument Sans",
+                ),
             ),
             alignment=ft.alignment.top_center,
             padding=ft.padding.only(top=5, bottom=20),
@@ -59,6 +65,7 @@ class RegistrationPage:
                         controls=[
                             ft.Dropdown(
                                 width=80,
+                                height=60,
                                 options=[
                                     ft.dropdown.Option("PH", text="🇵🇭"),
                                     ft.dropdown.Option("US", text="🇺🇸"),
@@ -67,23 +74,36 @@ class RegistrationPage:
                                     ft.dropdown.Option("JP", text="🇯🇵"),
                                 ],
                                 value="PH",
+                                border_radius=ft.border_radius.all(4),
+                                padding=ft.padding.symmetric(horizontal=8),
                                 on_change=lambda e: self.update_phone_code(
                                     e.control.value
                                 ),
                             ),
                             ft.TextField(
                                 ref=self.phone_input,
-                                label=None,
                                 hint_text="Phone Number",
-                                text_style=ft.TextStyle(color="lightgray"),
+                                text_style=ft.TextStyle(
+                                    color="black",
+                                    font_family="Instrument Sans",
+                                    size=14,
+                                ),
+                                border_radius=ft.border_radius.all(4),
+                                height=60,
+                                expand=True,
                                 keyboard_type=ft.KeyboardType.NUMBER,
                             ),
                         ],
-                        spacing=5,
+                        spacing=8,
+                        alignment="center",
                     ),
                     ft.Checkbox(
                         label="Agree with Terms & Condition",
                         width=300,
+                        label_style=ft.TextStyle(
+                            font_family="Instrument Sans",
+                            size=12,
+                        ),
                     ),
                 ],
                 spacing=15,
@@ -99,8 +119,13 @@ class RegistrationPage:
                 shape=ft.RoundedRectangleBorder(radius=30),
                 padding=ft.padding.symmetric(vertical=20, horizontal=0),
                 bgcolor="#d1d5db",
-                color="black",
+                color="white",
                 elevation=0,
+                text_style=ft.TextStyle(
+                    font_family="Instrument Sans",
+                    size=16,
+                    weight=ft.FontWeight.BOLD,
+                ),
             ),
             width=300,
             height=50,
@@ -120,7 +145,14 @@ class RegistrationPage:
                         content=ft.Divider(thickness=1, color="gray"),
                         expand=True,
                     ),
-                    ft.Text("Or continue with", size=12, color="gray"),
+                    ft.Text(
+                        "Or continue with",
+                        size=14,
+                        color="gray",
+                        style=ft.TextStyle(
+                            font_family="Instrument Sans",
+                        ),
+                    ),
                     ft.Container(
                         content=ft.Divider(thickness=1, color="gray"),
                         expand=True,
@@ -182,12 +214,24 @@ class RegistrationPage:
         self.footer_section = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Text("Already have an account?", size=12, color="gray"),
+                    ft.Text(
+                        "Already have account?",
+                        size=14,
+                        color="gray",
+                        style=ft.TextStyle(
+                            font_family="Instrument Sans",
+                        ),
+                    ),
                     ft.TextButton(
                         "Log in",
-                        on_click=lambda _: self.go_to("/login"),
+                        on_click=lambda _: self.go_to("/login", page),
                         style=ft.ButtonStyle(
                             color="blue",
+                            text_style=ft.TextStyle(
+                                font_family="Instrument Sans",
+                                size=14,
+                                weight=ft.FontWeight.BOLD,
+                            ),
                         ),
                     ),
                 ],
@@ -204,9 +248,6 @@ class RegistrationPage:
                     self.description_section,
                     self.form_section,
                     self.register_button_section,
-                    self.or_continue_with_section,
-                    self.social_buttons_section,
-                    self.footer_section,
                 ],
                 expand=True,
             ),
@@ -308,7 +349,23 @@ class RegistrationPage:
 
     def render(self):
         return ft.Container(
-            content=self.main_content,
+            content=ft.Column(
+                controls=[
+                    ft.ListView(
+                        controls=[
+                            self.header_section,
+                            self.title_section,
+                            self.description_section,
+                            self.form_section,
+                            self.register_button_section,
+                        ],
+                        expand=True,
+                    ),
+                    self.or_continue_with_section,
+                    self.social_buttons_section,
+                    self.footer_section,
+                ]
+            ),
             expand=True,
             image_src="assets/images/registration_bg.png",
             image_fit=ft.ImageFit.COVER,

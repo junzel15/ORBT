@@ -56,7 +56,7 @@ class BookingPage:
                                 text_align=ft.TextAlign.CENTER,
                             ),
                             ft.Text(
-                                self.user_name + "!",
+                                f"{self.user_name}" if self.user_name else "",
                                 size=16 if not is_mobile else 14,
                                 style="Instrument Sans",
                                 color="#6D28D9",
@@ -138,7 +138,7 @@ class BookingPage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/dining/coffee"),
+                        on_click=lambda e: self.go_to("/dining/coffee", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -167,7 +167,7 @@ class BookingPage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/bars"),
+                        on_click=lambda e: self.go_to("/bars", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -196,7 +196,7 @@ class BookingPage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/experience"),
+                        on_click=lambda e: self.go_to("/experience", self.page),
                     ),
                 ],
                 spacing=0,

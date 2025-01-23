@@ -1,5 +1,4 @@
 import flet as ft
-from flet import TextStyle, FontWeight
 
 
 class DiningCoffeePage:
@@ -477,6 +476,11 @@ class DiningCoffeePage:
         )
 
         return ft.View(
-            route="/dining",
-            controls=[ft.Stack(controls=[background, main_content], expand=True)],
+            route="/dining/coffee",
+            controls=[
+                ft.Stack(
+                    controls=[background, main_content],
+                    expand=True,
+                )
+            ],
         )

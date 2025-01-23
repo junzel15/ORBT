@@ -22,7 +22,7 @@ class ProfilePage:
                                         icon=ft.Icons.ARROW_BACK,
                                         icon_size=24,
                                         bgcolor="transparent",
-                                        on_click=lambda e: self.go_to("/booking"),
+                                        on_click=lambda e: self.go_to("/booking", page),
                                     ),
                                     ft.Text(
                                         "Profile",
@@ -37,7 +37,9 @@ class ProfilePage:
                                 icon=ft.Icons.MORE_VERT,
                                 icon_size=24,
                                 bgcolor="transparent",
-                                on_click=lambda e: self.go_to("/profile/settings"),
+                                on_click=lambda e: self.go_to(
+                                    "/profile/settings", page
+                                ),
                             ),
                         ],
                         alignment="spaceBetween",
@@ -160,7 +162,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/booking"),
+                            on_click=lambda _: self.go_to("/booking", page),
                         ),
                     ),
                     ft.Container(
@@ -172,7 +174,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings/upcoming"),
+                            on_click=lambda _: self.go_to("/bookings/upcoming", page),
                         ),
                     ),
                     ft.Container(
@@ -184,7 +186,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda e: self.go_to("/messages"),
+                            on_click=lambda e: self.go_to("/messages", page),
                         ),
                     ),
                     ft.Container(
@@ -196,7 +198,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda e: self.go_to("/profile"),
+                            on_click=lambda e: self.go_to("/profile", page),
                         ),
                     ),
                 ],

@@ -26,6 +26,7 @@ class LoginPage:
             content=ft.Text(
                 "Welcome Back",
                 size=24,
+                style="Sora",
                 weight=ft.FontWeight.BOLD,
                 color="black",
             ),
@@ -40,6 +41,7 @@ class LoginPage:
             autofocus=True,
             border_color="gray",
             width=300,
+            text_style=ft.TextStyle(font_family="Instrument Sans", size=14),
         )
         self.password_field = ft.TextField(
             label="Password",
@@ -47,6 +49,7 @@ class LoginPage:
             password=True,
             border_color="gray",
             width=300,
+            text_style=ft.TextStyle(font_family="Instrument Sans", size=14),
         )
 
         self.login_form_section = ft.Container(
@@ -67,6 +70,7 @@ class LoginPage:
                     bgcolor="blue",
                     color="white",
                     padding=ft.padding.symmetric(vertical=12),
+                    text_style=ft.TextStyle(font_family="Instrument Sans", size=16),
                 ),
                 on_click=self.login,
             ),
@@ -77,12 +81,22 @@ class LoginPage:
         self.forgot_password_section = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Text("Forgot your password?", size=12, color="gray"),
+                    ft.Text(
+                        "Forgot your password?",
+                        size=12,
+                        color="gray",
+                        style=ft.TextStyle(
+                            font_family="Instrument Sans",
+                        ),
+                    ),
                     ft.TextButton(
                         "Reset Password",
                         on_click=lambda _: print("Reset Password clicked"),
                         style=ft.ButtonStyle(
                             color="blue",
+                            text_style=ft.TextStyle(
+                                font_family="Instrument Sans", size=12
+                            ),
                         ),
                     ),
                 ],
@@ -98,7 +112,14 @@ class LoginPage:
                         content=ft.Divider(thickness=1, color="gray"),
                         expand=True,
                     ),
-                    ft.Text("Or continue with", size=12, color="gray"),
+                    ft.Text(
+                        "Or continue with",
+                        size=14,
+                        color="gray",
+                        style=ft.TextStyle(
+                            font_family="Instrument Sans",
+                        ),
+                    ),
                     ft.Container(
                         content=ft.Divider(thickness=1, color="gray"),
                         expand=True,
@@ -160,12 +181,24 @@ class LoginPage:
         self.footer_section = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Text("Don't have an account?", size=12, color="gray"),
+                    ft.Text(
+                        "Don't have an account?",
+                        size=14,
+                        color="gray",
+                        style=ft.TextStyle(
+                            font_family="Instrument Sans",
+                        ),
+                    ),
                     ft.TextButton(
                         "Sign up",
-                        on_click=lambda _: self.go_to("/registration"),
+                        on_click=lambda _: self.go_to("/registration", page),
                         style=ft.ButtonStyle(
                             color="blue",
+                            text_style=ft.TextStyle(
+                                font_family="Instrument Sans",
+                                size=14,
+                                weight=ft.FontWeight.BOLD,
+                            ),
                         ),
                     ),
                 ],
@@ -182,9 +215,6 @@ class LoginPage:
                     self.login_form_section,
                     self.login_button_section,
                     self.forgot_password_section,
-                    self.or_continue_with_section,
-                    self.social_buttons_section,
-                    self.footer_section,
                 ],
                 expand=True,
             ),
@@ -211,27 +241,42 @@ class LoginPage:
             self.page.update()
             return
 
-        user = next((u for u in self.users if u["email"] == email), None)
-        if not user:
-            self.page.snack_bar = ft.SnackBar(ft.Text("Invalid email or password."))
-            self.page.snack_bar.open = True
-            self.page.update()
-            return
+        user_name = authenticate_user(email, password)
 
-        if bcrypt.checkpw(password.encode(), user["password"].encode()):
-            self.page.snack_bar = ft.SnackBar(ft.Text(f"Welcome, {user['full_name']}!"))
+        if user_name:
+
+            self.page.snack_bar = ft.SnackBar(ft.Text(f"Welcome, {user_name}!"))
             self.page.snack_bar.open = True
             self.page.update()
 
-            self.go_to("/booking", self.page, user_name=user["full_name"])
+            self.go_to("/booking", self.page, user_name=user_name)
+            self.go_to("/profile", self.page, user_name=user_name)
+
         else:
+
             self.page.snack_bar = ft.SnackBar(ft.Text("Invalid email or password."))
             self.page.snack_bar.open = True
             self.page.update()
 
     def render(self):
         return ft.Container(
-            content=self.main_content,
+            content=ft.Column(
+                controls=[
+                    ft.ListView(
+                        controls=[
+                            self.header_section,
+                            self.title_section,
+                            self.login_form_section,
+                            self.login_button_section,
+                            self.forgot_password_section,
+                        ],
+                        expand=True,
+                    ),
+                    self.or_continue_with_section,
+                    self.social_buttons_section,
+                    self.footer_section,
+                ]
+            ),
             expand=True,
             image_src="assets/images/registration_bg.png",
             image_fit=ft.ImageFit.COVER,
