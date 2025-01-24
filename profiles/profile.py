@@ -2,7 +2,8 @@ import flet as ft
 
 
 class ProfilePage:
-    def __init__(self, page: ft.Page, go_to):
+
+    def __init__(self, page: ft.Page, go_to, user_name=None, address=None, bio=None):
         self.page = page
         self.go_to = go_to
 
@@ -10,6 +11,12 @@ class ProfilePage:
         self.page.padding = 0
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
+
+        self.user_name = user_name
+        self.address = address
+        self.bio = bio
+
+        user_profile_image = None
 
         self.profile_header = ft.Container(
             content=ft.Column(
@@ -22,7 +29,13 @@ class ProfilePage:
                                         icon=ft.Icons.ARROW_BACK,
                                         icon_size=24,
                                         bgcolor="transparent",
-                                        on_click=lambda e: self.go_to("/booking", page),
+                                        on_click=lambda e: self.go_to(
+                                            "/homepage",
+                                            page,
+                                            user_name=self.user_name,
+                                            address=self.address,
+                                            bio=self.bio,
+                                        ),
                                     ),
                                     ft.Text(
                                         "Profile",
@@ -38,7 +51,11 @@ class ProfilePage:
                                 icon_size=24,
                                 bgcolor="transparent",
                                 on_click=lambda e: self.go_to(
-                                    "/profile/settings", page
+                                    "/profile/settings",
+                                    page,
+                                    user_name=self.user_name,
+                                    address=self.address,
+                                    bio=self.bio,
                                 ),
                             ),
                         ],
@@ -46,24 +63,43 @@ class ProfilePage:
                         vertical_alignment="center",
                     ),
                     ft.Container(
-                        content=ft.Image(
-                            src="assets/images/profile.jpg",
-                            width=100,
-                            height=100,
-                            fit=ft.ImageFit.COVER,
-                            border_radius=50,
+                        content=(
+                            ft.Image(
+                                src=(user_profile_image if user_profile_image else ""),
+                                width=100,
+                                height=100,
+                                fit=ft.ImageFit.COVER,
+                                border_radius=50,
+                            )
+                            if user_profile_image
+                            else ft.CircleAvatar(
+                                content=ft.Text(
+                                    "A", size=50, weight="bold", color="white"
+                                ),
+                                bgcolor="gray",
+                                width=100,
+                                height=100,
+                            )
                         ),
                         alignment=ft.alignment.center,
                     ),
                     ft.Row(
                         [
-                            ft.Text("CJ Agpaoa", size=20, weight="bold"),
+                            ft.Text(
+                                f"{self.user_name}" if self.user_name else "",
+                                size=20,
+                                weight="bold",
+                            ),
                         ],
                         alignment="center",
                     ),
                     ft.Container(
                         content=ft.Text(
-                            "123 Main Street, New York, NY",
+                            (
+                                f"{self.address}"
+                                if self.address
+                                else "Address not available"
+                            ),
                             size=14,
                             color="gray",
                             weight="normal",
@@ -93,9 +129,9 @@ class ProfilePage:
                     ft.Row(
                         controls=[
                             ft.Text(
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                                (self.bio if self.bio else "Bio not available"),
                                 size=14,
-                                color="#6C757D",
+                                color="gray",
                                 overflow="ellipsis",
                                 width=240,
                             ),
@@ -162,7 +198,7 @@ class ProfilePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/booking", page),
+                            on_click=lambda _: self.go_to("/homepage", page),
                         ),
                     ),
                     ft.Container(

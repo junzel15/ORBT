@@ -24,7 +24,7 @@ class UpcomingPage:
                                 icon=ft.icons.ARROW_BACK,
                                 icon_size=20,
                                 icon_color="#FFFFFF",
-                                on_click=lambda _: self.go_to("/booking", self.page),
+                                on_click=lambda _: self.go_to("/homepage", self.page),
                             ),
                             ft.Text(
                                 "My Bookings", size=18, color="#FFFFFF", weight="bold"
@@ -226,7 +226,7 @@ class UpcomingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/booking", self.page),
+                            on_click=lambda _: self.go_to("/homepage", self.page),
                         ),
                     ),
                     ft.Container(

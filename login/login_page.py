@@ -1,5 +1,4 @@
 import flet as ft
-import bcrypt
 import json
 from utils import authenticate_user
 
@@ -241,19 +240,23 @@ class LoginPage:
             self.page.update()
             return
 
-        user_name = authenticate_user(email, password)
+        user_data = authenticate_user(email, password)
 
-        if user_name:
-
-            self.page.snack_bar = ft.SnackBar(ft.Text(f"Welcome, {user_name}!"))
+        if user_data:
+            self.page.snack_bar = ft.SnackBar(
+                ft.Text(f"Welcome, {user_data['full_name']}!")
+            )
             self.page.snack_bar.open = True
             self.page.update()
 
-            self.go_to("/booking", self.page, user_name=user_name)
-            self.go_to("/profile", self.page, user_name=user_name)
-
+            self.go_to(
+                "/homepage",
+                self.page,
+                user_name=user_data["full_name"],
+                address=user_data["address"],
+                bio=user_data["bio"],
+            )
         else:
-
             self.page.snack_bar = ft.SnackBar(ft.Text("Invalid email or password."))
             self.page.snack_bar.open = True
             self.page.update()

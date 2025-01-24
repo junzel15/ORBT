@@ -1,12 +1,15 @@
 import flet as ft
 
 
-class BookingPage:
+class HomePage:
 
-    def __init__(self, page: ft.Page, go_to, user_name=None):
+    def __init__(self, page: ft.Page, go_to, user_name=None, address=None, bio=None):
         self.page = page
         self.go_to = go_to
+
         self.user_name = user_name
+        self.address = address
+        self.bio = bio
 
     def render(self):
         is_mobile = self.page.window_width < 600
@@ -262,7 +265,13 @@ class BookingPage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/profile", self.page),
+                            on_click=lambda _: self.go_to(
+                                "/profile",
+                                self.page,
+                                user_name=self.user_name,
+                                address=self.address,
+                                bio=self.bio,
+                            ),
                         ),
                     ),
                 ],

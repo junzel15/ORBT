@@ -114,7 +114,7 @@ class DiningBrunchPage:
                     icon_size=22,
                     on_click=lambda e: (
                         self.page.views.pop(),
-                        self.page.go("/booking"),
+                        self.page.go("/homepage"),
                     ),
                 ),
             ],

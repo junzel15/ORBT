@@ -29,7 +29,7 @@ class DiningCoffeePage:
             self.page.views.pop()
             self.page.go(self.page.views[-1].route)
         else:
-            self.page.go("/booking")
+            self.page.go("/homepage")
         self.page.update()
 
     def render(self):

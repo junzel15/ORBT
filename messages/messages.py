@@ -19,7 +19,7 @@ class MessagesPage(ft.UserControl):
                         icon=ft.icons.ARROW_BACK,
                         icon_size=24,
                         bgcolor="transparent",
-                        on_click=lambda e: self.go_to("/booking", page),
+                        on_click=lambda e: self.go_to("/homepage", page),
                     ),
                     ft.Text(
                         "Messages",
@@ -99,7 +99,7 @@ class MessagesPage(ft.UserControl):
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/booking", page),
+                            on_click=lambda _: self.go_to("/homepage", page),
                         ),
                     ),
                     ft.Container(

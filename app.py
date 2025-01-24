@@ -7,7 +7,7 @@ from registration.components.verification import verification
 from onboarding.onboarding_step1 import OnboardingStep1
 from onboarding.onboarding_step2 import OnboardingStep2
 from onboarding.onboarding_step3 import OnboardingStep3
-from homepage.booking_page import BookingPage
+from homepage.home_page import HomePage
 from homepage.tabs.dining_coffee import DiningCoffeePage
 from homepage.tabs.dining_brunch import DiningBrunchPage
 from homepage.tabs.dining_diner import DiningDinerPage
@@ -32,7 +32,7 @@ ROUTES = {
     "/onboarding1": OnboardingStep1,
     "/onboarding2": OnboardingStep2,
     "/onboarding3": OnboardingStep3,
-    "/booking": BookingPage,
+    "/homepage": HomePage,
     "/dining/coffee": DiningCoffeePage,
     "/dining/brunch": DiningBrunchPage,
     "/dining/diner": DiningDinerPage,
@@ -59,10 +59,16 @@ def go_to(route, page, **kwargs):
 
     print(f"Navigating to {route} with kwargs: {kwargs}")
     view_class = ROUTES[route]
-    if route == "/booking":
-        view_instance = view_class(page, go_to, user_name=user_name)
+
+    if route in ["/homepage", "/profile", "/profile/settings", "/profile/edit"]:
+        address = kwargs.get("address")
+        bio = kwargs.get("bio")
+        view_instance = view_class(
+            page, go_to, user_name=user_name, address=address, bio=bio
+        )
     else:
         view_instance = view_class(page, go_to)
+
     view = view_instance.render() if hasattr(view_instance, "render") else view_instance
 
     if not hasattr(view, "route"):

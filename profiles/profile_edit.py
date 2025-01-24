@@ -2,7 +2,15 @@ import flet as ft
 
 
 class ProfileEditPage(ft.UserControl):
-    def __init__(self, page: ft.Page, go_to: callable = None):
+
+    def __init__(
+        self,
+        page: ft.Page,
+        go_to: callable = None,
+        user_name=None,
+        address=None,
+        bio=None,
+    ):
         super().__init__()
         self.page = page
         self.go_to = go_to
@@ -15,8 +23,12 @@ class ProfileEditPage(ft.UserControl):
         self.main_content = None
         self.build_ui()
 
+        self.user_name = user_name
+        self.address = address
+        self.bio = bio
+
     def build_ui(self):
-        # Avatar section
+
         self.avatar_section = ft.Container(
             content=ft.Stack(
                 controls=[
@@ -43,7 +55,6 @@ class ProfileEditPage(ft.UserControl):
             alignment=ft.alignment.center,
         )
 
-        # Input field component
         def input_field(icon, label, value="", password=False):
             return ft.Container(
                 content=ft.Row(
@@ -66,7 +77,6 @@ class ProfileEditPage(ft.UserControl):
                 margin=ft.margin.symmetric(vertical=5),
             )
 
-        # Dropdown field component
         def dropdown_field(icon, label, options, value=""):
             return ft.Container(
                 content=ft.Row(
@@ -88,7 +98,6 @@ class ProfileEditPage(ft.UserControl):
                 margin=ft.margin.symmetric(vertical=5),
             )
 
-        # Bio field component
         self.bio_field = ft.Container(
             content=ft.Column(
                 [
@@ -108,7 +117,6 @@ class ProfileEditPage(ft.UserControl):
             margin=ft.margin.symmetric(vertical=5),
         )
 
-        # Interests section
         self.interests_section = ft.Container(
             content=ft.Column(
                 [
@@ -155,7 +163,6 @@ class ProfileEditPage(ft.UserControl):
             margin=ft.margin.symmetric(vertical=5),
         )
 
-        # Save button
         self.save_button = ft.Container(
             content=ft.ElevatedButton(
                 text="Save changes",
@@ -171,7 +178,6 @@ class ProfileEditPage(ft.UserControl):
             margin=ft.margin.symmetric(vertical=10),
         )
 
-        # Main content collection
         self.main_content = [
             self.avatar_section,
             input_field(ft.icons.PERSON, "Full Name", "New Name"),
@@ -196,7 +202,11 @@ class ProfileEditPage(ft.UserControl):
                                     icon=ft.icons.ARROW_BACK,
                                     icon_size=24,
                                     on_click=lambda e: self.go_to(
-                                        "/profile/settings", self.page
+                                        "/profile/settings",
+                                        self.page,
+                                        user_name=self.user_name,
+                                        address=self.address,
+                                        bio=self.bio,
                                     ),
                                 ),
                                 ft.Text("Edit Profile", size=20, weight="bold"),

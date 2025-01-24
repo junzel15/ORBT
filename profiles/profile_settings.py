@@ -2,7 +2,8 @@ import flet as ft
 
 
 class ProfileSettingsPage(ft.UserControl):
-    def __init__(self, page: ft.Page, go_to):
+
+    def __init__(self, page: ft.Page, go_to, user_name=None, address=None, bio=None):
         self.page = page
         self.go_to = go_to
 
@@ -13,6 +14,10 @@ class ProfileSettingsPage(ft.UserControl):
 
         self.main_content = None
         self.build_ui()
+
+        self.user_name = user_name
+        self.address = address
+        self.bio = bio
 
     def build_ui(self):
         def create_list_item(icon_name, text, trailing=None, on_click=None):
@@ -47,14 +52,19 @@ class ProfileSettingsPage(ft.UserControl):
                 on_click=on_click,
             )
 
-        # Header section for settings page
         self.header_section = ft.Container(
             content=ft.Row(
                 [
                     ft.IconButton(
                         icon=ft.icons.ARROW_BACK,
                         icon_size=24,
-                        on_click=lambda e: self.go_to("/profile", self.page),
+                        on_click=lambda e: self.go_to(
+                            "/profile",
+                            self.page,
+                            user_name=self.user_name,
+                            address=self.address,
+                            bio=self.bio,
+                        ),
                     ),
                     ft.Text("Settings", size=20, weight="bold", color="#000000"),
                 ],
@@ -66,14 +76,19 @@ class ProfileSettingsPage(ft.UserControl):
             bgcolor="#FFFFFF",
         )
 
-        # List items for settings page
         self.items_section = ft.Container(
             content=ft.ListView(
                 controls=[
                     create_list_item(
                         ft.icons.EDIT,
                         "Edit Profile",
-                        on_click=lambda e: self.go_to("/profile/edit", self.page),
+                        on_click=lambda e: self.go_to(
+                            "/profile/edit",
+                            self.page,
+                            user_name=self.user_name,
+                            address=self.address,
+                            bio=self.bio,
+                        ),
                     ),
                     create_list_item(ft.icons.BLOCK, "Blocked"),
                     create_list_item(
@@ -98,7 +113,6 @@ class ProfileSettingsPage(ft.UserControl):
             expand=True,
         )
 
-        # Logout section
         self.logout_item = ft.Container(
             content=ft.Row(
                 [
@@ -112,7 +126,6 @@ class ProfileSettingsPage(ft.UserControl):
             ink=True,
         )
 
-        # Combine header, items, and logout sections into main_content
         self.main_content = ft.Column(
             controls=[
                 self.header_section,
