@@ -1,4 +1,5 @@
 import flet as ft
+import json
 
 
 class ProfileEditPage(ft.UserControl):
@@ -20,12 +21,12 @@ class ProfileEditPage(ft.UserControl):
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
 
-        self.main_content = None
-        self.build_ui()
-
         self.user_name = user_name
         self.address = address
         self.bio = bio
+
+        self.main_content = None
+        self.build_ui()
 
     def build_ui(self):
 
@@ -99,19 +100,14 @@ class ProfileEditPage(ft.UserControl):
             )
 
         self.bio_field = ft.Container(
-            content=ft.Column(
-                [
-                    ft.Text("My Bio", size=14, weight="bold", color="#000000"),
-                    ft.TextField(
-                        multiline=True,
-                        value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna.",
-                        border=ft.InputBorder.NONE,
-                        expand=True,
-                    ),
-                ],
-                spacing=10,
+            content=ft.TextField(
+                value=self.bio or "",
+                label="Bio",
+                multiline=True,
+                border=ft.InputBorder.NONE,
+                expand=True,
             ),
-            padding=ft.padding.all(10),
+            padding=ft.padding.symmetric(horizontal=10, vertical=10),
             bgcolor="#FFFFFF",
             border_radius=ft.border_radius.all(8),
             margin=ft.margin.symmetric(vertical=5),
@@ -171,6 +167,7 @@ class ProfileEditPage(ft.UserControl):
                     bgcolor="#A2A8BF",
                     padding=ft.padding.symmetric(horizontal=40, vertical=20),
                 ),
+                on_click=self.save_changes,
             ),
             width=300,
             height=60,
@@ -180,7 +177,7 @@ class ProfileEditPage(ft.UserControl):
 
         self.main_content = [
             self.avatar_section,
-            input_field(ft.icons.PERSON, "Full Name", "New Name"),
+            input_field(ft.icons.PERSON, "Full Name", self.user_name or "New Name"),
             input_field(ft.icons.EMAIL, "Email", "newemail@example.com"),
             input_field(ft.icons.LOCK, "Password", "newpassword", password=True),
             input_field(ft.icons.PHONE, "Phone Number", "+63 9123456789"),
@@ -190,6 +187,47 @@ class ProfileEditPage(ft.UserControl):
             self.interests_section,
             self.save_button,
         ]
+
+    def save_changes(self, e):
+        self.user_name = self.main_content[1].content.controls[1].value
+        self.bio = self.bio_field.content.value
+
+        try:
+            with open("users.json", "r") as f:
+                users_data = json.load(f)
+
+            for user in users_data:
+                if user["email"] == "junz@gmail.com":
+                    user["full_name"] = self.user_name
+                    user["bio"] = self.bio
+                    break
+
+            with open("users.json", "w") as f:
+                json.dump(users_data, f, indent=4)
+
+            snack_bar = ft.SnackBar(
+                content=ft.Text("Changes saved successfully!", color="white"),
+                bgcolor="green",
+            )
+            self.page.show_snack_bar(snack_bar)
+
+            self.go_to(
+                "/profile/edit",
+                self.page,
+                user_name=self.user_name,
+                address=self.address,
+                bio=self.bio,
+            )
+
+        except Exception as e:
+            print(f"Error saving changes: {e}")
+            snack_bar = ft.SnackBar(
+                content=ft.Text(
+                    "Failed to save changes. Please try again.", color="white"
+                ),
+                bgcolor="red",
+            )
+            self.page.show_snack_bar(snack_bar)
 
     def render(self):
         return ft.Container(
