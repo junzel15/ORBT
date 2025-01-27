@@ -2,9 +2,6 @@ import flet as ft
 
 
 def OnboardingStep1(page, go_to):
-    def next_step(e):
-        page.go("/onboarding2")
-
     return ft.View(
         "/onboarding1",
         controls=[
@@ -15,8 +12,8 @@ def OnboardingStep1(page, go_to):
                     controls=[
                         ft.Container(
                             content=ft.Image(
-                                src="assets/images/ORBT Logo - Splash Screen.png",
-                                fit=ft.ImageFit.CONTAIN,
+                                src="images/logo.png",
+                                width=103,
                                 height=30,
                             ),
                             alignment=ft.alignment.top_center,
@@ -24,30 +21,30 @@ def OnboardingStep1(page, go_to):
                         ),
                         ft.Container(
                             content=ft.Image(
-                                src="assets/images/Onboarding 1 Graphics.png",
-                                fit=ft.ImageFit.CONTAIN,
-                                height=300,
+                                src="images/orbit_people.png",
+                                width=302,
+                                height=314,
                             ),
                             alignment=ft.alignment.center,
                             padding=ft.padding.symmetric(vertical=20),
                         ),
                         ft.Container(
-                            content=ft.Container(
-                                content=ft.Text(
-                                    "Discover Your ORBT",
-                                    size=28,
-                                    weight="bold",
-                                    text_align=ft.TextAlign.CENTER,
-                                    color="white",
-                                ),
-                                alignment=ft.alignment.center,
-                                padding=ft.padding.only(bottom=10),
+                            content=ft.Text(
+                                "Discover Your ORBT",
+                                font_family="Sora-SemiBold",
+                                size=28,
+                                weight="bold",
+                                text_align=ft.TextAlign.CENTER,
+                                color="white",
                             ),
+                            alignment=ft.alignment.center,
+                            padding=ft.padding.only(bottom=10),
                         ),
                         ft.Container(
                             content=ft.Text(
                                 "Connect with a curated group of individuals who share your interests for an engaging experience.",
-                                size=16,
+                                font_family="InstrumentSans-Regular",
+                                size=14,
                                 text_align=ft.TextAlign.CENTER,
                                 color="white70",
                             ),
@@ -60,38 +57,44 @@ def OnboardingStep1(page, go_to):
                                     ft.TextButton(
                                         "Skip",
                                         on_click=lambda _: page.go("/onboarding3"),
-                                        style=ft.ButtonStyle(color="white70"),
+                                        style=ft.ButtonStyle(
+                                            text_style=ft.TextStyle(
+                                                font_family="InstrumentSans-Regular",
+                                                size=16,
+                                                color="white70",
+                                            )
+                                        ),
                                     ),
                                     ft.Row(
                                         controls=[
-                                            ft.Container(
-                                                width=8,
-                                                height=8,
-                                                bgcolor="white",
-                                                border_radius=8,
+                                            ft.Image(
+                                                src="images/progress_rectangle.png",
+                                                width=20,
+                                                height=10,
                                             ),
-                                            ft.Container(
-                                                width=8,
-                                                height=8,
-                                                bgcolor="white70",
-                                                border_radius=8,
-                                                margin=ft.margin.symmetric(
-                                                    horizontal=4
-                                                ),
+                                            ft.Image(
+                                                src="images/progress_dot.png",
+                                                width=10,
+                                                height=10,
                                             ),
-                                            ft.Container(
-                                                width=8,
-                                                height=8,
-                                                bgcolor="white70",
-                                                border_radius=8,
+                                            ft.Image(
+                                                src="images/progress_dot.png",
+                                                width=10,
+                                                height=10,
                                             ),
                                         ],
                                         alignment=ft.MainAxisAlignment.CENTER,
                                     ),
                                     ft.TextButton(
                                         "Next",
-                                        on_click=next_step,
-                                        style=ft.ButtonStyle(color="white"),
+                                        on_click=lambda _: page.go("/onboarding2"),
+                                        style=ft.ButtonStyle(
+                                            text_style=ft.TextStyle(
+                                                font_family="InstrumentSans-Regular",
+                                                size=16,
+                                                color="white",
+                                            )
+                                        ),
                                     ),
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,

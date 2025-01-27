@@ -1,5 +1,5 @@
 import flet as ft
-from navigation import go_to
+from utils.navigation import go_to
 
 
 def main(page: ft.Page):

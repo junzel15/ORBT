@@ -3,7 +3,8 @@ import flet as ft
 
 from splashscreens.splash_screen import SplashScreen
 from registration.registration_page import RegistrationPage
-from registration.components.verification import verification
+from registration.components.verification import VerificationPage
+from registration.components.confirmation import ConfirmationPage
 from onboarding.onboarding_step1 import OnboardingStep1
 from onboarding.onboarding_step2 import OnboardingStep2
 from onboarding.onboarding_step3 import OnboardingStep3
@@ -13,22 +14,28 @@ from homepage.tabs.dining_brunch import DiningBrunchPage
 from homepage.tabs.dining_diner import DiningDinerPage
 from homepage.components.bars import BarsPage
 from homepage.components.experience import ExperiencePage
-from profiles.profile import ProfilePage
-from profiles.profile_settings import ProfileSettingsPage
-from profiles.profile_edit import ProfileEditPage
+from profiles.profile_page import ProfilePage
+from profiles.components.profile_settings import ProfileSettingsPage
+from profiles.components.profile_edit import ProfileEditPage
 from messages.messages import MessagesPage
 from bookingpage.upcoming import UpcomingPage
 from bookingpage.completed import CompletedPage
 from bookingpage.cancelled import CancelledPage
 from login.login_page import LoginPage
+from onboarding_quiz.user_setup import UserSetupPage
+from onboarding_quiz.gender import GenderPage
+from onboarding_quiz.birthday import BirthdayPage
+from onboarding_quiz.interests import InterestPage
+from onboarding_quiz.about_me import AboutMePage
+from onboarding_quiz.location import LocationPage
+from onboarding_quiz.notification import NotificationPage
 
 
 ROUTES = {
     "/splash": SplashScreen,
     "/registration": RegistrationPage,
-    "/verification": lambda page, phone_number: verification(
-        "Verification", phone_number
-    ),
+    "/verification": VerificationPage,
+    "/confirmation": ConfirmationPage,
     "/onboarding1": OnboardingStep1,
     "/onboarding2": OnboardingStep2,
     "/onboarding3": OnboardingStep3,
@@ -46,6 +53,13 @@ ROUTES = {
     "/bookings/completed": CompletedPage,
     "/bookings/cancelled": CancelledPage,
     "/login": LoginPage,
+    "/usersetup": UserSetupPage,
+    "/gender": GenderPage,
+    "/birthday": BirthdayPage,
+    "/interest": InterestPage,
+    "/aboutme": AboutMePage,
+    "/location": LocationPage,
+    "/notification": NotificationPage,
 }
 
 
@@ -83,7 +97,7 @@ def go_to(route, page, **kwargs):
 
 def main(page: ft.Page):
     page.on_route_change = lambda _: go_to(page.route, page)
-    go_to("/login", page)
+    go_to("/usersetup", page)
 
 
 ft.app(target=main)

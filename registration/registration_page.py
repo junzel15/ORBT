@@ -1,281 +1,37 @@
 import flet as ft
 import json
-import re
 import bcrypt
+import re
+from registration.components.customtextfield import CustomTextField
+from registration.components.country_code_selector import CountryPhoneCodeSelector
+from registration.components.country_data import load_country_data
 
 
-class RegistrationPage:
+class RegistrationPage(ft.UserControl):
     def __init__(self, page, go_to):
-        self.page = page
         self.go_to = go_to
+        super().__init__()
+        self.page = page
+        self.countries = load_country_data()
 
         self.error_message = ft.Text(visible=False)
-
-        self.header_section = ft.Container(
-            content=ft.Image(
-                src="assets/images/logo_blue.png",
-                fit=ft.ImageFit.CONTAIN,
-                height=50,
-            ),
-            alignment=ft.alignment.top_center,
-            padding=ft.padding.only(top=20),
+        self.full_name_input = CustomTextField(
+            hint_text="Full name", left_icon=ft.Icons.PERSON
         )
-
-        self.full_name_input = ft.TextField(label="Full Name", autofocus=True)
-        self.email_input = ft.TextField(label="Email")
-        self.password_input = ft.TextField(label="Password", password=True)
-
-        self.phone_input = ft.Ref[ft.TextField]()
-
-        self.title_section = ft.Container(
-            content=ft.Text(
-                "Create an Account",
-                size=24,
-                weight=ft.FontWeight.BOLD,
-                color="black",
-                style=ft.TextStyle(
-                    font_family="Sora",
-                ),
-            ),
-            alignment=ft.alignment.top_center,
-            padding=ft.padding.only(top=10),
+        self.email_input = CustomTextField(hint_text="Email", left_icon=ft.Icons.EMAIL)
+        self.password_input = CustomTextField(
+            hint_text="Password",
+            left_icon=ft.Icons.LOCK,
+            right_icon=ft.Icons.VISIBILITY_OFF,
+            is_password=True,
         )
-
-        self.description_section = ft.Container(
-            content=ft.Text(
-                "Fill your information below or register with your social account.",
-                size=14,
-                color="gray",
-                text_align=ft.TextAlign.CENTER,
-                style=ft.TextStyle(
-                    font_family="Instrument Sans",
-                ),
-            ),
-            alignment=ft.alignment.top_center,
-            padding=ft.padding.only(top=5, bottom=20),
-        )
-
-        self.form_section = ft.Container(
-            content=ft.Column(
-                controls=[
-                    self.full_name_input,
-                    self.email_input,
-                    self.password_input,
-                    ft.Row(
-                        controls=[
-                            ft.Dropdown(
-                                width=80,
-                                height=60,
-                                options=[
-                                    ft.dropdown.Option("PH", text="🇵🇭"),
-                                    ft.dropdown.Option("US", text="🇺🇸"),
-                                    ft.dropdown.Option("IN", text="🇮🇳"),
-                                    ft.dropdown.Option("CN", text="🇨🇳"),
-                                    ft.dropdown.Option("JP", text="🇯🇵"),
-                                ],
-                                value="PH",
-                                border_radius=ft.border_radius.all(4),
-                                padding=ft.padding.symmetric(horizontal=8),
-                                on_change=lambda e: self.update_phone_code(
-                                    e.control.value
-                                ),
-                            ),
-                            ft.TextField(
-                                ref=self.phone_input,
-                                hint_text="Phone Number",
-                                text_style=ft.TextStyle(
-                                    color="black",
-                                    font_family="Instrument Sans",
-                                    size=14,
-                                ),
-                                border_radius=ft.border_radius.all(4),
-                                height=60,
-                                expand=True,
-                                keyboard_type=ft.KeyboardType.NUMBER,
-                            ),
-                        ],
-                        spacing=8,
-                        alignment="center",
-                    ),
-                    ft.Checkbox(
-                        label="Agree with Terms & Condition",
-                        width=300,
-                        label_style=ft.TextStyle(
-                            font_family="Instrument Sans",
-                            size=12,
-                        ),
-                    ),
-                ],
-                spacing=15,
-            ),
-            alignment=ft.alignment.top_center,
-            padding=ft.padding.symmetric(horizontal=20),
-        )
-
-        self.register_button_section = ft.ElevatedButton(
-            "Register",
-            on_click=self.register_user,
-            style=ft.ButtonStyle(
-                shape=ft.RoundedRectangleBorder(radius=30),
-                padding=ft.padding.symmetric(vertical=20, horizontal=0),
-                bgcolor="#d1d5db",
-                color="white",
-                elevation=0,
-                text_style=ft.TextStyle(
-                    font_family="Instrument Sans",
-                    size=16,
-                    weight=ft.FontWeight.BOLD,
-                ),
-            ),
-            width=300,
-            height=50,
-        )
-
-        self.verification_message = ft.Text(
-            "Registration successful! Please verify your email.",
-            size=20,
-            color="green",
-            visible=False,
-        )
-
-        self.or_continue_with_section = ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.Container(
-                        content=ft.Divider(thickness=1, color="gray"),
-                        expand=True,
-                    ),
-                    ft.Text(
-                        "Or continue with",
-                        size=14,
-                        color="gray",
-                        style=ft.TextStyle(
-                            font_family="Instrument Sans",
-                        ),
-                    ),
-                    ft.Container(
-                        content=ft.Divider(thickness=1, color="gray"),
-                        expand=True,
-                    ),
-                ],
-                spacing=10,
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            padding=ft.padding.only(top=10, bottom=10),
-        )
-
-        self.social_buttons_section = ft.Row(
-            controls=[
-                ft.ElevatedButton(
-                    content=ft.Row(
-                        controls=[
-                            ft.Image(
-                                src="assets/images/icon_google.png",
-                                width=100,
-                                height=20,
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        spacing=8,
-                    ),
-                    style=ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=8),
-                        bgcolor="white",
-                        color="black",
-                        padding=ft.padding.symmetric(vertical=12, horizontal=16),
-                    ),
-                    on_click=lambda _: print("Google sign-in"),
-                ),
-                ft.ElevatedButton(
-                    content=ft.Row(
-                        controls=[
-                            ft.Image(
-                                src="assets/images/icon_fb.png",
-                                width=100,
-                                height=20,
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        spacing=8,
-                    ),
-                    style=ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=8),
-                        bgcolor="white",
-                        color="black",
-                        padding=ft.padding.symmetric(vertical=12, horizontal=16),
-                    ),
-                    on_click=lambda _: print("Facebook sign-in"),
-                ),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=10,
-        )
-
-        self.footer_section = ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.Text(
-                        "Already have account?",
-                        size=14,
-                        color="gray",
-                        style=ft.TextStyle(
-                            font_family="Instrument Sans",
-                        ),
-                    ),
-                    ft.TextButton(
-                        "Log in",
-                        on_click=lambda _: self.go_to("/login", page),
-                        style=ft.ButtonStyle(
-                            color="blue",
-                            text_style=ft.TextStyle(
-                                font_family="Instrument Sans",
-                                size=14,
-                                weight=ft.FontWeight.BOLD,
-                            ),
-                        ),
-                    ),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            padding=ft.padding.only(top=20),
-        )
-
-        self.main_content = ft.Container(
-            content=ft.ListView(
-                controls=[
-                    self.header_section,
-                    self.title_section,
-                    self.description_section,
-                    self.form_section,
-                    self.register_button_section,
-                ],
-                expand=True,
-            ),
-            alignment=ft.alignment.center,
-            border_radius=15,
-            padding=ft.padding.all(20),
-        )
-
-    def update_phone_code(self, country_code):
-        """Update phone code based on selected country."""
-        phone_codes = {
-            "PH": "+63",
-            "US": "+1",
-            "IN": "+91",
-            "CN": "+86",
-            "JP": "+81",
-        }
-        if country_code in phone_codes:
-            self.phone_input.current.value = phone_codes[country_code]
-            self.page.update()
+        self.country_phone_code_selector = CountryPhoneCodeSelector(self.countries)
 
     def is_valid_email(self, email):
-        """Validate email format."""
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         return re.match(email_regex, email) is not None
 
     def is_email_unique(self, email):
-        """Check if the email is already registered."""
         try:
             with open("users.json", "r") as file:
                 users = json.load(file)
@@ -284,11 +40,9 @@ class RegistrationPage:
             return True
 
     def hash_password(self, password):
-        """Hash the password securely."""
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
     def save_user_to_json(self, user_data):
-        """Save the user data to the users.json file."""
         try:
             with open("users.json", "r") as file:
                 data = json.load(file)
@@ -301,11 +55,10 @@ class RegistrationPage:
             json.dump(data, file, indent=4)
 
     def register_user(self, e):
-
         full_name = self.full_name_input.value.strip()
-        email = self.email_input.value
+        email = self.email_input.value.strip()
         password = self.password_input.value
-        phone_number = self.phone_input.current.value
+        phone_number = self.country_phone_code_selector.phone_code.value
 
         print("Full Name:", full_name)
         print("Email:", email)
@@ -347,26 +100,160 @@ class RegistrationPage:
         self.error_message.visible = True
         self.page.update()
 
-    def render(self):
+    def build(self):
         return ft.Container(
-            content=ft.Column(
+            expand=1,
+            content=ft.Stack(
+                expand=True,
                 controls=[
-                    ft.ListView(
-                        controls=[
-                            self.header_section,
-                            self.title_section,
-                            self.description_section,
-                            self.form_section,
-                            self.register_button_section,
-                        ],
+                    ft.Container(
+                        content=ft.Image(
+                            src="images/registration_bg.png",
+                            width=1000,
+                            fit=ft.ImageFit.COVER,
+                            expand=True,
+                        ),
                         expand=True,
                     ),
-                    self.or_continue_with_section,
-                    self.social_buttons_section,
-                    self.footer_section,
-                ]
+                    ft.Container(
+                        content=ft.Column(
+                            controls=[
+                                ft.Container(height=30),
+                                ft.Container(
+                                    content=ft.Image(
+                                        src="images/logo_blue.png", width=145, height=42
+                                    ),
+                                    alignment=ft.alignment.top_center,
+                                ),
+                                ft.Row(
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                    controls=[
+                                        ft.Text(
+                                            "Create an Account",
+                                            font_family="Sora-SemiBold",
+                                            size=24,
+                                            text_align=ft.TextAlign.CENTER,
+                                        )
+                                    ],
+                                ),
+                                ft.Text(
+                                    "Fill your information below or register with your social account."
+                                ),
+                                ft.Container(height=5),
+                                ft.Container(
+                                    content=ft.Column(
+                                        controls=[
+                                            self.full_name_input,
+                                            self.email_input,
+                                            self.password_input,
+                                            self.country_phone_code_selector,
+                                        ],
+                                        spacing=15,
+                                    ),
+                                ),
+                                self.error_message,
+                                ft.Checkbox(
+                                    label="Agree with Terms & Condition",
+                                    width=300,
+                                    label_style=ft.TextStyle(
+                                        font_family="Instrument Sans",
+                                        size=12,
+                                    ),
+                                ),
+                                ft.Container(
+                                    content=ft.ElevatedButton(
+                                        "Register",
+                                        width=1000,
+                                        height=50,
+                                        style=ft.ButtonStyle(
+                                            shape=ft.RoundedRectangleBorder(radius=10)
+                                        ),
+                                        bgcolor=ft.Colors.BLUE,
+                                        color=ft.Colors.WHITE,
+                                        on_click=self.register_user,
+                                    ),
+                                    padding=ft.Padding(0, 0, 0, 0),
+                                ),
+                                ft.Container(height=10),
+                                ft.Row(
+                                    controls=[
+                                        ft.Divider(),
+                                        ft.Text("Or continue with"),
+                                        ft.Divider(),
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                ),
+                                ft.Container(height=10),
+                                ft.Container(
+                                    height=50,
+                                    bgcolor=ft.Colors.TRANSPARENT,
+                                    content=ft.Row(
+                                        alignment=ft.MainAxisAlignment.SPACE_AROUND,
+                                        controls=[
+                                            ft.ElevatedButton(
+                                                expand=True,
+                                                content=ft.Row(
+                                                    [
+                                                        ft.Image(
+                                                            src="images/icon_google.png",
+                                                            width=24,
+                                                            height=24,
+                                                            fit=ft.ImageFit.COVER,
+                                                        ),
+                                                    ],
+                                                    alignment=ft.MainAxisAlignment.CENTER,
+                                                ),
+                                                height=50,
+                                                style=ft.ButtonStyle(
+                                                    shape=ft.RoundedRectangleBorder(
+                                                        radius=10
+                                                    ),
+                                                ),
+                                            ),
+                                            ft.Container(width=20),
+                                            ft.ElevatedButton(
+                                                expand=True,
+                                                content=ft.Row(
+                                                    [
+                                                        ft.Image(
+                                                            src="images/icon_fb.png",
+                                                            width=18,
+                                                            height=18,
+                                                            fit=ft.ImageFit.COVER,
+                                                        ),
+                                                    ],
+                                                    alignment=ft.MainAxisAlignment.CENTER,
+                                                ),
+                                                height=50,
+                                                style=ft.ButtonStyle(
+                                                    shape=ft.RoundedRectangleBorder(
+                                                        radius=10
+                                                    ),
+                                                ),
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                                ft.Container(height=10),
+                                ft.Row(
+                                    controls=[
+                                        ft.Text("Already have account? "),
+                                        ft.TextButton(
+                                            "Log in", on_click=self.on_login_click
+                                        ),
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                    spacing=0,
+                                ),
+                            ],
+                            spacing=10,
+                        ),
+                        padding=ft.Padding(20, 0, 20, 0),
+                    ),
+                ],
             ),
-            expand=True,
-            image_src="assets/images/registration_bg.png",
-            image_fit=ft.ImageFit.COVER,
         )
+
+    def on_login_click(self, _):
+        print("Login link clicked")
+        self.page.go("/login")

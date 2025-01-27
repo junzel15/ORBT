@@ -39,6 +39,7 @@ def OnboardingStep2(page, go_to):
                                 controls=[
                                     ft.Text(
                                         "Curate Your Experience",
+                                        font_family="Sora-SemiBold",
                                         size=28,
                                         weight="bold",
                                         text_align=ft.TextAlign.CENTER,
@@ -55,7 +56,8 @@ def OnboardingStep2(page, go_to):
                                 controls=[
                                     ft.Text(
                                         "Choose exclusive dinners and events that match your schedule and preferences.",
-                                        size=16,
+                                        font_family="InstrumentSans-Regular",
+                                        size=14,
                                         text_align=ft.TextAlign.CENTER,
                                         color="white70",
                                     ),
@@ -70,40 +72,46 @@ def OnboardingStep2(page, go_to):
                             content=ft.Row(
                                 controls=[
                                     ft.TextButton(
-                                        "Back",
-                                        on_click=previous_step,
-                                        style=ft.ButtonStyle(color="white70"),
+                                        "Skip",
+                                        on_click=lambda _: page.go("/onboarding3"),
+                                        style=ft.ButtonStyle(
+                                            text_style=ft.TextStyle(
+                                                font_family="InstrumentSans-Regular",
+                                                size=16,
+                                                color="white70",
+                                            )
+                                        ),
                                     ),
                                     ft.Row(
                                         controls=[
-                                            ft.Container(
-                                                width=8,
-                                                height=8,
-                                                bgcolor="white70",
-                                                border_radius=8,
+                                            ft.Image(
+                                                src="images/progress_dot.png",
+                                                width=10,
+                                                height=10,
                                             ),
-                                            ft.Container(
-                                                width=8,
-                                                height=8,
-                                                bgcolor="white",
-                                                border_radius=8,
-                                                margin=ft.margin.symmetric(
-                                                    horizontal=4
-                                                ),
+                                            ft.Image(
+                                                src="images/progress_rectangle.png",
+                                                width=20,
+                                                height=10,
                                             ),
-                                            ft.Container(
-                                                width=8,
-                                                height=8,
-                                                bgcolor="white70",
-                                                border_radius=8,
+                                            ft.Image(
+                                                src="images/progress_dot.png",
+                                                width=10,
+                                                height=10,
                                             ),
                                         ],
                                         alignment=ft.MainAxisAlignment.CENTER,
                                     ),
                                     ft.TextButton(
                                         "Next",
-                                        on_click=next_step,
-                                        style=ft.ButtonStyle(color="white"),
+                                        on_click=lambda _: page.go("/onboarding3"),
+                                        style=ft.ButtonStyle(
+                                            text_style=ft.TextStyle(
+                                                font_family="InstrumentSans-Regular",
+                                                size=16,
+                                                color="white",
+                                            )
+                                        ),
                                     ),
                                 ],
                                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
