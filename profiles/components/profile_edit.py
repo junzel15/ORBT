@@ -1,60 +1,23 @@
 import flet as ft
 import json
+from utils.data_provider import get_user_data
 
 
 class ProfileEditPage(ft.UserControl):
-
-    def __init__(
-        self,
-        page: ft.Page,
-        go_to: callable = None,
-        user_name=None,
-        address=None,
-        bio=None,
-    ):
+    def __init__(self, page: ft.Page, go_to: callable = None):
         super().__init__()
         self.page = page
         self.go_to = go_to
-
         self.page.title = "Edit Profile"
         self.page.padding = 0
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
-
-        self.user_name = user_name
-        self.address = address
-        self.bio = bio
-
+        self.user_name = None
+        self.bio = None
         self.main_content = None
         self.build_ui()
 
     def build_ui(self):
-
-        self.avatar_section = ft.Container(
-            content=ft.Stack(
-                controls=[
-                    ft.CircleAvatar(
-                        content=ft.Text("C", size=40, weight="bold", color="white"),
-                        radius=40,
-                        bgcolor="#CCCCCC",
-                    ),
-                    ft.Container(
-                        content=ft.Icon(ft.icons.EDIT, color="white", size=16),
-                        bgcolor="purple",
-                        shape=ft.BoxShape.CIRCLE,
-                        width=24,
-                        height=24,
-                        alignment=ft.alignment.center,
-                        padding=ft.padding.all(4),
-                    ),
-                ],
-                width=80,
-                height=80,
-                alignment=ft.alignment.bottom_right,
-                clip_behavior=ft.ClipBehavior.HARD_EDGE,
-            ),
-            alignment=ft.alignment.center,
-        )
 
         def input_field(icon, label, value="", password=False):
             return ft.Container(
@@ -99,6 +62,29 @@ class ProfileEditPage(ft.UserControl):
                 margin=ft.margin.symmetric(vertical=5),
             )
 
+        self.avatar_section = ft.Container(
+            content=ft.Stack(
+                controls=[
+                    ft.CircleAvatar(
+                        content=ft.Text("C", size=40, weight="bold", color="white"),
+                        radius=40,
+                        bgcolor="#CCCCCC",
+                    ),
+                    ft.Container(
+                        content=ft.Icon(ft.icons.EDIT, color="white", size=16),
+                        bgcolor="purple",
+                        shape=ft.BoxShape.CIRCLE,
+                        width=24,
+                        height=24,
+                        alignment=ft.alignment.center,
+                        padding=ft.padding.all(4),
+                    ),
+                ],
+                alignment=ft.alignment.bottom_right,
+            ),
+            alignment=ft.alignment.center,
+        )
+
         self.bio_field = ft.Container(
             content=ft.TextField(
                 value=self.bio or "",
@@ -127,12 +113,7 @@ class ProfileEditPage(ft.UserControl):
                     ft.Row(
                         controls=[
                             ft.Container(
-                                content=ft.Text(
-                                    interest,
-                                    size=12,
-                                    weight="bold",
-                                    color="white",
-                                ),
+                                content=ft.Text(interest, size=12, color="white"),
                                 bgcolor=color,
                                 padding=ft.padding.symmetric(horizontal=10, vertical=5),
                                 border_radius=ft.border_radius.all(15),
@@ -189,12 +170,11 @@ class ProfileEditPage(ft.UserControl):
         ]
 
     def save_changes(self, e):
-        self.user_name = self.main_content[1].content.controls[1].value
-        self.bio = self.bio_field.content.value
-
         try:
-            with open("users.json", "r") as f:
-                users_data = json.load(f)
+            self.user_name = self.main_content[1].content.controls[1].value
+            self.bio = self.bio_field.content.value
+
+            users_data = get_user_data()
 
             for user in users_data:
                 if user["email"] == "junz@gmail.com":
@@ -205,29 +185,22 @@ class ProfileEditPage(ft.UserControl):
             with open("users.json", "w") as f:
                 json.dump(users_data, f, indent=4)
 
-            snack_bar = ft.SnackBar(
-                content=ft.Text("Changes saved successfully!", color="white"),
-                bgcolor="green",
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    content=ft.Text("Changes saved successfully!", color="white"),
+                    bgcolor="green",
+                )
             )
-            self.page.show_snack_bar(snack_bar)
-
-            self.go_to(
-                "/profile/edit",
-                self.page,
-                user_name=self.user_name,
-                address=self.address,
-                bio=self.bio,
+        except Exception as err:
+            print(f"Error saving changes: {err}")
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    content=ft.Text(
+                        "Failed to save changes. Please try again.", color="white"
+                    ),
+                    bgcolor="red",
+                )
             )
-
-        except Exception as e:
-            print(f"Error saving changes: {e}")
-            snack_bar = ft.SnackBar(
-                content=ft.Text(
-                    "Failed to save changes. Please try again.", color="white"
-                ),
-                bgcolor="red",
-            )
-            self.page.show_snack_bar(snack_bar)
 
     def render(self):
         return ft.Container(
@@ -240,11 +213,7 @@ class ProfileEditPage(ft.UserControl):
                                     icon=ft.icons.ARROW_BACK,
                                     icon_size=24,
                                     on_click=lambda e: self.go_to(
-                                        "/profile/settings",
-                                        self.page,
-                                        user_name=self.user_name,
-                                        address=self.address,
-                                        bio=self.bio,
+                                        "/profile/settings", self.page
                                     ),
                                 ),
                                 ft.Text("Edit Profile", size=20, weight="bold"),
@@ -256,18 +225,13 @@ class ProfileEditPage(ft.UserControl):
                     ),
                     ft.Container(
                         content=ft.ListView(
-                            controls=self.main_content,
-                            spacing=10,
-                            padding=10,
+                            controls=self.main_content, spacing=10, padding=10
                         ),
                         expand=True,
-                        height=600,
                     ),
                 ],
-                alignment=ft.MainAxisAlignment.START,
                 spacing=0,
             ),
             bgcolor="#F8F9FA",
-            padding=ft.padding.symmetric(horizontal=10),
             expand=True,
         )

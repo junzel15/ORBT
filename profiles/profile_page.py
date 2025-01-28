@@ -1,9 +1,10 @@
 import flet as ft
+import json
+from utils.data_provider import get_user_data
 
 
 class ProfilePage:
-
-    def __init__(self, page: ft.Page, go_to, user_name=None, address=None, bio=None):
+    def __init__(self, page: ft.Page, go_to):
         self.page = page
         self.go_to = go_to
 
@@ -12,11 +13,11 @@ class ProfilePage:
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
 
-        self.user_name = user_name
-        self.address = address
-        self.bio = bio
+        all_users = get_user_data()
 
-        user_profile_image = None
+        self.user_data = all_users[0] if all_users else {}
+
+        user_profile_image = self.user_data.get("profile_image", None)
 
         self.profile_header = ft.Container(
             content=ft.Column(
@@ -29,16 +30,12 @@ class ProfilePage:
                                         icon=ft.Icons.ARROW_BACK,
                                         icon_size=24,
                                         bgcolor="transparent",
-                                        on_click=lambda e: self.go_to(
-                                            "/homepage",
-                                            page,
-                                            user_name=self.user_name,
-                                            address=self.address,
-                                            bio=self.bio,
+                                        on_click=lambda _: self.go_to(
+                                            "/homepage", page
                                         ),
                                     ),
                                     ft.Text(
-                                        "Profile",
+                                        value="Profile",
                                         size=18,
                                         weight="bold",
                                     ),
@@ -50,12 +47,8 @@ class ProfilePage:
                                 icon=ft.Icons.MORE_VERT,
                                 icon_size=24,
                                 bgcolor="transparent",
-                                on_click=lambda e: self.go_to(
-                                    "/profile/settings",
-                                    page,
-                                    user_name=self.user_name,
-                                    address=self.address,
-                                    bio=self.bio,
+                                on_click=lambda _: self.go_to(
+                                    "/profile/settings", self.page
                                 ),
                             ),
                         ],
@@ -65,7 +58,7 @@ class ProfilePage:
                     ft.Container(
                         content=(
                             ft.Image(
-                                src=(user_profile_image if user_profile_image else ""),
+                                src=user_profile_image if user_profile_image else "",
                                 width=100,
                                 height=100,
                                 fit=ft.ImageFit.COVER,
@@ -74,7 +67,10 @@ class ProfilePage:
                             if user_profile_image
                             else ft.CircleAvatar(
                                 content=ft.Text(
-                                    "A", size=50, weight="bold", color="white"
+                                    self.user_data.get("full_name", "N/A")[0],
+                                    size=50,
+                                    weight="bold",
+                                    color="white",
                                 ),
                                 bgcolor="gray",
                                 width=100,
@@ -83,26 +79,19 @@ class ProfilePage:
                         ),
                         alignment=ft.alignment.center,
                     ),
-                    ft.Row(
-                        [
-                            ft.Text(
-                                f"{self.user_name}" if self.user_name else "",
-                                size=20,
-                                weight="bold",
-                            ),
-                        ],
-                        alignment="center",
+                    ft.Container(
+                        content=ft.Text(
+                            value=self.user_data.get("full_name", "N/A"),
+                            size=20,
+                            weight="bold",
+                        ),
+                        alignment=ft.alignment.center,
                     ),
                     ft.Container(
                         content=ft.Text(
-                            (
-                                f"{self.address}"
-                                if self.address
-                                else "Address not available"
-                            ),
+                            value=self.user_data.get("address", "N/A"),
                             size=14,
                             color="gray",
-                            weight="normal",
                         ),
                         alignment=ft.alignment.center,
                     ),
@@ -129,7 +118,7 @@ class ProfilePage:
                     ft.Row(
                         controls=[
                             ft.Text(
-                                (self.bio if self.bio else "Bio not available"),
+                                value=self.user_data.get("bio", "N/A"),
                                 size=14,
                                 color="gray",
                                 overflow="ellipsis",
@@ -189,53 +178,37 @@ class ProfilePage:
         self.bottom_nav = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="assets/images/Home.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/homepage", page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Home.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
                         ),
+                        on_click=lambda _: self.go_to("/homepage", self.page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="assets/images/Star.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings/upcoming", page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Star.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
                         ),
+                        on_click=lambda _: self.go_to("/bookings/upcoming", self.page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="assets/images/Message.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda e: self.go_to("/messages", page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Message.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
                         ),
+                        on_click=lambda _: self.go_to("/messages", self.page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="assets/images/Profile.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda e: self.go_to("/profile", page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="assets/images/Profile.png",
+                            width=(24 if not is_mobile else 20),
+                            height=(24 if not is_mobile else 20),
                         ),
+                        on_click=lambda _: self.go_to("/profile", self.page),
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_AROUND,

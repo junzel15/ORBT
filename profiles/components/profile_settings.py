@@ -3,7 +3,11 @@ import flet as ft
 
 class ProfileSettingsPage(ft.UserControl):
 
-    def __init__(self, page: ft.Page, go_to, user_name=None, address=None, bio=None):
+    def __init__(
+        self,
+        page: ft.Page,
+        go_to,
+    ):
         self.page = page
         self.go_to = go_to
 
@@ -14,10 +18,6 @@ class ProfileSettingsPage(ft.UserControl):
 
         self.main_content = None
         self.build_ui()
-
-        self.user_name = user_name
-        self.address = address
-        self.bio = bio
 
     def build_ui(self):
         def create_list_item(icon_name, text, trailing=None, on_click=None):
@@ -61,9 +61,6 @@ class ProfileSettingsPage(ft.UserControl):
                         on_click=lambda e: self.go_to(
                             "/profile",
                             self.page,
-                            user_name=self.user_name,
-                            address=self.address,
-                            bio=self.bio,
                         ),
                     ),
                     ft.Text("Settings", size=20, weight="bold", color="#000000"),
@@ -85,9 +82,6 @@ class ProfileSettingsPage(ft.UserControl):
                         on_click=lambda e: self.go_to(
                             "/profile/edit",
                             self.page,
-                            user_name=self.user_name,
-                            address=self.address,
-                            bio=self.bio,
                         ),
                     ),
                     create_list_item(ft.icons.BLOCK, "Blocked"),

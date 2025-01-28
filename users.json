@@ -1,22 +1,18 @@
 [
     {
-        "full_name": "elvis test changes",
+        "full_name": "ELVIS BOGZ",
         "email": "junz@gmail.com",
         "password": "$2b$12$oYKaKuvcBzSilJ7xF2nELOPplWdeMboTGEaX2O05vnYk1joVT87fi",
         "phone_number": "+639268734822",
         "address": "TEST ADDRESS",
-        "bio": "bio test changes"
+        "bio": "ELVIS TEST"
     },
     {
         "full_name": "mitmit",
         "email": "mitmit@gmail.com",
         "password": "$2b$12$6OtILJAznJZ21TjNLFquLu5YBJYVKx086uHpRu06rmLrHs3/l5x3u",
-        "phone_number": "+9370 123 4567"
-    },
-    {
-        "full_name": "makmak",
-        "email": "mak@gmail.com",
-        "password": "$2b$12$eJTqgg6p6xwgBAzIrUNIr.R39WyLImTiVWFnspW0ZmqdGYU1p8WlO",
-        "phone_number": "+93123456"
+        "phone_number": "+9370 123 4567",
+        "address": "TEST ADDRESS",
+        "bio": "ELVIS TEST ONE"
     }
 ]

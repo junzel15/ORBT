@@ -1,4 +1,5 @@
 import flet as ft
+import json
 
 
 from splashscreens.splash_screen import SplashScreen
@@ -63,25 +64,42 @@ ROUTES = {
 }
 
 
-user_name = None
+def get_user_data():
+    """
+    Reads the user data from the JSON file and returns it as a dictionary.
+    """
+    try:
+        with open("users.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        print("Error: user_data.json not found!")
+        return []
+    except json.JSONDecodeError:
+        print("Error: Failed to decode JSON!")
+        return []
+
+
+user_data = None
 
 
 def go_to(route, page, **kwargs):
-    global user_name
-    if "user_name" in kwargs:
-        user_name = kwargs["user_name"]
+    global user_data
+
+    if not user_data:
+        user_data_list = get_user_data()
+        user_data = user_data_list[0] if user_data_list else {}
 
     print(f"Navigating to {route} with kwargs: {kwargs}")
+
     view_class = ROUTES[route]
 
-    if route in ["/homepage", "/profile", "/profile/settings", "/profile/edit"]:
-        address = kwargs.get("address")
-        bio = kwargs.get("bio")
-        view_instance = view_class(
-            page, go_to, user_name=user_name, address=address, bio=bio
-        )
-    else:
-        view_instance = view_class(page, go_to)
+    if hasattr(view_class, "__init__"):
+
+        init_params = view_class.__init__.__code__.co_varnames
+        if "user" in init_params:
+            kwargs["user"] = user_data
+
+    view_instance = view_class(page, go_to, **kwargs)
 
     view = view_instance.render() if hasattr(view_instance, "render") else view_instance
 
@@ -96,8 +114,10 @@ def go_to(route, page, **kwargs):
 
 
 def main(page: ft.Page):
+
     page.on_route_change = lambda _: go_to(page.route, page)
-    go_to("/usersetup", page)
+
+    go_to("/login", page)
 
 
 ft.app(target=main)

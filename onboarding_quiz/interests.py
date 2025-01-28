@@ -42,7 +42,7 @@ class InterestPage(ft.UserControl):
                                     width=197,
                                     color="#A87AFE",
                                     bgcolor="#E4DFDF",
-                                    value=3 / 5,
+                                    value=5 / 5,
                                 ),
                             ],
                         ),

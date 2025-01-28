@@ -1,6 +1,8 @@
 import flet as ft
 import json
 from utils.authenticate import authenticate_user
+from utils.account_provider import get_user_data
+from global_state import user_data
 
 
 class LoginPage:
@@ -200,31 +202,29 @@ class LoginPage:
         password = self.password_field.value.strip()
 
         if not email or not password:
-            self.page.snack_bar = ft.SnackBar(ft.Text("Please fill in all fields."))
-            self.page.snack_bar.open = True
-            self.page.update()
+            self.show_snackbar_message("Please fill in all fields.")
             return
 
         user_data = authenticate_user(email, password)
+        print(f"Authenticated user data: {user_data}")
+        if user_data is None:
+            self.show_snackbar_message("Authentication failed.")
+            return
 
-        if user_data:
-            self.page.snack_bar = ft.SnackBar(
-                ft.Text(f"Welcome, {user_data['full_name']}!")
-            )
-            self.page.snack_bar.open = True
-            self.page.update()
+        user_data = get_user_data(email)
+        print(f"User data from get_user_data: {user_data}")
+        if user_data is None:
+            self.show_snackbar_message("Error: User data not found.")
+            return
 
-            self.go_to(
-                "/homepage",
-                self.page,
-                user_name=user_data["full_name"],
-                address=user_data["address"],
-                bio=user_data["bio"],
-            )
-        else:
-            self.page.snack_bar = ft.SnackBar(ft.Text("Invalid email or password."))
-            self.page.snack_bar.open = True
-            self.page.update()
+        self.show_snackbar_message(f"Welcome, {user_data['full_name']}!")
+
+        self.go_to("/homepage", self.page, user=user_data)
+
+    def show_snackbar_message(self, message):
+        """Display a snackbar with the provided message."""
+        self.page.add(ft.SnackBar(content=ft.Text(message)))
+        self.page.update()
 
     def render(self):
         return ft.Container(

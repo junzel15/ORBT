@@ -12,5 +12,11 @@
         "email": "mitmit@gmail.com",
         "password": "$2b$12$6OtILJAznJZ21TjNLFquLu5YBJYVKx086uHpRu06rmLrHs3/l5x3u",
         "phone_number": "+9370 123 4567"
+    },
+    {
+        "full_name": "makmak",
+        "email": "mak@gmail.com",
+        "password": "$2b$12$eJTqgg6p6xwgBAzIrUNIr.R39WyLImTiVWFnspW0ZmqdGYU1p8WlO",
+        "phone_number": "+93123456"
     }
 ]

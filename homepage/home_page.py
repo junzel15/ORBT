@@ -1,15 +1,21 @@
 import flet as ft
+from global_state import user_data
 
 
 class HomePage:
 
-    def __init__(self, page: ft.Page, go_to, user_name=None, address=None, bio=None):
+    def __init__(self, page: ft.Page, go_to, user):
         self.page = page
         self.go_to = go_to
 
-        self.user_name = user_name
-        self.address = address
-        self.bio = bio
+        self.user = user
+
+        if self.user:
+            print(f"Welcome, {self.user['full_name']}!")
+        else:
+            self.user = None
+
+        self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
 
     def render(self):
         is_mobile = self.page.window_width < 600
@@ -59,7 +65,7 @@ class HomePage:
                                 text_align=ft.TextAlign.CENTER,
                             ),
                             ft.Text(
-                                f"{self.user_name}" if self.user_name else "",
+                                self.user_name,  # Use the fixed user_name
                                 size=16 if not is_mobile else 14,
                                 style="Instrument Sans",
                                 color="#6D28D9",
@@ -268,9 +274,6 @@ class HomePage:
                             on_click=lambda _: self.go_to(
                                 "/profile",
                                 self.page,
-                                user_name=self.user_name,
-                                address=self.address,
-                                bio=self.bio,
                             ),
                         ),
                     ),
@@ -303,10 +306,3 @@ class HomePage:
             expand=True,
             spacing=0,
         )
-
-
-def render(self):
-    if self.user_name:
-        return ft.Column(controls=[ft.Text(f"Hello, {self.user_name}")])
-    else:
-        return ft.Column(controls=[ft.Text("No user logged in")])
