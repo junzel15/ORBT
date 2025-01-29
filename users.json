@@ -1,18 +1,17 @@
 [
     {
-        "full_name": "ELVIS BOGZ",
-        "email": "junz@gmail.com",
-        "password": "$2b$12$oYKaKuvcBzSilJ7xF2nELOPplWdeMboTGEaX2O05vnYk1joVT87fi",
-        "phone_number": "+639268734822",
-        "address": "TEST ADDRESS",
-        "bio": "ELVIS TEST"
-    },
-    {
-        "full_name": "mitmit",
-        "email": "mitmit@gmail.com",
-        "password": "$2b$12$6OtILJAznJZ21TjNLFquLu5YBJYVKx086uHpRu06rmLrHs3/l5x3u",
-        "phone_number": "+9370 123 4567",
-        "address": "TEST ADDRESS",
-        "bio": "ELVIS TEST ONE"
+        "id": 2195,
+        "full_name": "TEST CHANGE",
+        "email": "elvis@gmail.com",
+        "password": "$2b$12$yGoeNelLBRfxEMmsYT6Inu5ANlROGHXiuBaiWISW2iouYMHkk9Wuq",
+        "phone_number": "+93123456",
+        "address": "",
+        "bio": "BIO TEST",
+        "gender": "Female",
+        "birthday": "1997/05/15",
+        "about_me": "im elvis",
+        "interests": [],
+        "otp": "8566",
+        "verified": false
     }
 ]

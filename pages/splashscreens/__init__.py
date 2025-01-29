@@ -1,0 +1,1 @@
+from pages.splashscreens.splash_screen import SplashScreen

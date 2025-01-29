@@ -2,34 +2,34 @@ import flet as ft
 import json
 
 
-from splashscreens.splash_screen import SplashScreen
-from registration.registration_page import RegistrationPage
-from registration.components.verification import VerificationPage
-from registration.components.confirmation import ConfirmationPage
-from onboarding.onboarding_step1 import OnboardingStep1
-from onboarding.onboarding_step2 import OnboardingStep2
-from onboarding.onboarding_step3 import OnboardingStep3
-from homepage.home_page import HomePage
-from homepage.tabs.dining_coffee import DiningCoffeePage
-from homepage.tabs.dining_brunch import DiningBrunchPage
-from homepage.tabs.dining_diner import DiningDinerPage
-from homepage.components.bars import BarsPage
-from homepage.components.experience import ExperiencePage
-from profiles.profile_page import ProfilePage
-from profiles.components.profile_settings import ProfileSettingsPage
-from profiles.components.profile_edit import ProfileEditPage
-from messages.messages import MessagesPage
-from bookingpage.upcoming import UpcomingPage
-from bookingpage.completed import CompletedPage
-from bookingpage.cancelled import CancelledPage
-from login.login_page import LoginPage
-from onboarding_quiz.user_setup import UserSetupPage
-from onboarding_quiz.gender import GenderPage
-from onboarding_quiz.birthday import BirthdayPage
-from onboarding_quiz.interests import InterestPage
-from onboarding_quiz.about_me import AboutMePage
-from onboarding_quiz.location import LocationPage
-from onboarding_quiz.notification import NotificationPage
+from pages.splashscreens.splash_screen import SplashScreen
+from pages.registration.registration_page import RegistrationPage
+from pages.registration.components.verification import VerificationPage
+from pages.registration.components.confirmation import ConfirmationPage
+from pages.onboarding.onboarding_step1 import OnboardingStep1
+from pages.onboarding.onboarding_step2 import OnboardingStep2
+from pages.onboarding.onboarding_step3 import OnboardingStep3
+from pages.homepage.home_page import HomePage
+from pages.homepage.tabs.dining_coffee import DiningCoffeePage
+from pages.homepage.tabs.dining_brunch import DiningBrunchPage
+from pages.homepage.tabs.dining_diner import DiningDinerPage
+from pages.homepage.components.bars import BarsPage
+from pages.homepage.components.experience import ExperiencePage
+from pages.profiles.profile_page import ProfilePage
+from pages.profiles.components.profile_settings import ProfileSettingsPage
+from pages.profiles.components.profile_edit import ProfileEditPage
+from pages.messages.messages import MessagesPage
+from pages.bookingpage.upcoming import UpcomingPage
+from pages.bookingpage.completed import CompletedPage
+from pages.bookingpage.cancelled import CancelledPage
+from pages.login.login_page import LoginPage
+from pages.onboarding_quiz.user_setup import UserSetupPage
+from pages.onboarding_quiz.gender import GenderPage
+from pages.onboarding_quiz.birthday import BirthdayPage
+from pages.onboarding_quiz.interests import InterestPage
+from pages.onboarding_quiz.about_me import AboutMePage
+from pages.onboarding_quiz.location import LocationPage
+from pages.onboarding_quiz.notification import NotificationPage
 
 
 ROUTES = {
@@ -94,10 +94,11 @@ def go_to(route, page, **kwargs):
     view_class = ROUTES[route]
 
     if hasattr(view_class, "__init__"):
-
         init_params = view_class.__init__.__code__.co_varnames
         if "user" in init_params:
             kwargs["user"] = user_data
+        if "user_id" in init_params:
+            kwargs["user_id"] = user_data.get("id")
 
     view_instance = view_class(page, go_to, **kwargs)
 
@@ -117,7 +118,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/login", page)
+    go_to("/splash", page)
 
 
 ft.app(target=main)
