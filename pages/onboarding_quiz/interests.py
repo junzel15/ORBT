@@ -35,9 +35,7 @@ class InterestPage(ft.UserControl):
                                         width=22,
                                         height=22,
                                     ),
-                                    on_click=lambda e: self.go_to(
-                                        "/aboutme", self.page
-                                    ),
+                                    on_click=lambda e: self.go_to("/bio", self.page),
                                 ),
                                 ft.Container(width=20),
                                 ft.ProgressBar(

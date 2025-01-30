@@ -3,19 +3,19 @@ import json
 import os
 
 
-class AboutMePage(ft.UserControl):
+class BioPage(ft.UserControl):
     def __init__(self, page, go_to):
         super().__init__()
         self.go_to = go_to
         self.page = page
-        self.about_me_input = None
+        self.bio_input = None
 
-    def save_about_me(self):
-        if not self.about_me_input:
+    def save_bio(self):
+        if not self.bio_input:
             return
 
-        about_me_text = self.about_me_input.value.strip()
-        if not about_me_text:
+        bio_text = self.bio_input.value.strip()
+        if not bio_text:
             return
 
         if os.path.exists("users.json"):
@@ -30,16 +30,16 @@ class AboutMePage(ft.UserControl):
             data = []
 
         if data:
-            data[0]["about_me"] = about_me_text
+            data[0]["bio"] = bio_text
 
         with open("users.json", "w") as file:
             json.dump(data, file, indent=4)
 
-        print("About Me saved:", about_me_text)
+        print("Bio saved:", bio_text)
 
     def build(self):
 
-        self.about_me_input = ft.TextField(
+        self.bio_input = ft.TextField(
             height=178,
             hint_text="Something about you ...",
             border=ft.InputBorder.NONE,
@@ -70,7 +70,7 @@ class AboutMePage(ft.UserControl):
                                                     fit=ft.ImageFit.FILL,
                                                 ),
                                                 on_click=lambda e: self.go_to(
-                                                    "/birthday", self.page
+                                                    "/birthdate", self.page
                                                 ),
                                             ),
                                             ft.Container(width=20),
@@ -99,7 +99,7 @@ class AboutMePage(ft.UserControl):
                                                     height=450,
                                                     controls=[
                                                         ft.Text(
-                                                            "About Me",
+                                                            "Bio",
                                                             font_family="Sora-SemiBold",
                                                             size=20,
                                                             text_align=ft.TextAlign.CENTER,
@@ -112,7 +112,7 @@ class AboutMePage(ft.UserControl):
                                                             height=218,
                                                             content=ft.Column(
                                                                 controls=[
-                                                                    self.about_me_input
+                                                                    self.bio_input
                                                                 ],
                                                             ),
                                                             border_radius=10,
@@ -193,5 +193,5 @@ class AboutMePage(ft.UserControl):
         )
 
     def on_next_click(self):
-        self.save_about_me()
+        self.save_bio()
         self.go_to("/interest", self.page)

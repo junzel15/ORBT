@@ -42,7 +42,7 @@ class GenderPage(ft.UserControl):
         except Exception as e:
             print(f"Error saving gender: {e}")
 
-        self.go_to("/birthday", self.page)
+        self.go_to("/birthdate", self.page)
 
     def build(self):
         print("build(self)")
@@ -190,9 +190,7 @@ class GenderPage(ft.UserControl):
                                         ),
                                         color=ft.Colors.WHITE,
                                     ),
-                                    on_click=lambda e: self.go_to(
-                                        "/aboutme", self.page
-                                    ),
+                                    on_click=lambda e: self.go_to("/bio", self.page),
                                 ),
                             ]
                         ),

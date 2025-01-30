@@ -23,11 +23,15 @@ from pages.bookingpage.upcoming import UpcomingPage
 from pages.bookingpage.completed import CompletedPage
 from pages.bookingpage.cancelled import CancelledPage
 from pages.login.login_page import LoginPage
+from pages.login.components.forgot_password import ForgotPassword
+from pages.login.components.otp import OtpPage
+from pages.login.components.reset_password import ResetPasswordPage
+from pages.login.components.confirmation_password import ConfirmationPassword
 from pages.onboarding_quiz.user_setup import UserSetupPage
 from pages.onboarding_quiz.gender import GenderPage
-from pages.onboarding_quiz.birthday import BirthdayPage
+from pages.onboarding_quiz.birthdate import BirthdatePage
 from pages.onboarding_quiz.interests import InterestPage
-from pages.onboarding_quiz.about_me import AboutMePage
+from pages.onboarding_quiz.bio import BioPage
 from pages.onboarding_quiz.location import LocationPage
 from pages.onboarding_quiz.notification import NotificationPage
 
@@ -54,11 +58,15 @@ ROUTES = {
     "/bookings/completed": CompletedPage,
     "/bookings/cancelled": CancelledPage,
     "/login": LoginPage,
+    "/forgotpassword": ForgotPassword,
+    "/otp": OtpPage,
+    "/resetpassword": ResetPasswordPage,
+    "/confirmationpassword": ConfirmationPassword,
     "/usersetup": UserSetupPage,
     "/gender": GenderPage,
-    "/birthday": BirthdayPage,
+    "/birthdate": BirthdatePage,
     "/interest": InterestPage,
-    "/aboutme": AboutMePage,
+    "/bio": BioPage,
     "/location": LocationPage,
     "/notification": NotificationPage,
 }
@@ -118,7 +126,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/splash", page)
+    go_to("/login", page)
 
 
 ft.app(target=main)

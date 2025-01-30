@@ -5,7 +5,7 @@ import json
 import os
 
 
-class BirthdayPage(ft.UserControl):
+class BirthdatePage(ft.UserControl):
     def __init__(self, page, go_to, user_id):
         super().__init__()
         self.go_to = go_to
@@ -21,10 +21,10 @@ class BirthdayPage(ft.UserControl):
         )
         self.day_grid_container = None
 
-    def save_birthday(self):
-        """Save selected birthday to users.json for the given user_id."""
-        user_birthday = f"{self.year}-{self.month:02}-{self.day:02}"
-        print(f"Attempting to save birthday for user_id: {self.user_id}")
+    def save_birthdate(self):
+        """Save selected birthdate to users.json for the given user_id."""
+        user_birthdate = f"{self.year}-{self.month:02}-{self.day:02}"
+        print(f"Attempting to save birthdate for user_id: {self.user_id}")
 
         data = []
         if os.path.exists("users.json"):
@@ -44,14 +44,14 @@ class BirthdayPage(ft.UserControl):
         user_found = False
         for user in data:
             if str(user.get("id")) == self.user_id:
-                print(f"Updating birthday for user {self.user_id}")
-                user["birthday"] = user_birthday
+                print(f"Updating birthdate for user {self.user_id}")
+                user["birthdate"] = user_birthdate
                 user_found = True
                 break
 
         if not user_found:
             print(f"User with ID {self.user_id} not found. Adding new user entry.")
-            new_user = {"id": self.user_id, "birthday": user_birthday}
+            new_user = {"id": self.user_id, "birthdate": user_birthdate}
             data.append(new_user)
 
         with open("users.json", "w") as file:
@@ -109,7 +109,7 @@ class BirthdayPage(ft.UserControl):
                                                     height=450,
                                                     controls=[
                                                         ft.Text(
-                                                            "When is your birthday?",
+                                                            "When is your birthdate?",
                                                             font_family="Sora-SemiBold",
                                                             size=20,
                                                             text_align=ft.TextAlign.CENTER,
@@ -445,5 +445,5 @@ class BirthdayPage(ft.UserControl):
         self.day_grid_container.update()
 
     def on_next_click(self):
-        self.save_birthday()
-        self.go_to("/aboutme", self.page)
+        self.save_birthdate()
+        self.go_to("/bio", self.page)

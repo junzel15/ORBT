@@ -118,7 +118,6 @@ class ProfileEditPage(ft.UserControl):
             margin=ft.margin.symmetric(vertical=5),
         )
 
-        # Interests section
         self.interests_field = ft.TextField(
             hint_text="Add Interests",
             border=ft.InputBorder.OUTLINE,
@@ -201,8 +200,8 @@ class ProfileEditPage(ft.UserControl):
             self.input_field(
                 ft.icons.CALENDAR_MONTH,
                 "Date of Birth",
-                "birthday",
-                self.user.get("birthday", ""),
+                "birthdate",
+                self.user.get("birthdate", ""),
             ),
             self.bio_field,
             self.interests_field,
@@ -243,25 +242,15 @@ class ProfileEditPage(ft.UserControl):
 
     def save_changes(self, e):
         try:
-            full_name = self.main_content[1].content.controls[1].value
-            email = self.main_content[2].content.controls[1].value
-            password = self.main_content[3].content.controls[1].value
-            phone_number = self.main_content[4].content.controls[1].value
-            gender = self.main_content[5].content.controls[1].value
-            birthday = self.main_content[6].content.controls[1].value
-            bio = self.bio_field.content.value
-
-            interests = self.user.get("interests", [])
-
             updated_user = {
-                "full_name": full_name,
-                "email": email,
-                "password": password,
-                "phone_number": phone_number,
-                "gender": gender,
-                "birthday": birthday,
-                "bio": bio,
-                "interests": interests,
+                "full_name": self.main_content[1].content.controls[1].value,
+                "email": self.main_content[2].content.controls[1].value,
+                "password": self.main_content[3].content.controls[1].value,
+                "phone_number": self.main_content[4].content.controls[1].value,
+                "gender": self.main_content[5].content.controls[1].value,
+                "birthdate": self.main_content[6].content.controls[1].value,
+                "bio": self.bio_field.content.value,
+                "interests": self.user.get("interests", []),
             }
 
             with open("users.json", "r") as file:
@@ -269,7 +258,10 @@ class ProfileEditPage(ft.UserControl):
 
             for user in users:
                 if user["email"] == self.user["email"]:
-                    user.update(updated_user)
+                    for key, value in updated_user.items():
+
+                        if user.get(key) != value:
+                            user[key] = value
                     break
 
             with open("users.json", "w") as file:

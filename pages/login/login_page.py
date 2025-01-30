@@ -82,7 +82,7 @@ class LoginPage:
                 ft.Text("Forgot your Password"),
                 ft.TextButton(
                     "Reset password",
-                    on_click=lambda _: print("Reset Password clicked"),
+                    on_click=lambda _: self.go_to("/forgotpassword", self.page),
                     style=ft.ButtonStyle(
                         text_style=ft.TextStyle(
                             color="blue",
