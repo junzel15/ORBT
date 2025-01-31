@@ -13,8 +13,8 @@ from pages.homepage.home_page import HomePage
 from pages.homepage.tabs.dining_coffee import DiningCoffeePage
 from pages.homepage.tabs.dining_brunch import DiningBrunchPage
 from pages.homepage.tabs.dining_diner import DiningDinerPage
-from pages.homepage.components.bars import BarsPage
-from pages.homepage.components.experience import ExperiencePage
+from pages.homepage.bars import BarsPage
+from pages.homepage.experience import ExperiencePage
 from pages.profiles.profile_page import ProfilePage
 from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
@@ -45,18 +45,18 @@ ROUTES = {
     "/onboarding2": OnboardingStep2,
     "/onboarding3": OnboardingStep3,
     "/homepage": HomePage,
-    "/dining/coffee": DiningCoffeePage,
-    "/dining/brunch": DiningBrunchPage,
-    "/dining/diner": DiningDinerPage,
+    "/coffee": DiningCoffeePage,
+    "/brunch": DiningBrunchPage,
+    "/diner": DiningDinerPage,
     "/bars": BarsPage,
     "/experience": ExperiencePage,
     "/profile": ProfilePage,
     "/profile/settings": ProfileSettingsPage,
     "/profile/edit": ProfileEditPage,
     "/messages": MessagesPage,
-    "/bookings/upcoming": UpcomingPage,
-    "/bookings/completed": CompletedPage,
-    "/bookings/cancelled": CancelledPage,
+    "/upcoming": UpcomingPage,
+    "/completed": CompletedPage,
+    "/cancelled": CancelledPage,
     "/login": LoginPage,
     "/forgotpassword": ForgotPassword,
     "/otp": OtpPage,
@@ -126,7 +126,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/login", page)
+    go_to("/profile", page)
 
 
 ft.app(target=main)

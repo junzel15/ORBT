@@ -1,1 +1,31 @@
-[{"id": 2195, "full_name": "ELVIS BOGSANGIT", "email": "elvis@gmail.com", "password": "$2b$12$wdBoORpjxOefI60HNRabauy36REDgR0kJqe3NbPMvbx/v8OZEYmjq", "phone_number": "+93123456", "address": "PAGADIAN CITY", "gender": "male", "birthdate": "1997-05-15", "bio": "Elvis H. Bogsangit Jr. is a passionate web & mobile developer based in Pagadian City, Zamboanga Del Sur, Philippines.", "interests": ["Concerts", "Coffee", "Sports", "Travels", "Art", "Plants", "Cooking", "Films", "Food"], "otp": {"registration": "8566", "reset_password": "5961"}, "verified": false}]
+[
+    {
+        "id": 2195,
+        "full_name": "ELVIS BOGSANGIT JR",
+        "email": "elvis@gmail.com",
+        "password": "$2b$12$wdBoORpjxOefI60HNRabauy36REDgR0kJqe3NbPMvbx/v8OZEYmjq",
+        "phone_number": "+93123456",
+        "address": "PAGADIAN CITY",
+        "gender": "Male",
+        "birthdate": "1997-05-15",
+        "bio": "Elvis H. Bogsangit. is a passionate web & mobile developer based in Pagadian City, Zamboanga Del Sur, Philippines.",
+        "interests": [
+            "Concerts",
+            "Coffee",
+            "Sports",
+            "Travels",
+            "Art",
+            "Plants",
+            "Cooking",
+            "Films",
+            "Food"
+        ],
+        "otp": {
+            "registration": "8566",
+            "reset_password": "5961"
+        },
+        "verified": false,
+        "profile_image": "C:\\Users\\Elvis\\Desktop\\profile.jpg",
+        "select_a_date": "January 01, 2025"
+    }
+]

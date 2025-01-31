@@ -31,6 +31,7 @@ class ProfilePage:
         self.user = self.load_user_data()
         self.user_name = self.user.get("full_name", "Guest")
         self.user_bio = self.user.get("bio", "N/A")
+        profile_image = self.user.get("profile_image", None)
         is_mobile = self.page.window_width < 600
 
         profile_header = ft.Container(
@@ -58,25 +59,41 @@ class ProfilePage:
                         vertical_alignment="center",
                     ),
                     ft.Container(
-                        content=ft.CircleAvatar(
-                            content=(
-                                ft.Image(
-                                    src=self.user_profile_image,
-                                    width=100,
-                                    height=100,
-                                    fit=ft.ImageFit.COVER,
-                                )
-                                if self.user_profile_image
-                                else ft.Text(
-                                    self.user_name[0] if self.user_name else "?",
-                                    size=50,
-                                    weight="bold",
-                                    color="white",
-                                )
-                            ),
-                            bgcolor="gray",
-                            width=100,
-                            height=100,
+                        content=ft.Stack(
+                            [
+                                # CircleAvatar component with a circular border for the user's image
+                                ft.CircleAvatar(
+                                    radius=50,
+                                    bgcolor="gray",  # Background color if no image
+                                    content=(
+                                        ft.Text(
+                                            (
+                                                self.user_name[0]
+                                                if self.user_name
+                                                else "?"
+                                            ),
+                                            size=50,
+                                            weight="bold",
+                                            color="white",
+                                        )
+                                        if not profile_image
+                                        else ft.Container(
+                                            content=ft.Image(
+                                                src=profile_image,
+                                                width=100,
+                                                height=100,
+                                                fit=ft.ImageFit.COVER,
+                                            ),
+                                            alignment=ft.alignment.center,
+                                            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  # Circular clip
+                                            border_radius=ft.border_radius.all(
+                                                50
+                                            ),  # Circular border
+                                        )
+                                    ),
+                                ),
+                            ],
+                            alignment=ft.alignment.center,
                         ),
                         alignment=ft.alignment.center,
                     ),

@@ -2,12 +2,12 @@ import flet as ft
 from flet import TextStyle, FontWeight
 
 
-class BarsPage:
+class ExperiencePage:
     def __init__(self, page: ft.Page, go_to):
 
         self.page = page
         self.go_to = go_to
-        self.page.title = "Bars"
+        self.page.title = "Experience"
         self.page.theme_mode = None
         self.page.padding = 0
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -20,7 +20,7 @@ class BarsPage:
         self.expect_content_ref = ft.Ref[ft.Container]()
 
     def on_resize(self, e):
-        pass
+        pass  #
 
     def render(self):
         self.page.on_resize = self.on_resize
@@ -85,13 +85,13 @@ class BarsPage:
                     content=ft.Row(
                         controls=[
                             ft.Image(
-                                src="assets/images/Icon Bars.png",
+                                src="assets/images/Icon Experiences.png",
                                 width=70,
                                 height=50,
                                 fit=ft.ImageFit.CONTAIN,
                             ),
                             ft.Text(
-                                "Bars",
+                                "Experiences",
                                 size=22,
                                 color="white",
                                 weight=ft.FontWeight.BOLD,
@@ -108,7 +108,7 @@ class BarsPage:
                     icon_size=22,
                     on_click=lambda e: (
                         self.page.views.pop(),
-                        self.page.go("/booking", self.page),
+                        self.page.go("/homepage", self.page),
                     ),
                 ),
             ],
@@ -241,6 +241,7 @@ class BarsPage:
             on_click=toggle_dropdown,
         )
 
+        # Sections
         def create_section(title, tile_key, contents):
             toggle_ref = (
                 self.before_toggle_ref
@@ -284,6 +285,7 @@ class BarsPage:
                 padding=ft.padding.all(16),
             )
 
+        # BEFORE YOU BOOK SECTION
         before_you_book = create_section(
             "BEFORE YOU BOOK",
             "before",
@@ -426,6 +428,6 @@ class BarsPage:
         )
 
         return ft.View(
-            route="/dining",
+            route="/experience",
             controls=[ft.Stack(controls=[background, main_content], expand=True)],
         )

@@ -152,7 +152,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/dining/coffee", self.page),
+                        on_click=lambda e: self.go_to("/coffee", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(

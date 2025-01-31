@@ -3,7 +3,6 @@ import json
 
 
 class ProfileEditPage(ft.UserControl):
-
     def __init__(self, page: ft.Page, go_to: callable = None, user: dict = None):
         super().__init__()
         self.page = page
@@ -17,6 +16,7 @@ class ProfileEditPage(ft.UserControl):
         self.bio = None
         self.main_content = None
         self.build_ui()
+        self.page.add(self.render())
 
     def input_field(self, icon, label, key, value="", password=False):
         return ft.Container(
@@ -44,14 +44,14 @@ class ProfileEditPage(ft.UserControl):
         )
 
     def update_profile_data(self, key, value):
-        user_data = self.page.session.get("user", {})
+        user_data = self.page.session.get("user")
+        if user_data is None:
+            user_data = {}
 
         if not isinstance(user_data, dict):
             user_data = {}
-
         user_data[key] = value
         self.page.session.set("user", user_data)
-
         self.user[key] = value
         self.page.update()
 
@@ -80,14 +80,34 @@ class ProfileEditPage(ft.UserControl):
         )
 
     def build_ui(self):
+        self.file_picker = ft.FilePicker(on_result=self.upload_image)
+        self.page.overlay.append(self.file_picker)
+
+        profile_image = self.user.get("profile_image", "")
+        if profile_image:
+            avatar_content = ft.Container(
+                content=ft.Image(
+                    src=profile_image,
+                    fit=ft.ImageFit.COVER,
+                    width=80,
+                    height=80,
+                ),
+                border_radius=ft.border_radius.all(40),
+                clip_behavior=ft.ClipBehavior.HARD_EDGE,
+            )
+        else:
+            avatar_content = ft.Text("C", size=40, weight="bold", color="white")
+
+        self.avatar_image = ft.CircleAvatar(
+            radius=40,
+            content=avatar_content,
+            bgcolor="#CCCCCC",
+        )
+
         self.avatar_section = ft.Container(
             content=ft.Stack(
                 controls=[
-                    ft.CircleAvatar(
-                        content=ft.Text("C", size=40, weight="bold", color="white"),
-                        radius=40,
-                        bgcolor="#CCCCCC",
-                    ),
+                    self.avatar_image,
                     ft.Container(
                         content=ft.Icon(ft.icons.EDIT, color="white", size=16),
                         bgcolor="purple",
@@ -96,6 +116,9 @@ class ProfileEditPage(ft.UserControl):
                         height=24,
                         alignment=ft.alignment.center,
                         padding=ft.padding.all(4),
+                        on_click=lambda _: self.file_picker.pick_files(
+                            allow_multiple=False
+                        ),
                     ),
                 ],
                 alignment=ft.alignment.bottom_right,
@@ -119,7 +142,7 @@ class ProfileEditPage(ft.UserControl):
         )
 
         self.interests_field = ft.TextField(
-            hint_text="Add Interests",
+            hint_text="My Interests",
             border=ft.InputBorder.OUTLINE,
             border_color="#D6D6D6",
             bgcolor="#FFFFFF",
@@ -204,16 +227,47 @@ class ProfileEditPage(ft.UserControl):
                 self.user.get("birthdate", ""),
             ),
             self.bio_field,
+            ft.Text("My Interests", size=16, color="black"),
             self.interests_field,
             self.interests_list,
             self.save_button,
         ]
 
+    def upload_image(self, e: ft.FilePickerResultEvent):
+        if e.files:
+            file_path = e.files[0].path
+            self.user["profile_image"] = file_path
+            self.page.session.set("user", self.user)
+
+            self.avatar_image.content = ft.Container(
+                content=ft.Image(
+                    src=file_path,
+                    fit=ft.ImageFit.COVER,
+                    width=80,
+                    height=80,
+                ),
+                border_radius=ft.border_radius.all(40),
+                clip_behavior=ft.ClipBehavior.HARD_EDGE,
+            )
+
+            self.avatar_image.update()
+
+            self.update_profile_data("profile_image", file_path)
+
+            self.page.show_snack_bar(
+                ft.SnackBar(
+                    content=ft.Text("Profile image uploaded!", color="white"),
+                    bgcolor="green",
+                )
+            )
+
     def add_interest(self, e):
         new_interest = self.interests_field.value.strip()
         if new_interest and new_interest not in self.user.get("interests", []):
-            self.user["interests"].append(new_interest)
+            self.user.setdefault("interests", []).append(new_interest)
+            self.interests_field.value = ""
             self.update_interests_list()
+            self.page.update()
 
     def update_interests_list(self):
         self.interests_list.controls = [
@@ -251,6 +305,7 @@ class ProfileEditPage(ft.UserControl):
                 "birthdate": self.main_content[6].content.controls[1].value,
                 "bio": self.bio_field.content.value,
                 "interests": self.user.get("interests", []),
+                "profile_image": self.user.get("profile_image", ""),
             }
 
             with open("users.json", "r") as file:
@@ -259,7 +314,6 @@ class ProfileEditPage(ft.UserControl):
             for user in users:
                 if user["email"] == self.user["email"]:
                     for key, value in updated_user.items():
-
                         if user.get(key) != value:
                             user[key] = value
                     break

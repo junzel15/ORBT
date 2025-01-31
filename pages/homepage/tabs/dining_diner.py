@@ -28,11 +28,16 @@ class DiningDinerPage:
     def change_tab(self, tab_name: str):
         self.current_tab = tab_name
         routes = {
-            "coffee": "/dining/coffee",
-            "brunch": "/dining/brunch",
-            "diner": "/dining/diner",
+            "coffee": "/coffee",
+            "brunch": "/brunch",
+            "diner": "/diner",
         }
-        self.page.go(routes.get(tab_name, "/dining"))
+
+        route = routes.get(tab_name)
+        if route:
+            self.page.go(route)
+        else:
+            print(f"Tab {tab_name} does not exist.")
         self.page.update()
 
     def toggle_tile(self, tile):
@@ -468,6 +473,6 @@ class DiningDinerPage:
         )
 
         return ft.View(
-            route="/dining",
+            route="/diner",
             controls=[ft.Stack(controls=[background, main_content], expand=True)],
         )
