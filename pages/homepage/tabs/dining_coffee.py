@@ -1,10 +1,11 @@
 import flet as ft
-import datetime
+from datetime import datetime
 import json
 
 
 class DiningCoffeePage:
-    def __init__(self, page: ft.Page, go_to):
+
+    def __init__(self, page: ft.Page, go_to, **kwargs):
         self.page = page
         self.go_to = go_to
         self.page.title = "Dining"
@@ -15,18 +16,26 @@ class DiningCoffeePage:
         self.current_tab = "coffee"
         self.expanded_state = {"before": False, "expect": False}
 
-        self.current_date = datetime.datetime.now().strftime("%B %d, %Y")
+        self.selected_date = kwargs.get("selected_date", "Default Date")
+
+        self.dropdown_items = None
+        self.date_dropdown = None
+
         self.selected_date = "Select a date"
+        self.time_text_value = "10:00 AM"
 
         self.before_toggle_ref = ft.Ref[ft.Text]()
         self.expect_toggle_ref = ft.Ref[ft.Text]()
         self.before_content_ref = ft.Ref[ft.Container]()
         self.expect_content_ref = ft.Ref[ft.Container]()
 
-        self.date_text = ft.Text(self.selected_date, size=14, color="FFFFFF")
-        self.time_text = ft.Text(self.selected_date, size=14, color="FFFFFF")
+        self.date_text = ft.Text(self.selected_date, size=14, color="white")
+
+        self.time_text = ft.Text(self.time_text_value, size=14, color="white")
 
         self.page.on_resize = self.on_resize
+
+        self.bookings = self.load_booking_data()
 
     def on_resize(self, e):
         pass
@@ -73,68 +82,64 @@ class DiningCoffeePage:
         content_ref.current.update()
         self.page.update()
 
-    def book_now(self, e):
-        self.go_to("/")
-
     def render(self):
         self.page.on_resize = self.on_resize
 
-    def get_dates_for_month(self):
-        now = datetime.datetime.now()
-        year, month = now.year, now.month
-        num_days = (
-            datetime.date(year, month + 1, 1) - datetime.date(year, month, 1)
-        ).days
-        return [
-            datetime.date(year, month, day).strftime("%B %d, %Y")
-            for day in range(1, num_days + 1)
-        ]
-
-    def select_date(self, e, date):
-        self.selected_date = date
-        self.date_text.value = date
-
-        self.date_dropdown.content.controls[0].value = date
-        self.date_dropdown.update()
-
-        self.dropdown_items.visible = False
-        self.dropdown_items.update()
-
+    def load_booking_data(self):
+        """Load booking data from JSON."""
         try:
-            with open("users.json", "r") as file:
-                users = json.load(file)
+            with open("booking.json", "r") as file:
+                return json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
 
-            if users:
-                users[0]["select_a_date"] = date
+    def select_date(self, e, date_str):
+        """Update selected date & time from JSON data."""
+        try:
 
-            with open("users.json", "w") as file:
-                json.dump(users, file, indent=4)
+            formatted_date = datetime.strptime(date_str, "%A, %B %d").strftime(
+                "%A, %B %d"
+            )
 
-        except Exception as error:
-            print(f"Error updating JSON: {error}")
+            matching_bookings = [
+                b for b in self.bookings if b["select_a_date"] == formatted_date
+            ]
+
+            if matching_bookings:
+
+                self.selected_date = formatted_date
+                self.selected_time = matching_bookings[0]["time"]
+
+                self.date_text.value = self.selected_date
+                self.time_text.value = self.selected_time
+
+                self.dropdown_items.visible = False
+                self.date_dropdown.content = ft.Row(
+                    controls=[
+                        self.date_text,
+                        ft.Icon(name=ft.icons.ARROW_DROP_DOWN, color="white", size=16),
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                )
+
+                self.date_text.update()
+                self.time_text.update()
+                self.dropdown_items.update()
+                self.page.update()
+            else:
+                print(f"No bookings found for {formatted_date}")
+        except ValueError as ex:
+            print(f"Error parsing date: {date_str} - {ex}")
 
     def toggle_dropdown(self, e):
+        """Toggle the visibility of the date dropdown."""
         self.dropdown_items.visible = not self.dropdown_items.visible
         self.dropdown_items.update()
+        self.page.update()
 
     def render(self):
         self.page.on_resize = self.on_resize
-
-        date_list = self.get_dates_for_month()
-        scrollable_dates = ft.Column(
-            controls=[
-                ft.Container(
-                    content=ft.Text(date, size=14, color="#FFFFFF"),
-                    padding=ft.padding.all(8),
-                    bgcolor=ft.colors.with_opacity(0.1, ft.colors.BLACK),
-                    border_radius=ft.border_radius.all(4),
-                    on_click=lambda e, d=date: self.select_date(e, d),
-                )
-                for date in date_list
-            ],
-            spacing=4,
-            scroll=ft.ScrollMode.AUTO,
-        )
+        date_list = list(set(b["select_a_date"] for b in self.bookings))
 
         header = ft.Row(
             controls=[
@@ -207,48 +212,34 @@ class DiningCoffeePage:
             content=ft.Column(
                 controls=[
                     ft.Container(
-                        content=ft.Column(
-                            controls=[
-                                self.date_text,
-                                ft.Container(
-                                    content=ft.Column(
-                                        controls=scrollable_dates.controls,
-                                        spacing=4,
-                                        scroll=ft.ScrollMode.AUTO,
-                                    ),
-                                    height=200,
-                                    expand=True,
-                                ),
-                            ],
-                            spacing=4,
-                        ),
-                        padding=ft.padding.symmetric(horizontal=12, vertical=8),
-                        bgcolor="#1A1A1A",
-                        border_radius=ft.border_radius.all(8),
-                        width=350,
-                    ),
+                        content=ft.Text(date, size=14, color="#FFFFFF"),
+                        padding=8,
+                        bgcolor=ft.colors.with_opacity(0.1, ft.colors.BLACK),
+                        border_radius=4,
+                        on_click=lambda e, date=date: self.select_date(e, date),
+                    )
+                    for date in date_list
                 ],
-                spacing=8,
+                spacing=4,
             ),
-            padding=ft.padding.only(top=8),
+            padding=8,
+            bgcolor="#1A1A1A",
+            border_radius=8,
+            width=350,
             visible=False,
         )
 
         self.date_dropdown = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Text(self.selected_date, size=14, color="#FFFFFF"),
-                    ft.Icon(name=ft.icons.ARROW_DROP_DOWN, color="#FFFFFF", size=16),
+                    self.date_text,
+                    ft.Icon(name=ft.icons.ARROW_DROP_DOWN, color="white", size=16),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
             ),
-            alignment=ft.alignment.center_left,
-            width=350,
-            padding=ft.padding.symmetric(horizontal=12, vertical=8),
-            bgcolor=ft.colors.with_opacity(0.1, ft.colors.BLACK),
-            border=ft.border.all(color="#FFFFFF", width=1),
-            border_radius=ft.border_radius.all(8),
+            padding=12,
+            border=ft.border.all(color="white", width=1),
+            border_radius=8,
             on_click=self.toggle_dropdown,
         )
 
@@ -420,17 +411,21 @@ class DiningCoffeePage:
         book_now_button = ft.Container(
             content=ft.ElevatedButton(
                 text="Book Now",
-                on_click=self.book_now,
-                bgcolor="#A2A8BF",
-                width=200,
-                height=45,
+                on_click=lambda e: self.go_to("/loadingscreen", self.page),
                 style=ft.ButtonStyle(
+                    bgcolor={
+                        ft.MaterialState.DEFAULT: "#A2A8BF",
+                        ft.MaterialState.HOVERED: ft.colors.BLUE,
+                    },
+                    color="#FFFFFF",
+                    padding=ft.padding.symmetric(horizontal=20, vertical=10),
                     text_style=ft.TextStyle(
                         font_family="Intruments Sans",
                         size=16,
                     ),
-                    color="#FFFFFF",
                 ),
+                width=200,
+                height=45,
             ),
             alignment=ft.alignment.center,
             padding=ft.padding.only(top=16, bottom=32),

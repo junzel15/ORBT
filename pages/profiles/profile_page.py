@@ -61,10 +61,9 @@ class ProfilePage:
                     ft.Container(
                         content=ft.Stack(
                             [
-                                # CircleAvatar component with a circular border for the user's image
                                 ft.CircleAvatar(
                                     radius=50,
-                                    bgcolor="gray",  # Background color if no image
+                                    bgcolor="gray",
                                     content=(
                                         ft.Text(
                                             (
@@ -85,10 +84,8 @@ class ProfilePage:
                                                 fit=ft.ImageFit.COVER,
                                             ),
                                             alignment=ft.alignment.center,
-                                            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  # Circular clip
-                                            border_radius=ft.border_radius.all(
-                                                50
-                                            ),  # Circular border
+                                            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                                            border_radius=ft.border_radius.all(50),
                                         )
                                     ),
                                 ),

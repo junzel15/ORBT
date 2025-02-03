@@ -15,6 +15,8 @@ from pages.homepage.tabs.dining_brunch import DiningBrunchPage
 from pages.homepage.tabs.dining_diner import DiningDinerPage
 from pages.homepage.bars import BarsPage
 from pages.homepage.experience import ExperiencePage
+from pages.homepage.components.loading_screen import LoadingScreenPage
+from pages.homepage.components.booking_confirmation import BookingSuccessfulPage
 from pages.profiles.profile_page import ProfilePage
 from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
@@ -34,6 +36,7 @@ from pages.onboarding_quiz.interests import InterestPage
 from pages.onboarding_quiz.bio import BioPage
 from pages.onboarding_quiz.location import LocationPage
 from pages.onboarding_quiz.notification import NotificationPage
+from pages.bookingdetails.coffee_details import CoffeeDetails
 
 
 ROUTES = {
@@ -69,6 +72,9 @@ ROUTES = {
     "/bio": BioPage,
     "/location": LocationPage,
     "/notification": NotificationPage,
+    "/coffeedetails": CoffeeDetails,
+    "/loadingscreen": LoadingScreenPage,
+    "/bookingsuccessful": BookingSuccessfulPage,
 }
 
 
@@ -126,7 +132,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/profile", page)
+    go_to("/coffee", page)
 
 
 ft.app(target=main)
