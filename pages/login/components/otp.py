@@ -172,7 +172,7 @@ class OtpPage(ft.UserControl):
 
         def on_verify_click(self, _):
 
-            with open("users.json", "r") as file:
+            with open("json/users.json", "r") as file:
                 users = json.load(file)
 
             otp_verified = False

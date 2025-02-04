@@ -1,22 +1,32 @@
 [
     {
-        "full_name": "elvis test changes",
-        "email": "junz@gmail.com",
-        "password": "$2b$12$oYKaKuvcBzSilJ7xF2nELOPplWdeMboTGEaX2O05vnYk1joVT87fi",
-        "phone_number": "+639268734822",
-        "address": "TEST ADDRESS",
-        "bio": "bio test changes"
-    },
-    {
-        "full_name": "mitmit",
-        "email": "mitmit@gmail.com",
-        "password": "$2b$12$6OtILJAznJZ21TjNLFquLu5YBJYVKx086uHpRu06rmLrHs3/l5x3u",
-        "phone_number": "+9370 123 4567"
-    },
-    {
-        "full_name": "makmak",
-        "email": "mak@gmail.com",
-        "password": "$2b$12$eJTqgg6p6xwgBAzIrUNIr.R39WyLImTiVWFnspW0ZmqdGYU1p8WlO",
-        "phone_number": "+93123456"
+        "id": 1,
+        "full_name": "ELVIS BOGSANGIT",
+        "email": "elvis@gmail.com",
+        "password": "$2b$12$PPfKOqnhrDH5djUJPLR3FeGF5n.lWfY8whR8LsUOP8IQ.porQr16C",
+        "phone_number": "+93000000",
+        "address": "PAGADIAN CITY ZDS",
+        "gender": "male",
+        "birthdate": "1990-09-12",
+        "bio": "Elvis H. Bogsangit. is a passionate web & mobile developer based in Pagadian City, Zamboanga Del Sur, PH.",
+        "interests": [
+            "Films",
+            "Travels",
+            "Cooking",
+            "Coffee",
+            "Plants",
+            "Food",
+            "Concerts",
+            "Sports",
+            "Art"
+        ],
+        "otp": {
+            "registration": "8566",
+            "reset_password": "5961"
+        },
+        "verified": false,
+        "profile_image": "",
+        "date": "JANUARY 03, 2025",
+        "time": "10:00 AM"
     }
 ]

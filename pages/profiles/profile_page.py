@@ -1,15 +1,15 @@
 import flet as ft
-import json
+from global_state import get_logged_in_user
 
 
 class ProfilePage:
     def __init__(self, page: ft.Page, go_to, user=None):
         self.page = page
         self.go_to = go_to
-        self.user = user if user is not None else self.load_user_data()
+        self.user = user if user is not None else get_logged_in_user()
 
         self.user_name = self.user.get("full_name", "Guest")
-        self.user_address = self.user.get("address", "N/A")
+        self.user_address = self.user.get("address") or "N/A"
         self.user_bio = self.user.get("bio", "N/A")
         self.user_profile_image = self.user.get("profile_image", None)
 
@@ -18,18 +18,11 @@ class ProfilePage:
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
 
-    @staticmethod
-    def load_user_data():
-        try:
-            with open("users.json", "r") as file:
-                users = json.load(file)
-                return users[0] if users else {}
-        except (FileNotFoundError, json.JSONDecodeError):
-            return {}
-
     def render(self):
-        self.user = self.load_user_data()
+
+        self.user = get_logged_in_user() or {}
         self.user_name = self.user.get("full_name", "Guest")
+        self.user_address = self.user.get("address") or "N/A"
         self.user_bio = self.user.get("bio", "N/A")
         profile_image = self.user.get("profile_image", None)
         is_mobile = self.page.window_width < 600

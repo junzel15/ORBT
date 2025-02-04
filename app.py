@@ -10,20 +10,24 @@ from pages.onboarding.onboarding_step1 import OnboardingStep1
 from pages.onboarding.onboarding_step2 import OnboardingStep2
 from pages.onboarding.onboarding_step3 import OnboardingStep3
 from pages.homepage.home_page import HomePage
-from pages.homepage.tabs.dining_coffee import DiningCoffeePage
-from pages.homepage.tabs.dining_brunch import DiningBrunchPage
-from pages.homepage.tabs.dining_diner import DiningDinerPage
-from pages.homepage.bars import BarsPage
-from pages.homepage.experience import ExperiencePage
-from pages.homepage.components.loading_screen import LoadingScreenPage
-from pages.homepage.components.booking_confirmation import BookingSuccessfulPage
+from pages.bookingpage.dinning.coffee.dining_coffee import DiningCoffeePage
+from pages.bookingpage.dinning.coffee.coffee_confirmation import CoffeeConfirmation
+from pages.bookingpage.dinning.coffee.coffee_loading_screen import CoffeeLoadingScreen
+from pages.bookingpage.dinning.brunch.dining_brunch import DiningBrunchPage
+from pages.bookingpage.dinning.brunch.brunch_confirmation import BrunchConfirmation
+from pages.bookingpage.dinning.brunch.brunch_loading_screen import BrunchLoadingScreen
+from pages.bookingpage.dinning.dinner.dining_diner import DiningDinerPage
+from pages.bookingpage.dinning.dinner.dinner_confirmation import DinnerConfirmation
+from pages.bookingpage.dinning.dinner.dinner_loading_screen import DinnerLoadingScreen
+from pages.bookingpage.bars import BarsPage
+from pages.bookingpage.experience import ExperiencePage
 from pages.profiles.profile_page import ProfilePage
 from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
 from pages.messages.messages import MessagesPage
-from pages.bookingpage.upcoming import UpcomingPage
-from pages.bookingpage.completed import CompletedPage
-from pages.bookingpage.cancelled import CancelledPage
+from pages.mybooking.upcoming import UpcomingPage
+from pages.mybooking.completed import CompletedPage
+from pages.mybooking.cancelled import CancelledPage
 from pages.login.login_page import LoginPage
 from pages.login.components.forgot_password import ForgotPassword
 from pages.login.components.otp import OtpPage
@@ -36,7 +40,9 @@ from pages.onboarding_quiz.interests import InterestPage
 from pages.onboarding_quiz.bio import BioPage
 from pages.onboarding_quiz.location import LocationPage
 from pages.onboarding_quiz.notification import NotificationPage
-from pages.bookingdetails.coffee_details import CoffeeDetails
+from pages.bookingdetails.coffee_booking_details import CoffeeDetails
+from pages.bookingdetails.brunch_booking_details import BrunchDetails
+from pages.bookingdetails.diner_booking_details import DinerDetails
 
 
 ROUTES = {
@@ -49,8 +55,14 @@ ROUTES = {
     "/onboarding3": OnboardingStep3,
     "/homepage": HomePage,
     "/coffee": DiningCoffeePage,
+    "/coffeeconfirm": CoffeeConfirmation,
+    "/coffeeloading": CoffeeLoadingScreen,
     "/brunch": DiningBrunchPage,
+    "/brunchconfirm": BrunchConfirmation,
+    "/brunchloading": BrunchLoadingScreen,
     "/diner": DiningDinerPage,
+    "/dinerconfirm": DinnerConfirmation,
+    "/dinerloading": DinnerLoadingScreen,
     "/bars": BarsPage,
     "/experience": ExperiencePage,
     "/profile": ProfilePage,
@@ -73,8 +85,8 @@ ROUTES = {
     "/location": LocationPage,
     "/notification": NotificationPage,
     "/coffeedetails": CoffeeDetails,
-    "/loadingscreen": LoadingScreenPage,
-    "/bookingsuccessful": BookingSuccessfulPage,
+    "/brunchdetails": BrunchDetails,
+    "/dinerdetails": DinerDetails,
 }
 
 
@@ -83,7 +95,7 @@ def get_user_data():
     Reads the user data from the JSON file and returns it as a dictionary.
     """
     try:
-        with open("users.json", "r") as file:
+        with open("json/users.json", "r") as file:
             return json.load(file)
     except FileNotFoundError:
         print("Error: user_data.json not found!")
@@ -132,7 +144,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/coffee", page)
+    go_to("/login", page)
 
 
 ft.app(target=main)

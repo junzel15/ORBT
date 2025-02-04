@@ -159,7 +159,7 @@ class ForgotPassword(ft.UserControl):
 
     def load_users(self):
         try:
-            with open("users.json", "r") as file:
+            with open("json/users.json", "r") as file:
                 return json.load(file)
         except Exception as e:
             print(f"Error loading users.json: {e}")
@@ -176,7 +176,7 @@ class ForgotPassword(ft.UserControl):
         for user in self.users:
             if user["email"] == email:
                 user["otp"]["reset_password"] = otp
-                with open("users.json", "w") as file:
+                with open("json/users.json", "w") as file:
                     json.dump(self.users, file, indent=4)
                 return True
         return False

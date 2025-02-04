@@ -241,14 +241,12 @@ class InterestPage(ft.UserControl):
             )
 
     def on_next_click(self):
-        """Save selected interests and navigate to the next page."""
         self.save_interests()
         self.go_to("/location", self.page)
 
     def save_interests(self):
-        """Save selected interests to users.json."""
-        if os.path.exists("users.json"):
-            with open("users.json", "r") as file:
+        if os.path.exists("json/users.json"):
+            with open("json/users.json", "r") as file:
                 try:
                     data = json.load(file)
                     if not isinstance(data, list):
@@ -261,7 +259,7 @@ class InterestPage(ft.UserControl):
         if data:
             data[0]["interests"] = list(self.selected_interests)
 
-        with open("users.json", "w") as file:
+        with open("json/users.json", "w") as file:
             json.dump(data, file, indent=4)
 
         print("Interests saved:", self.selected_interests)

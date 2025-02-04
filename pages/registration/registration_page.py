@@ -34,7 +34,7 @@ class RegistrationPage(ft.UserControl):
 
     def is_email_unique(self, email):
         try:
-            with open("users.json", "r") as file:
+            with open("json/users.json", "r") as file:
                 users = json.load(file)
                 return not any(user["email"] == email for user in users)
         except FileNotFoundError:
@@ -45,14 +45,14 @@ class RegistrationPage(ft.UserControl):
 
     def save_user_to_json(self, user_data):
         try:
-            with open("users.json", "r") as file:
+            with open("json/users.json", "r") as file:
                 data = json.load(file)
         except FileNotFoundError:
             data = []
 
         data.append(user_data)
 
-        with open("users.json", "w") as file:
+        with open("json/users.json", "w") as file:
             json.dump(data, file, indent=4)
 
     def generate_otp(self):

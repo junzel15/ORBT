@@ -3,7 +3,7 @@ import bcrypt
 
 
 def authenticate_user(email, password):
-    with open("users.json", "r") as file:
+    with open("json/users.json", "r") as file:
         users = json.load(file)
 
     for user in users:

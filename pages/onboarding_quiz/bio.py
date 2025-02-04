@@ -18,8 +18,8 @@ class BioPage(ft.UserControl):
         if not bio_text:
             return
 
-        if os.path.exists("users.json"):
-            with open("users.json", "r") as file:
+        if os.path.exists("json/users.json"):
+            with open("json/users.json", "r") as file:
                 try:
                     data = json.load(file)
                     if not isinstance(data, list):
@@ -32,7 +32,7 @@ class BioPage(ft.UserControl):
         if data:
             data[0]["bio"] = bio_text
 
-        with open("users.json", "w") as file:
+        with open("json/users.json", "w") as file:
             json.dump(data, file, indent=4)
 
         print("Bio saved:", bio_text)

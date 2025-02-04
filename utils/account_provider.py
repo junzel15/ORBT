@@ -4,7 +4,7 @@ import json
 def get_user_data(email):
     try:
 
-        with open("users.json", "r") as file:
+        with open("json/users.json", "r") as file:
             users = json.load(file)
 
         for user in users:

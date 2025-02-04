@@ -55,7 +55,7 @@ class ResetPasswordPage(ft.UserControl):
 
         hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
 
-        with open("users.json", "r") as file:
+        with open("json/users.json", "r") as file:
             users = json.load(file)
 
         for user in users:
@@ -63,7 +63,7 @@ class ResetPasswordPage(ft.UserControl):
                 user["password"] = hashed_password.decode()
                 break
 
-        with open("users.json", "w") as file:
+        with open("json/users.json", "w") as file:
             json.dump(users, file)
 
         print("Password has been reset successfully!")

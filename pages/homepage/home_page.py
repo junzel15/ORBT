@@ -1,6 +1,5 @@
 import flet as ft
-from global_state import user_data
-import json
+from global_state import get_logged_in_user
 
 
 class HomePage:
@@ -8,20 +7,11 @@ class HomePage:
     def __init__(self, page: ft.Page, go_to, user):
         self.page = page
         self.go_to = go_to
-        self.user = user or self.load_user_data()
+        self.user = get_logged_in_user()
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
 
-    @staticmethod
-    def load_user_data():
-        try:
-            with open("users.json", "r") as file:
-                users = json.load(file)
-                return users[0] if users else {}
-        except (FileNotFoundError, json.JSONDecodeError):
-            return {}
-
     def render(self):
-        self.user = self.load_user_data()
+        self.user = get_logged_in_user()
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
         is_mobile = self.page.window_width < 600
 
@@ -250,9 +240,7 @@ class HomePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to(
-                                "/bookings/upcoming", self.page
-                            ),
+                            on_click=lambda _: self.go_to("/upcoming", self.page),
                         ),
                     ),
                     ft.Container(

@@ -1,4 +1,5 @@
 import flet as ft
+from global_state import get_logged_in_user, update_user_data
 import json
 
 
@@ -12,9 +13,8 @@ class ProfileEditPage(ft.UserControl):
         self.page.padding = 0
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
-        self.user_name = None
-        self.bio = None
-        self.main_content = None
+        self.user = get_logged_in_user() or {}
+
         self.build_ui()
         self.page.add(self.render())
 
@@ -296,6 +296,7 @@ class ProfileEditPage(ft.UserControl):
 
     def save_changes(self, e):
         try:
+
             updated_user = {
                 "full_name": self.main_content[1].content.controls[1].value,
                 "email": self.main_content[2].content.controls[1].value,
@@ -308,7 +309,9 @@ class ProfileEditPage(ft.UserControl):
                 "profile_image": self.user.get("profile_image", ""),
             }
 
-            with open("users.json", "r") as file:
+            update_user_data(updated_user)
+
+            with open("json/users.json", "r") as file:
                 users = json.load(file)
 
             for user in users:
@@ -318,7 +321,7 @@ class ProfileEditPage(ft.UserControl):
                             user[key] = value
                     break
 
-            with open("users.json", "w") as file:
+            with open("json/users.json", "w") as file:
                 json.dump(users, file, indent=4)
 
             self.page.show_snack_bar(
@@ -327,6 +330,7 @@ class ProfileEditPage(ft.UserControl):
                     bgcolor="green",
                 )
             )
+
         except Exception as err:
             self.page.show_snack_bar(
                 ft.SnackBar(

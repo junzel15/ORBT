@@ -30,12 +30,12 @@ class GenderPage(ft.UserControl):
             return
 
         try:
-            with open("users.json", "r") as file:
+            with open("json/users.json", "r") as file:
                 users = json.load(file)
 
             users[0]["gender"] = self.selected_gender
 
-            with open("users.json", "w") as file:
+            with open("json/users.json", "w") as file:
                 json.dump(users, file, indent=4)
 
             print("Gender saved successfully")

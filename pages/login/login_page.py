@@ -2,7 +2,7 @@ import flet as ft
 import json
 from utils.authenticate import authenticate_user
 from utils.account_provider import get_user_data
-from global_state import user_data
+from global_state import update_user_data
 
 
 class LoginPage:
@@ -191,7 +191,7 @@ class LoginPage:
 
     def load_users(self):
         try:
-            with open("users.json", "r") as file:
+            with open("json/users.json", "r") as file:
                 return json.load(file)
         except Exception as e:
             print(f"Error loading users.json: {e}")
@@ -205,20 +205,22 @@ class LoginPage:
             self.show_snackbar_message("Please fill in all fields.")
             return
 
-        user_data = authenticate_user(email, password)
+        user_data_from_auth = authenticate_user(email, password)
 
-        if user_data is None:
+        if user_data_from_auth is None:
             self.show_snackbar_message("Invalid email and password!")
             return
 
-        user_data = get_user_data(email)
+        user_data_from_db = get_user_data(email)
 
-        if user_data is None:
+        if user_data_from_db is None:
             self.show_snackbar_message("Error: User data not found.")
             return
 
-        self.show_snackbar_message(f"Welcome, {user_data['full_name']}!")
-        self.go_to("/homepage", self.page, user=user_data)
+        update_user_data(user_data_from_db)
+
+        self.show_snackbar_message(f"Welcome, {user_data_from_db['full_name']}!")
+        self.go_to("/homepage", self.page)
 
     def show_snackbar_message(self, message):
         """Display a snackbar with the provided message."""

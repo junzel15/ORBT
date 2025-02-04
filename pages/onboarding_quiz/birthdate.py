@@ -22,13 +22,12 @@ class BirthdatePage(ft.UserControl):
         self.day_grid_container = None
 
     def save_birthdate(self):
-        """Save selected birthdate to users.json for the given user_id."""
         user_birthdate = f"{self.year}-{self.month:02}-{self.day:02}"
         print(f"Attempting to save birthdate for user_id: {self.user_id}")
 
         data = []
-        if os.path.exists("users.json"):
-            with open("users.json", "r") as file:
+        if os.path.exists("json/users.json"):
+            with open("json/users.json", "r") as file:
                 try:
                     data = json.load(file)
                     if not isinstance(data, list):
@@ -54,7 +53,7 @@ class BirthdatePage(ft.UserControl):
             new_user = {"id": self.user_id, "birthdate": user_birthdate}
             data.append(new_user)
 
-        with open("users.json", "w") as file:
+        with open("json/users.json", "w") as file:
             json.dump(data, file, indent=4)
 
         print("Updated users.json content:", data)
