@@ -4,7 +4,7 @@ import json
 from global_state import get_logged_in_user, update_user_data
 
 
-class DiningDinerPage:
+class DiningPage:
 
     def __init__(self, page: ft.Page, go_to, **kwargs):
         self.page = page
@@ -14,7 +14,8 @@ class DiningDinerPage:
         self.page.padding = 0
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         self.text_size = 12
-        self.current_tab = "diner"
+        self.current_tab = None
+        self.tab_buttons = {}
         self.expanded_state = {"before": False, "expect": False}
 
         self.selected_date = kwargs.get("selected_date", "Default Date")
@@ -143,18 +144,70 @@ class DiningDinerPage:
             print("No user is logged in.")
 
     def book_now(self, e):
-        self.save_date_time_to_user()
-        self.go_to("/dinerloading", self.page)
+        if not self.current_tab:
+            print("Please select a tab before booking.")
+            return
+
+        print(f"Booking {self.current_tab}...")
+        self.page.go("/loadingscreen")
+        self.page.update()
 
     def toggle_dropdown(self, e):
         self.dropdown_items.visible = not self.dropdown_items.visible
         self.dropdown_items.update()
         self.page.update()
 
-    def navigate_to_tab(self, tab_name):
-        print(f"Navigating to {tab_name}")
+    def create_tab_button(self, label):
+        return ft.Container(
+            content=ft.Text(
+                label,
+                size=14,
+                weight=ft.FontWeight.BOLD,
+                color="black" if self.current_tab == label else "white",
+            ),
+            padding=ft.padding.symmetric(horizontal=20, vertical=10),
+            border=ft.border.all(1, "white"),
+            border_radius=20,
+            alignment=ft.alignment.center,
+            bgcolor="white" if self.current_tab == label else "transparent",
+            on_click=lambda e: self.select_tab(label),
+        )
+
+    def get_button_style(self, label):
+        return ft.ButtonStyle(
+            color="white" if self.current_tab == label else "white",
+            bgcolor="transparent",
+            padding=ft.padding.all(10),
+        )
+
+    def select_tab(self, tab_name):
         self.current_tab = tab_name
-        self.page.go(f"/{tab_name}")
+        print(f"Selected tab: {tab_name}")
+        user = get_logged_in_user()
+        if user:
+            user["book_option_order"] = tab_name
+            try:
+                with open("json/users.json", "r+") as file:
+                    users = json.load(file)
+                    for u in users:
+                        if u["id"] == user["id"]:
+                            u["book_option_order"] = tab_name
+                            break
+                    file.seek(0)
+                    json.dump(users, file, indent=4)
+                    file.truncate()
+                update_user_data(user)
+                print(f"Tab {tab_name} saved successfully to user data.")
+            except (FileNotFoundError, json.JSONDecodeError) as ex:
+                print(f"Error saving user data: {ex}")
+        else:
+            print("No user is logged in.")
+
+        for label, button in self.tab_buttons.items():
+            button.bgcolor = "white" if label == self.current_tab else "transparent"
+            button.content.color = "black" if label == self.current_tab else "white"
+            button.update()
+
         self.page.update()
 
     def render(self):
@@ -163,6 +216,17 @@ class DiningDinerPage:
             {b["select_a_date"] for b in self.bookings},
             key=lambda date: datetime.strptime(date, "%B %d, %Y"),
         )
+
+        tab_labels = ["Coffee", "Brunch", "Diner"]
+
+        tab_section = ft.Row(
+            controls=[self.create_tab_button(label) for label in tab_labels],
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=12,
+        )
+        self.tab_buttons = {
+            label: btn for label, btn in zip(tab_labels, tab_section.controls)
+        }
 
         header = ft.Row(
             controls=[
@@ -195,46 +259,6 @@ class DiningDinerPage:
                 ),
             ],
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        )
-
-        def create_tab_button(tab_name):
-            routes = {
-                "coffee": "/coffee",
-                "brunch": "/brunch",
-                "diner": "/diner",
-            }
-
-            return ft.TextButton(
-                text=tab_name.capitalize(),
-                on_click=lambda e: self.navigate_to_tab(tab_name),
-                style=ft.ButtonStyle(
-                    bgcolor=(
-                        ft.colors.WHITE
-                        if self.current_tab == tab_name
-                        else ft.colors.TRANSPARENT
-                    ),
-                    shape=ft.RoundedRectangleBorder(radius=25),
-                    side=ft.BorderSide(2, ft.colors.WHITE),
-                    padding=ft.padding.symmetric(horizontal=20, vertical=8),
-                    text_style=ft.TextStyle(
-                        font_family="Instrument Sans",
-                        size=14,
-                        weight=ft.FontWeight.BOLD,
-                        color=(
-                            ft.colors.BLACK if tab_name == "diner" else ft.colors.WHITE
-                        ),
-                    ),
-                ),
-            )
-
-        tab_section = ft.Row(
-            controls=[
-                create_tab_button("coffee"),
-                create_tab_button("brunch"),
-                create_tab_button("diner"),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=12,
         )
 
         self.dropdown_items = ft.Container(

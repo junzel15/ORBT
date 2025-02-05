@@ -189,7 +189,7 @@ class UpcomingPage:
                                     color="#FFFFFF",
                                     bgcolor="#0000FF",
                                     on_click=lambda e: self.go_to(
-                                        "/coffeedetails", self.page
+                                        "/bookingdetails", self.page
                                     ),
                                 ),
                             ],

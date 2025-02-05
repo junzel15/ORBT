@@ -10,15 +10,7 @@ from pages.onboarding.onboarding_step1 import OnboardingStep1
 from pages.onboarding.onboarding_step2 import OnboardingStep2
 from pages.onboarding.onboarding_step3 import OnboardingStep3
 from pages.homepage.home_page import HomePage
-from pages.bookingpage.dinning.coffee.dining_coffee import DiningCoffeePage
-from pages.bookingpage.dinning.coffee.coffee_confirmation import CoffeeConfirmation
-from pages.bookingpage.dinning.coffee.coffee_loading_screen import CoffeeLoadingScreen
-from pages.bookingpage.dinning.brunch.dining_brunch import DiningBrunchPage
-from pages.bookingpage.dinning.brunch.brunch_confirmation import BrunchConfirmation
-from pages.bookingpage.dinning.brunch.brunch_loading_screen import BrunchLoadingScreen
-from pages.bookingpage.dinning.dinner.dining_diner import DiningDinerPage
-from pages.bookingpage.dinning.dinner.dinner_confirmation import DinnerConfirmation
-from pages.bookingpage.dinning.dinner.dinner_loading_screen import DinnerLoadingScreen
+from pages.bookingpage.dining import DiningPage
 from pages.bookingpage.bars import BarsPage
 from pages.bookingpage.experience import ExperiencePage
 from pages.profiles.profile_page import ProfilePage
@@ -40,9 +32,9 @@ from pages.onboarding_quiz.interests import InterestPage
 from pages.onboarding_quiz.bio import BioPage
 from pages.onboarding_quiz.location import LocationPage
 from pages.onboarding_quiz.notification import NotificationPage
-from pages.bookingdetails.coffee_booking_details import CoffeeDetails
-from pages.bookingdetails.brunch_booking_details import BrunchDetails
-from pages.bookingdetails.diner_booking_details import DinerDetails
+from pages.bookingdetails.booking_details import BookingDetails
+from pages.bookingpage.shared.loading_screen import LoadingScreen
+from pages.bookingpage.shared.booking_confirmation import ConfirmationScreen
 
 
 ROUTES = {
@@ -54,15 +46,7 @@ ROUTES = {
     "/onboarding2": OnboardingStep2,
     "/onboarding3": OnboardingStep3,
     "/homepage": HomePage,
-    "/coffee": DiningCoffeePage,
-    "/coffeeconfirm": CoffeeConfirmation,
-    "/coffeeloading": CoffeeLoadingScreen,
-    "/brunch": DiningBrunchPage,
-    "/brunchconfirm": BrunchConfirmation,
-    "/brunchloading": BrunchLoadingScreen,
-    "/diner": DiningDinerPage,
-    "/dinerconfirm": DinnerConfirmation,
-    "/dinerloading": DinnerLoadingScreen,
+    "/diner": DiningPage,
     "/bars": BarsPage,
     "/experience": ExperiencePage,
     "/profile": ProfilePage,
@@ -84,9 +68,9 @@ ROUTES = {
     "/bio": BioPage,
     "/location": LocationPage,
     "/notification": NotificationPage,
-    "/coffeedetails": CoffeeDetails,
-    "/brunchdetails": BrunchDetails,
-    "/dinerdetails": DinerDetails,
+    "/bookingdetails": BookingDetails,
+    "/loadingscreen": LoadingScreen,
+    "/bookingconfirmation": ConfirmationScreen,
 }
 
 

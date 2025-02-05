@@ -3,7 +3,7 @@ from global_state import get_logged_in_user
 import json
 
 
-class BrunchDetails(ft.UserControl):
+class BookingDetails(ft.UserControl):
     def __init__(self, page: ft.Page, go_to):
         super().__init__()
         self.page = page
@@ -36,6 +36,35 @@ class BrunchDetails(ft.UserControl):
         with open("json/users.json", "r") as file:
             users = json.load(file)
 
+        logged_in_user = get_logged_in_user()
+        book_option_order = "Unknown"
+        image_path = "assets/images/default.png"
+
+        if logged_in_user:
+            try:
+                with open("json/users.json", "r") as file:
+                    users = json.load(file)
+                    for user in users:
+                        if user.get("email") == logged_in_user.get("email"):
+                            book_option_order = user.get("book_option_order", "Unknown")
+
+                            image_key = f"{book_option_order}_image"
+                            image_path = user.get(
+                                image_key, "assets/images/default.png"
+                            ).lstrip("/")
+
+                            print(f"Resolved image path: {image_path}")
+                            break
+            except FileNotFoundError:
+                print("users.json file not found")
+            except json.JSONDecodeError:
+                print("Error decoding users.json")
+
+        self.page.assets_dir = "assets"
+
+        ft.Text(book_option_order, color="white", size=10),
+        ft.Image(src=image_path, width=100, height=100),
+
         return ft.Container(
             image_src="assets/images/Dark Background 2 Screen.png",
             image_fit=ft.ImageFit.COVER,
@@ -57,7 +86,7 @@ class BrunchDetails(ft.UserControl):
                         [
                             ft.Column(
                                 [
-                                    ft.Text("BRUNCH", color="white", size=10),
+                                    ft.Text(book_option_order, color="white", size=10),
                                     ft.Text(
                                         "Dining",
                                         color="white",
@@ -95,9 +124,7 @@ class BrunchDetails(ft.UserControl):
                                     ),
                                 ]
                             ),
-                            ft.Image(
-                                src="assets/images/brunch.png", width=100, height=100
-                            ),
+                            ft.Image(src=image_path, width=100, height=100),
                         ],
                         alignment="spaceBetween",
                     ),

@@ -27,6 +27,10 @@
         "verified": false,
         "profile_image": "",
         "date": "JANUARY 03, 2025",
-        "time": "10:00 AM"
+        "time": "10:00 AM",
+        "book_option_order": "Diner",
+        "Coffee_image": "/assets/images/Coffee.png",
+        "Brunch_image": "/assets/images/Brunch.png",
+        "Diner_image": "/assets/images/Diner.png"
     }
 ]
