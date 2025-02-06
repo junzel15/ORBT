@@ -1,10 +1,12 @@
 import flet as ft
-from flet import TextStyle, FontWeight
+from datetime import datetime
+import json
+from global_state import get_logged_in_user, update_user_data
 
 
 class BarsPage:
-    def __init__(self, page: ft.Page, go_to):
 
+    def __init__(self, page: ft.Page, go_to, **kwargs):
         self.page = page
         self.go_to = go_to
         self.page.title = "Bars"
@@ -12,21 +14,42 @@ class BarsPage:
         self.page.padding = 0
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         self.text_size = 12
+        self.current_tab = None
         self.expanded_state = {"before": False, "expect": False}
+
+        self.selected_date = kwargs.get("selected_date", "Default Date")
+
+        self.dropdown_items = None
+        self.date_dropdown = None
+
+        self.selected_date = "Select a date"
+        self.time_text_value = "10:00 AM"
 
         self.before_toggle_ref = ft.Ref[ft.Text]()
         self.expect_toggle_ref = ft.Ref[ft.Text]()
         self.before_content_ref = ft.Ref[ft.Container]()
         self.expect_content_ref = ft.Ref[ft.Container]()
 
+        self.date_text = ft.Text(self.selected_date, size=14, color="white")
+
+        self.time_text = ft.Text(self.time_text_value, size=14, color="white")
+
+        self.page.on_resize = self.on_resize
+
+        self.bookings = self.load_booking_data()
+
     def on_resize(self, e):
         pass
+
+    def go_back(self):
+        self.page.views.clear()
+        self.page.go("/homepage")
+        self.page.update()
 
     def render(self):
         self.page.on_resize = self.on_resize
 
     def toggle_tile(self, tile):
-        """Toggle the visibility of a content tile."""
         self.expanded_state[tile] = not self.expanded_state[tile]
         toggle_ref = (
             self.before_toggle_ref if tile == "before" else self.expect_toggle_ref
@@ -42,41 +65,97 @@ class BarsPage:
         content_ref.current.update()
         self.page.update()
 
-    def book_now(self, e):
-        """Handle the Book Now button click."""
-        print("Booking now...")
-        self.go_to("/")
-
     def render(self):
-        """Render the main content of the page."""
         self.page.on_resize = self.on_resize
 
-        def create_underlined_text(main_text, sub_text, style):
-            return ft.Column(
-                controls=[
-                    ft.Container(
-                        content=ft.Text(
-                            main_text,
-                            color="white",
-                            size=self.text_size,
-                            weight=ft.FontWeight.BOLD,
-                        ),
-                        border=ft.border.only(bottom=ft.BorderSide(1, "white")),
-                        padding=ft.padding.only(bottom=2),
-                    ),
-                    ft.Text(sub_text, color="#999BFF", size=self.text_size),
-                ],
-                spacing=2,
-            )
+    def load_booking_data(self):
+        try:
+            with open("json/date.json", "r") as file:
+                return json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
 
-        background = ft.Container(
-            content=ft.Image(
-                src="assets/images/Dark Background 2 Screen.png",
-                fit=ft.ImageFit.COVER,
-            ),
-            width=400,
-            height=900,
-            alignment=ft.alignment.center,
+    def select_date(self, e, date_str):
+        try:
+            formatted_date = date_str.upper()
+            matching_bookings = [
+                b for b in self.bookings if b["select_a_date"] == formatted_date
+            ]
+
+            if matching_bookings:
+                self.selected_date = formatted_date
+                self.selected_time = matching_bookings[0]["select_a_time"]
+
+                self.date_text.value = f"{self.selected_date} - {self.selected_time}"
+
+                if self.date_dropdown:
+                    self.date_dropdown.content = ft.Row(
+                        controls=[
+                            ft.Text(self.selected_date, size=14, color="white"),
+                            ft.Text(self.selected_time, size=14, color="white"),
+                            ft.Icon(
+                                name=ft.icons.ARROW_DROP_DOWN, color="white", size=16
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    )
+                    self.date_dropdown.update()
+
+                if self.dropdown_items:
+                    self.dropdown_items.visible = False
+                    self.dropdown_items.update()
+
+                if self.date_text.page:
+                    self.date_text.update()
+
+                self.page.update()
+
+                self.save_date_time_to_user()
+
+            else:
+                print(f"No bookings found for {formatted_date}")
+
+        except ValueError as ex:
+            print(f"Error parsing date: {date_str} - {ex}")
+
+    def save_date_time_to_user(self):
+        user = get_logged_in_user()
+        if user:
+            user["date"] = self.selected_date
+            user["time"] = self.selected_time
+
+            try:
+                with open("json/booking.json", "r+") as file:
+                    users = json.load(file)
+                    for u in users:
+                        if u["uuid"] == user["uuid"]:
+                            u["date"] = self.selected_date
+                            u["time"] = self.selected_time
+                            break
+                    file.seek(0)
+                    json.dump(users, file, indent=4)
+                    file.truncate()
+                update_user_data(user)
+                print("Date and time saved successfully.")
+            except (FileNotFoundError, json.JSONDecodeError) as ex:
+                print(f"Error saving user data: {ex}")
+        else:
+            print("No user is logged in.")
+
+    def book_now(self, e):
+        self.page.go("/loadingscreen")
+        self.page.update()
+
+    def toggle_dropdown(self, e):
+        self.dropdown_items.visible = not self.dropdown_items.visible
+        self.dropdown_items.update()
+        self.page.update()
+
+    def render(self):
+        self.page.on_resize = self.on_resize
+        date_list = sorted(
+            {b["select_a_date"] for b in self.bookings},
+            key=lambda date: datetime.strptime(date, "%B %d, %Y"),
         )
 
         header = ft.Row(
@@ -106,139 +185,61 @@ class BarsPage:
                     icon=ft.icons.CLOSE,
                     icon_color="white",
                     icon_size=22,
-                    on_click=lambda e: (
-                        self.page.views.pop(),
-                        self.page.go("/homepage", self.page),
-                    ),
+                    on_click=lambda e: self.go_back(),
                 ),
             ],
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
-        def toggle_dropdown(e):
-            dropdown_items.visible = not dropdown_items.visible
-            dropdown_items.update()
-
-        dropdown_items = ft.Container(
+        self.dropdown_items = ft.Container(
             content=ft.Column(
                 controls=[
                     ft.Container(
                         content=ft.Column(
                             controls=[
-                                ft.Row(
-                                    controls=[
-                                        ft.Text(
-                                            "Thursday, March 14",
-                                            size=14,
-                                            font_family="Instruments Sans",
-                                            weight=ft.FontWeight.BOLD,
-                                            color="#FFFFFF",
+                                ft.Text(date, size=14, color="#FFFFFF"),
+                                ft.Text(
+                                    next(
+                                        (
+                                            b["select_a_time"]
+                                            for b in self.bookings
+                                            if b["select_a_date"] == date
                                         ),
-                                        ft.Icon(
-                                            name=ft.icons.STAR,
-                                            color="#FFD700",
-                                            size=16,
-                                        ),
-                                    ],
-                                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                                ),
-                                ft.Text(
-                                    "10:00 AM",
-                                    size=12,
-                                    font_family="Instruments Sans",
-                                    color="#FFFFFF",
-                                ),
-                            ],
-                            spacing=4,
-                        ),
-                        padding=ft.padding.symmetric(horizontal=12, vertical=8),
-                        bgcolor="#1A1A1A",
-                        border_radius=ft.border_radius.all(8),
-                        width=350,
-                        on_click=lambda e: print("Selected: Thursday, March 14"),
-                    ),
-                    ft.Container(
-                        content=ft.Column(
-                            controls=[
-                                ft.Text(
-                                    "Friday, March 15",
+                                        "N/A",
+                                    ),
                                     size=14,
-                                    font_family="Instruments Sans",
-                                    weight=ft.FontWeight.BOLD,
-                                    color="#FFFFFF",
-                                ),
-                                ft.Text(
-                                    "10:00 AM",
-                                    size=12,
-                                    font_family="Instruments Sans",
-                                    color="#FFFFFF",
+                                    color="#A0A0A0",
                                 ),
                             ],
-                            spacing=4,
+                            spacing=2,
                         ),
-                        padding=ft.padding.symmetric(horizontal=12, vertical=8),
-                        bgcolor="#3A3A3A",
-                        border_radius=ft.border_radius.all(8),
-                        width=350,
-                        on_click=lambda e: print("Selected: Friday, March 15"),
-                    ),
-                    ft.Container(
-                        content=ft.Column(
-                            controls=[
-                                ft.Text(
-                                    "Saturday, March 16",
-                                    size=14,
-                                    font_family="Instruments Sans",
-                                    weight=ft.FontWeight.BOLD,
-                                    color="#FFFFFF",
-                                ),
-                                ft.Text(
-                                    "10:00 AM",
-                                    size=12,
-                                    font_family="Instruments Sans",
-                                    color="#FFFFFF",
-                                ),
-                            ],
-                            spacing=4,
-                        ),
-                        padding=ft.padding.symmetric(horizontal=12, vertical=8),
-                        bgcolor="#1A1A1A",
-                        border_radius=ft.border_radius.all(8),
-                        width=350,
-                        on_click=lambda e: print("Selected: Saturday, March 16"),
-                    ),
+                        padding=8,
+                        bgcolor=ft.colors.with_opacity(0.1, ft.colors.BLACK),
+                        border_radius=4,
+                        on_click=lambda e, d=date: self.select_date(e, d),
+                    )
+                    for date in date_list
                 ],
-                spacing=8,
+                spacing=4,
             ),
-            padding=ft.padding.only(top=8),
+            padding=8,
+            border_radius=8,
+            width=350,
             visible=False,
         )
 
-        date_dropdown = ft.Container(
+        self.date_dropdown = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Text(
-                        "Select a date",
-                        size=14,
-                        color="#FFFFFF",
-                        font_family="Instruments Sans",
-                    ),
-                    ft.Icon(
-                        name=ft.icons.ARROW_DROP_DOWN,
-                        color="#FFFFFF",
-                        size=16,
-                    ),
+                    self.date_text,
+                    ft.Icon(name=ft.icons.ARROW_DROP_DOWN, color="white", size=16),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
             ),
-            alignment=ft.alignment.center_left,
-            width=350,
-            padding=ft.padding.symmetric(horizontal=12, vertical=8),
-            bgcolor=ft.colors.with_opacity(0.1, ft.colors.BLACK),
-            border=ft.border.all(color="#FFFFFF", width=1),
-            border_radius=ft.border_radius.all(8),
-            on_click=toggle_dropdown,
+            padding=12,
+            border=ft.border.all(color="white", width=1),
+            border_radius=8,
+            on_click=self.toggle_dropdown,
         )
 
         def create_section(title, tile_key, contents):
@@ -282,6 +283,24 @@ class BarsPage:
                     ],
                 ),
                 padding=ft.padding.all(16),
+            )
+
+        def create_underlined_text(main_text, sub_text, style):
+            return ft.Column(
+                controls=[
+                    ft.Container(
+                        content=ft.Text(
+                            main_text,
+                            color="white",
+                            size=self.text_size,
+                            weight=ft.FontWeight.BOLD,
+                        ),
+                        border=ft.border.only(bottom=ft.BorderSide(1, "white")),
+                        padding=ft.padding.only(bottom=2),
+                    ),
+                    ft.Text(sub_text, color="#999BFF", size=self.text_size),
+                ],
+                spacing=2,
             )
 
         before_you_book = create_section(
@@ -392,27 +411,41 @@ class BarsPage:
             content=ft.ElevatedButton(
                 text="Book Now",
                 on_click=self.book_now,
-                bgcolor="#A2A8BF",
-                width=200,
-                height=45,
                 style=ft.ButtonStyle(
+                    bgcolor={
+                        ft.MaterialState.DEFAULT: "#A2A8BF",
+                        ft.MaterialState.HOVERED: ft.colors.BLUE,
+                    },
+                    color="#FFFFFF",
+                    padding=ft.padding.symmetric(horizontal=20, vertical=10),
                     text_style=ft.TextStyle(
-                        font_family="Intruments Sans",
+                        font_family="Instruments Sans",
                         size=16,
                     ),
-                    color="#FFFFFF",
                 ),
+                width=200,
+                height=45,
             ),
             alignment=ft.alignment.center,
             padding=ft.padding.only(top=16, bottom=32),
+        )
+
+        background = ft.Container(
+            content=ft.Image(
+                src="assets/images/Dark Background 2 Screen.png",
+                fit=ft.ImageFit.COVER,
+            ),
+            width=self.page.window_width,
+            height=self.page.window_height,
+            alignment=ft.alignment.center,
         )
 
         main_content = ft.Container(
             content=ft.Column(
                 controls=[
                     header,
-                    date_dropdown,
-                    dropdown_items,
+                    self.date_dropdown,
+                    self.dropdown_items,
                     before_you_book,
                     what_to_expect,
                     event_details,
@@ -420,6 +453,7 @@ class BarsPage:
                 ],
                 spacing=20,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                scroll=ft.ScrollMode.AUTO,
             ),
             expand=True,
             padding=ft.padding.all(16),
@@ -427,5 +461,10 @@ class BarsPage:
 
         return ft.View(
             route="/bars",
-            controls=[ft.Stack(controls=[background, main_content], expand=True)],
+            controls=[
+                ft.Stack(
+                    controls=[background, main_content],
+                    expand=True,
+                )
+            ],
         )

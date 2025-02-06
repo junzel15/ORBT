@@ -6,6 +6,7 @@ import random
 from pages.registration.components.customtextfield import CustomTextField
 from pages.registration.components.country_code_selector import CountryPhoneCodeSelector
 from pages.registration.components.country_data import load_country_data
+import uuid
 
 
 class RegistrationPage(ft.UserControl):
@@ -87,8 +88,10 @@ class RegistrationPage(ft.UserControl):
 
         password_hashed = self.hash_password(password)
 
+        user_uuid = str(uuid.uuid4())
+
         user_data = {
-            "id": random.randint(1000, 9999),
+            "uuid": user_uuid,
             "full_name": full_name,
             "email": email,
             "password": password_hashed,
@@ -100,9 +103,26 @@ class RegistrationPage(ft.UserControl):
             "interests": [],
             "otp": otp,
             "verified": False,
+            "profile_image": "",
         }
 
         self.save_user_to_json(user_data)
+
+        booking_data = {
+            "uuid": user_uuid,
+            "date": "",
+            "time": "",
+            "location": "",
+            "event_name": "",
+            "book_option_order": "",
+            "Coffee_image": "/assets/images/Coffee.png",
+            "Brunch_image": "/assets/images/Brunch.png",
+            "Diner_image": "/assets/images/Diner.png",
+            "Bars_image": "/assets/images/Bars.png",
+            "Experiences_image": "/assets/images/Experiences.png",
+        }
+
+        self.save_booking_to_json(booking_data)
 
         self.error_message.value = "Account created successfully! OTP sent."
         self.error_message.color = "green"
@@ -110,6 +130,18 @@ class RegistrationPage(ft.UserControl):
         self.page.update()
 
         self.page.go("/verification")
+
+    def save_booking_to_json(self, booking_data):
+        try:
+            with open("json/booking.json", "r") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            data = []
+
+        data.append(booking_data)
+
+        with open("json/booking.json", "w") as file:
+            json.dump(data, file, indent=4)
 
     def build(self):
         return ft.Container(

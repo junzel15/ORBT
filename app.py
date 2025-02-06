@@ -75,9 +75,6 @@ ROUTES = {
 
 
 def get_user_data():
-    """
-    Reads the user data from the JSON file and returns it as a dictionary.
-    """
     try:
         with open("json/users.json", "r") as file:
             return json.load(file)
@@ -108,7 +105,7 @@ def go_to(route, page, **kwargs):
         if "user" in init_params:
             kwargs["user"] = user_data
         if "user_id" in init_params:
-            kwargs["user_id"] = user_data.get("id")
+            kwargs["user_id"] = user_data.get("uuid")
 
     view_instance = view_class(page, go_to, **kwargs)
 

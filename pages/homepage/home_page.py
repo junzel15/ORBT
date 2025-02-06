@@ -1,5 +1,6 @@
 import flet as ft
-from global_state import get_logged_in_user
+import json
+from global_state import get_logged_in_user, update_user_data
 
 
 class HomePage:
@@ -9,6 +10,36 @@ class HomePage:
         self.go_to = go_to
         self.user = get_logged_in_user()
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
+
+    def save_booking(self, event_name):
+        user = get_logged_in_user()
+        if user:
+            user_uuid = user["uuid"]
+
+            try:
+                with open("json/booking.json", "r+") as file:
+                    users = json.load(file)
+
+                    for u in users:
+                        if u["uuid"] == user_uuid:
+                            u["event_name"] = event_name
+                            break
+
+                    file.seek(0)
+                    json.dump(users, file, indent=4)
+                    file.truncate()
+
+                update_user_data(user)
+                print(f"Event '{event_name}' saved successfully for user {user_uuid}.")
+
+            except (FileNotFoundError, json.JSONDecodeError) as ex:
+                print(f"Error saving event: {ex}")
+        else:
+            print("No user is logged in.")
+
+    def on_option_click(self, event_name, route):
+        self.save_booking(event_name)
+        self.go_to(route, self.page)
 
     def render(self):
         self.user = get_logged_in_user()
@@ -142,7 +173,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/diner", self.page),
+                        on_click=lambda e: self.on_option_click("Dining", "/diner"),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -171,7 +202,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/bars", self.page),
+                        on_click=lambda e: self.on_option_click("Bars", "/bars"),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -200,7 +231,9 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.go_to("/experience", self.page),
+                        on_click=lambda e: self.on_option_click(
+                            "Experiences", "/experience"
+                        ),
                     ),
                 ],
                 spacing=0,

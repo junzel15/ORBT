@@ -33,12 +33,23 @@ class GenderPage(ft.UserControl):
             with open("json/users.json", "r") as file:
                 users = json.load(file)
 
-            users[0]["gender"] = self.selected_gender
+            if not users:
+                raise ValueError("No users found in database")
+
+            current_user = users[-1]
+
+            if "uuid" not in current_user:
+                raise ValueError("Current user does not have a UUID")
+
+            current_user["gender"] = self.selected_gender
 
             with open("json/users.json", "w") as file:
                 json.dump(users, file, indent=4)
 
-            print("Gender saved successfully")
+            print(
+                f"Gender '{self.selected_gender}' saved for user {current_user['uuid']}"
+            )
+
         except Exception as e:
             print(f"Error saving gender: {e}")
 

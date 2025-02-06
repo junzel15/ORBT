@@ -1,6 +1,5 @@
 import flet as ft
 import json
-import os
 
 
 class BioPage(ft.UserControl):
@@ -10,32 +9,36 @@ class BioPage(ft.UserControl):
         self.page = page
         self.bio_input = None
 
-    def save_bio(self):
-        if not self.bio_input:
+    def save_bio_and_next(self):
+        if not self.bio_input or not self.bio_input.value.strip():
+            print("Bio input is empty or not available.")
             return
 
         bio_text = self.bio_input.value.strip()
-        if not bio_text:
-            return
 
-        if os.path.exists("json/users.json"):
+        try:
             with open("json/users.json", "r") as file:
-                try:
-                    data = json.load(file)
-                    if not isinstance(data, list):
-                        data = []
-                except json.JSONDecodeError:
-                    data = []
-        else:
-            data = []
+                users = json.load(file)
 
-        if data:
-            data[0]["bio"] = bio_text
+            if not users:
+                raise ValueError("No users found in database")
 
-        with open("json/users.json", "w") as file:
-            json.dump(data, file, indent=4)
+            current_user = users[-1]
 
-        print("Bio saved:", bio_text)
+            if "uuid" not in current_user:
+                raise ValueError("Current user does not have a UUID")
+
+            current_user["bio"] = bio_text
+
+            with open("json/users.json", "w") as file:
+                json.dump(users, file, indent=4)
+
+            print(f"Bio '{bio_text}' saved for user {current_user['uuid']}")
+
+        except Exception as e:
+            print(f"Error saving bio: {e}")
+
+        self.go_to("/interest", self.page)
 
     def build(self):
 
@@ -193,5 +196,4 @@ class BioPage(ft.UserControl):
         )
 
     def on_next_click(self):
-        self.save_bio()
-        self.go_to("/interest", self.page)
+        self.save_bio_and_next()

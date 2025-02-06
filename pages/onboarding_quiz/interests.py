@@ -154,7 +154,6 @@ class InterestPage(ft.UserControl):
         )
 
     def create_interest_button(self, interest):
-        """Create a button for an interest."""
         is_selected = interest in self.selected_interests
         estimated_width = min(150, len(interest) * 10 + 25)
 
@@ -193,7 +192,6 @@ class InterestPage(ft.UserControl):
         )
 
     def build_wrapping_buttons(self, max_width=300):
-        """Dynamically creates rows of buttons that wrap based on available width."""
         current_row = []
         rows = []
         current_width = 0
@@ -213,7 +211,6 @@ class InterestPage(ft.UserControl):
         return ft.Column(controls=rows, spacing=10)
 
     def toggle_interest(self, interest):
-        """Toggle the selection of an interest."""
         if interest in self.selected_interests:
             self.selected_interests.remove(interest)
         else:
@@ -221,7 +218,6 @@ class InterestPage(ft.UserControl):
         self.update_screen()
 
     def on_search_change(self, event):
-        """Filter suggestions based on search input."""
         query = event.control.value.lower()
         self.filtered_suggestions = [
             interest for interest in self.suggestions if query in interest.lower()
@@ -229,7 +225,6 @@ class InterestPage(ft.UserControl):
         self.update_screen()
 
     def update_screen(self):
-        """Update the screen dynamically."""
         try:
             self.controls[0].content.controls[1].content.controls[1].content.controls[
                 2
@@ -245,21 +240,26 @@ class InterestPage(ft.UserControl):
         self.go_to("/location", self.page)
 
     def save_interests(self):
-        if os.path.exists("json/users.json"):
+        try:
             with open("json/users.json", "r") as file:
-                try:
-                    data = json.load(file)
-                    if not isinstance(data, list):
-                        data = []
-                except json.JSONDecodeError:
-                    data = []
-        else:
-            data = []
+                users = json.load(file)
 
-        if data:
-            data[0]["interests"] = list(self.selected_interests)
+            if not users:
+                raise ValueError("No users found in database")
 
-        with open("json/users.json", "w") as file:
-            json.dump(data, file, indent=4)
+            current_user = users[-1]
 
-        print("Interests saved:", self.selected_interests)
+            if "uuid" not in current_user:
+                raise ValueError("Current user does not have a UUID")
+
+            current_user["interests"] = list(self.selected_interests)
+
+            with open("json/users.json", "w") as file:
+                json.dump(users, file, indent=4)
+
+            print(
+                f"Interests {self.selected_interests} saved for user {current_user['uuid']}"
+            )
+
+        except Exception as e:
+            print(f"Error saving interests: {e}")

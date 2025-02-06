@@ -2,7 +2,6 @@ import flet as ft
 import calendar
 import datetime
 import json
-import os
 
 
 class BirthdatePage(ft.UserControl):
@@ -21,42 +20,32 @@ class BirthdatePage(ft.UserControl):
         )
         self.day_grid_container = None
 
-    def save_birthdate(self):
+    def save_birthdate_and_next(self):
         user_birthdate = f"{self.year}-{self.month:02}-{self.day:02}"
-        print(f"Attempting to save birthdate for user_id: {self.user_id}")
 
-        data = []
-        if os.path.exists("json/users.json"):
+        try:
             with open("json/users.json", "r") as file:
-                try:
-                    data = json.load(file)
-                    if not isinstance(data, list):
-                        data = []
-                except json.JSONDecodeError:
-                    print(
-                        "Error: users.json is corrupted or empty. Initializing as empty list."
-                    )
-                    data = []
+                users = json.load(file)
 
-        print("Current users.json content before update:", data)
+            if not users:
+                raise ValueError("No users found in database")
 
-        user_found = False
-        for user in data:
-            if str(user.get("id")) == self.user_id:
-                print(f"Updating birthdate for user {self.user_id}")
-                user["birthdate"] = user_birthdate
-                user_found = True
-                break
+            current_user = users[-1]
 
-        if not user_found:
-            print(f"User with ID {self.user_id} not found. Adding new user entry.")
-            new_user = {"id": self.user_id, "birthdate": user_birthdate}
-            data.append(new_user)
+            if "uuid" not in current_user:
+                raise ValueError("Current user does not have a UUID")
 
-        with open("json/users.json", "w") as file:
-            json.dump(data, file, indent=4)
+            current_user["birthdate"] = user_birthdate
 
-        print("Updated users.json content:", data)
+            with open("json/users.json", "w") as file:
+                json.dump(users, file, indent=4)
+
+            print(f"Birthdate '{user_birthdate}' saved for user {current_user['uuid']}")
+
+        except Exception as e:
+            print(f"Error saving birthdate: {e}")
+
+        self.go_to("/bio", self.page)
 
     def build(self):
         return ft.Container(
@@ -444,5 +433,4 @@ class BirthdatePage(ft.UserControl):
         self.day_grid_container.update()
 
     def on_next_click(self):
-        self.save_birthdate()
-        self.go_to("/bio", self.page)
+        self.save_birthdate_and_next()

@@ -1,36 +1,28 @@
 [
     {
-        "id": 1,
-        "full_name": "ELVIS BOGSANGIT",
+        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
+        "full_name": "Elvis",
         "email": "elvis@gmail.com",
-        "password": "$2b$12$PPfKOqnhrDH5djUJPLR3FeGF5n.lWfY8whR8LsUOP8IQ.porQr16C",
-        "phone_number": "+93000000",
-        "address": "PAGADIAN CITY ZDS",
+        "password": "$2b$12$NwtR57IcLvOpFcjIE/7K.uDrK3/2zfEd6zGEHGi6zwxsWfHru6Lvq",
+        "phone_number": "+93123456",
+        "address": "Pagadian City",
         "gender": "male",
         "birthdate": "1990-09-12",
-        "bio": "Elvis H. Bogsangit. is a passionate web & mobile developer based in Pagadian City, Zamboanga Del Sur, PH.",
+        "bio": "I'M ELVIS A DEVELOPER",
         "interests": [
-            "Films",
             "Travels",
-            "Cooking",
-            "Coffee",
-            "Plants",
-            "Food",
             "Concerts",
-            "Sports",
-            "Art"
+            "Films",
+            "Coffee",
+            "Food",
+            "Cooking",
+            "Art",
+            "Plants",
+            "Sports"
         ],
-        "otp": {
-            "registration": "8566",
-            "reset_password": "5961"
-        },
+        "otp": "6512",
         "verified": false,
-        "profile_image": "",
-        "date": "JANUARY 03, 2025",
-        "time": "10:00 AM",
-        "book_option_order": "Diner",
-        "Coffee_image": "/assets/images/Coffee.png",
-        "Brunch_image": "/assets/images/Brunch.png",
-        "Diner_image": "/assets/images/Diner.png"
+        "profile_image": ""
     }
+ 
 ]

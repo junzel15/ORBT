@@ -16,53 +16,47 @@ class BookingDetails(ft.UserControl):
         print(f"Logged in user: {logged_in_user}")
 
         date_time_str = "Date/Time not available"
-        if logged_in_user:
-            try:
-                with open("json/users.json", "r") as file:
-                    users = json.load(file)
-                    for user in users:
-                        if user.get("email") == logged_in_user.get("email"):
-                            date_str = user.get("date", "Unknown Date")
-                            time_str = user.get("time", "Unknown Time")
-                            date_time_str = f"{date_str}\n{time_str}"
-                            break
-            except FileNotFoundError:
-                print("users.json file not found")
-            except json.JSONDecodeError:
-                print("Error decoding users.json")
-
-        print(f"Date/Time to display: {date_time_str}")
-
-        with open("json/users.json", "r") as file:
-            users = json.load(file)
-
-        logged_in_user = get_logged_in_user()
+        event_name = "Unknown Event"
         book_option_order = "Unknown"
         image_path = "assets/images/default.png"
 
         if logged_in_user:
             try:
-                with open("json/users.json", "r") as file:
+                with open("json/booking.json", "r") as file:
                     users = json.load(file)
                     for user in users:
-                        if user.get("email") == logged_in_user.get("email"):
+                        if user.get("uuid") == logged_in_user.get("uuid"):
+                            date_str = user.get("date", "Unknown Date")
+                            time_str = user.get("time", "Unknown Time")
+                            date_time_str = f"{date_str}\n{time_str}"
+                            event_name = user.get("event_name", "Unknown Event")
                             book_option_order = user.get("book_option_order", "Unknown")
 
-                            image_key = f"{book_option_order}_image"
-                            image_path = user.get(
-                                image_key, "assets/images/default.png"
-                            ).lstrip("/")
+                            if event_name in ["Bars", "Experiences"]:
+                                image_path = user.get(
+                                    f"{event_name}_image", "assets/images/default.png"
+                                ).lstrip("/")
+                                book_option_order = ""
+                            else:
+                                image_path = user.get(
+                                    f"{book_option_order}_image",
+                                    "assets/images/default.png",
+                                ).lstrip("/")
 
                             print(f"Resolved image path: {image_path}")
                             break
             except FileNotFoundError:
-                print("users.json file not found")
+                print("booking.json file not found")
             except json.JSONDecodeError:
-                print("Error decoding users.json")
+                print("Error decoding booking.json")
 
         self.page.assets_dir = "assets"
 
-        ft.Text(book_option_order, color="white", size=10),
+        (
+            ft.Text(book_option_order, color="white", size=10)
+            if book_option_order
+            else None
+        ),
         ft.Image(src=image_path, width=100, height=100),
 
         return ft.Container(
@@ -86,9 +80,19 @@ class BookingDetails(ft.UserControl):
                         [
                             ft.Column(
                                 [
-                                    ft.Text(book_option_order, color="white", size=10),
+                                    *(
+                                        [
+                                            ft.Text(
+                                                book_option_order,
+                                                color="white",
+                                                size=10,
+                                            )
+                                        ]
+                                        if book_option_order
+                                        else []
+                                    ),
                                     ft.Text(
-                                        "Dining",
+                                        event_name,
                                         color="white",
                                         font_family="Sora",
                                         size=24,

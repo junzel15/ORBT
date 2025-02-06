@@ -126,10 +126,10 @@ class DiningPage:
             user["time"] = self.selected_time
 
             try:
-                with open("json/users.json", "r+") as file:
+                with open("json/booking.json", "r+") as file:
                     users = json.load(file)
                     for u in users:
-                        if u["id"] == user["id"]:
+                        if u["uuid"] == user["uuid"]:
                             u["date"] = self.selected_date
                             u["time"] = self.selected_time
                             break
@@ -187,10 +187,10 @@ class DiningPage:
         if user:
             user["book_option_order"] = tab_name
             try:
-                with open("json/users.json", "r+") as file:
+                with open("json/booking.json", "r+") as file:
                     users = json.load(file)
                     for u in users:
-                        if u["id"] == user["id"]:
+                        if u["uuid"] == user["uuid"]:
                             u["book_option_order"] = tab_name
                             break
                     file.seek(0)
