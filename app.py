@@ -1,40 +1,46 @@
 import flet as ft
 import json
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 from pages.splashscreens.splash_screen import SplashScreen
 from pages.registration.registration_page import RegistrationPage
 from pages.registration.components.verification import VerificationPage
 from pages.registration.components.confirmation import ConfirmationPage
-from pages.onboarding.onboarding_step1 import OnboardingStep1
-from pages.onboarding.onboarding_step2 import OnboardingStep2
-from pages.onboarding.onboarding_step3 import OnboardingStep3
+from pages.landingpage.onboarding_step1 import OnboardingStep1
+from pages.landingpage.onboarding_step2 import OnboardingStep2
+from pages.landingpage.onboarding_step3 import OnboardingStep3
 from pages.homepage.home_page import HomePage
-from pages.bookingpage.dining import DiningPage
-from pages.bookingpage.bars import BarsPage
-from pages.bookingpage.experience import ExperiencePage
+from pages.mybookings.booking_options.dining import DiningPage
+from pages.mybookings.booking_options.bars import BarsPage
+from pages.mybookings.booking_options.experience import ExperiencePage
 from pages.profiles.profile_page import ProfilePage
 from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
 from pages.messages.messages import MessagesPage
-from pages.mybooking.upcoming import UpcomingPage
-from pages.mybooking.completed import CompletedPage
-from pages.mybooking.cancelled import CancelledPage
 from pages.login.login_page import LoginPage
 from pages.login.components.forgot_password import ForgotPassword
 from pages.login.components.otp import OtpPage
 from pages.login.components.reset_password import ResetPasswordPage
 from pages.login.components.confirmation_password import ConfirmationPassword
-from pages.onboarding_quiz.user_setup import UserSetupPage
-from pages.onboarding_quiz.gender import GenderPage
-from pages.onboarding_quiz.birthdate import BirthdatePage
-from pages.onboarding_quiz.interests import InterestPage
-from pages.onboarding_quiz.bio import BioPage
-from pages.onboarding_quiz.location import LocationPage
-from pages.onboarding_quiz.notification import NotificationPage
-from pages.bookingdetails.booking_details import BookingDetails
-from pages.bookingpage.shared.loading_screen import LoadingScreen
-from pages.bookingpage.shared.booking_confirmation import ConfirmationScreen
+from pages.personal_information.user_setup import UserSetupPage
+from pages.personal_information.gender import GenderPage
+from pages.personal_information.birthdate import BirthdatePage
+from pages.personal_information.interests import InterestPage
+from pages.personal_information.bio import BioPage
+from features.location import LocationPage
+from features.notification import NotificationPage
+from pages.mybookings.bookingdetails.booking_details import BookingDetails
+from pages.mybookings.booking_options.shared.loading_screen import LoadingScreen
+from pages.mybookings.booking_options.shared.booking_confirmation import (
+    ConfirmationScreen,
+)
+from pages.mybookings.booking_navbar.bookings import Bookings
+from pages.mybookings.booking_navbar.components import BookingCard, Tabs, FilterModal
+from pages.mybookings.booking_navbar.helpers import filter_bookings
 
 
 ROUTES = {
@@ -53,9 +59,6 @@ ROUTES = {
     "/profile/settings": ProfileSettingsPage,
     "/profile/edit": ProfileEditPage,
     "/messages": MessagesPage,
-    "/upcoming": UpcomingPage,
-    "/completed": CompletedPage,
-    "/cancelled": CancelledPage,
     "/login": LoginPage,
     "/forgotpassword": ForgotPassword,
     "/otp": OtpPage,
@@ -71,6 +74,9 @@ ROUTES = {
     "/bookingdetails": BookingDetails,
     "/loadingscreen": LoadingScreen,
     "/bookingconfirmation": ConfirmationScreen,
+    "/bookings": Bookings,
+    "/components": (BookingCard, Tabs, FilterModal),
+    "/filters": filter_bookings,
 }
 
 
@@ -125,7 +131,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/login", page)
+    go_to("/bookings", page)
 
 
 ft.app(target=main)
