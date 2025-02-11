@@ -273,7 +273,7 @@ class HomePage:
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/upcoming", self.page),
+                            on_click=lambda _: self.go_to("/bookings", self.page),
                         ),
                     ),
                     ft.Container(

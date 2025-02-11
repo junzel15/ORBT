@@ -110,14 +110,18 @@ class RegistrationPage(ft.UserControl):
 
         booking_data = {
             "uuid": user_uuid,
+            "booking_id": "ORBT-BR0001",
             "date": "",
             "time": "",
-            "location": "",
+            "location": "Pagadian City",
             "event_name": "",
             "book_option_order": "",
+            "status": "Upcoming",
+            "venue_name": "Water Front Hotel",
             "Coffee_image": "/assets/images/Coffee.png",
             "Brunch_image": "/assets/images/Brunch.png",
             "Diner_image": "/assets/images/Diner.png",
+            "Dining_image": "/assets/images/Icon Dinning.png",
             "Bars_image": "/assets/images/Bars.png",
             "Experiences_image": "/assets/images/Experiences.png",
         }

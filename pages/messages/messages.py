@@ -111,7 +111,7 @@ class MessagesPage(ft.UserControl):
                             ),
                             icon_size=24,
                             icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings/upcoming", page),
+                            on_click=lambda _: self.go_to("/bookings", page),
                         ),
                     ),
                     ft.Container(

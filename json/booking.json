@@ -1,14 +1,18 @@
 [
     {
         "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
+        "booking_id": "ORBT-BR0001",
         "date": "JANUARY 05, 2025",
         "time": "12:00 PM",
-        "location": "",
-        "event_name": "Experiences",
+        "location": "Pagadian City",
+        "event_name": "Dining",
         "book_option_order": "Coffee",
+        "status": "Upcoming",
+        "venue_name": "Water Front Hotel",
         "Coffee_image": "/assets/images/Coffee.png",
         "Brunch_image": "/assets/images/Brunch.png",
         "Diner_image": "/assets/images/Diner.png",
+        "Dining_image": "/assets/images/Icon Dinning.png",
         "Bars_image": "/assets/images/Bars.png",
         "Experiences_image": "/assets/images/Experiences.png"
     }

@@ -195,7 +195,7 @@ class ProfilePage:
                             width=(24 if not is_mobile else 20),
                             height=(24 if not is_mobile else 20),
                         ),
-                        on_click=lambda _: self.go_to("/bookings/upcoming", self.page),
+                        on_click=lambda _: self.go_to("/bookings", self.page),
                     ),
                     ft.IconButton(
                         content=ft.Image(
