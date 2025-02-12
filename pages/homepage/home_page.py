@@ -15,10 +15,14 @@ class HomePage:
         user = get_logged_in_user()
         if user:
             user_uuid = user["uuid"]
+            self.selected_event_name = event_name
 
             try:
                 with open("json/booking.json", "r+") as file:
-                    users = json.load(file)
+                    try:
+                        users = json.load(file)
+                    except json.JSONDecodeError:
+                        users = []
 
                     for u in users:
                         if u["uuid"] == user_uuid:
@@ -29,7 +33,13 @@ class HomePage:
                     json.dump(users, file, indent=4)
                     file.truncate()
 
-                update_user_data(user)
+                with open("json/booking.json", "r") as file:
+                    users = json.load(file)
+                    for u in users:
+                        if u["uuid"] == user_uuid:
+                            update_user_data(u)
+                            break
+
                 print(f"Event '{event_name}' saved successfully for user {user_uuid}.")
 
             except (FileNotFoundError, json.JSONDecodeError) as ex:

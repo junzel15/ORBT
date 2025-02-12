@@ -2,6 +2,7 @@ import flet as ft
 from datetime import datetime
 import json
 from global_state import get_logged_in_user, update_user_data
+import uuid
 
 
 class DiningPage:
@@ -121,36 +122,108 @@ class DiningPage:
 
     def save_date_time_to_user(self):
         user = get_logged_in_user()
-        if user:
-            user["date"] = self.selected_date
-            user["time"] = self.selected_time
-
-            try:
-                with open("json/booking.json", "r+") as file:
-                    users = json.load(file)
-                    for u in users:
-                        if u["uuid"] == user["uuid"]:
-                            u["date"] = self.selected_date
-                            u["time"] = self.selected_time
-                            break
-                    file.seek(0)
-                    json.dump(users, file, indent=4)
-                    file.truncate()
-                update_user_data(user)
-                print("Date and time saved successfully.")
-            except (FileNotFoundError, json.JSONDecodeError) as ex:
-                print(f"Error saving user data: {ex}")
-        else:
+        if not user:
             print("No user is logged in.")
-
-    def book_now(self, e):
-        if not self.current_tab:
-            print("Please select a tab before booking.")
             return
 
-        print(f"Booking {self.current_tab}...")
-        self.page.go("/loadingscreen")
-        self.page.update()
+        user["selected_date"] = self.selected_date
+        user["selected_time"] = self.selected_time
+
+        print(
+            f"Date and time saved for user {user['uuid']}: {self.selected_date} - {self.selected_time}"
+        )
+
+    def save_event_name(self, event_name):
+        user = get_logged_in_user()
+        if not user:
+            print("No user is logged in.")
+            return
+        user["event_name"] = event_name
+        print(f"Event '{event_name}' saved successfully for user {user['uuid']}.")
+
+    def book_now(self, e):
+        user = get_logged_in_user()
+        if not user:
+            print("No user is logged in.")
+            return
+        if not self.selected_date or not self.selected_time or not self.current_tab:
+            print("Please select a date, time, and tab before booking.")
+            return
+        print(f"User data before booking: {user}")
+
+        if not user.get("event_name"):
+            print("Error: No event selected.")
+            return
+
+        self.selected_event_name = user["event_name"]
+        print(f"Event Name: {self.selected_event_name}")
+        print(f"Selected Tab: {self.current_tab}")
+
+        file_path = "json/booking.json"
+        bookings = []
+        try:
+            with open(file_path, "r") as file:
+                bookings = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            print("No existing bookings or invalid file format. Starting fresh.")
+
+        existing_ids = [
+            int(booking["booking_id"].split(" - ")[1])
+            for booking in bookings
+            if booking.get("booking_id", "").startswith("ORBT -")
+        ]
+        print(f"Existing Booking IDs: {existing_ids}")
+
+        next_id = None
+        for i in range(1, 6):
+            if i not in existing_ids:
+                next_id = i
+                break
+
+        if next_id is None:
+            print("Maximum number of bookings reached. Cannot create a new booking.")
+            return
+
+        booking_id = f"ORBT - {next_id:03}"
+        print(f"Generated Booking ID: {booking_id}")
+
+        new_booking = {
+            "uuid": user["uuid"],
+            "booking_id": booking_id,
+            "date": self.selected_date,
+            "time": self.selected_time,
+            "location": "Pagadian City",
+            "event_name": self.selected_event_name,
+            "book_option_order": self.current_tab,
+            "status": "Upcoming",
+            "venue_name": "Water Front Hotel",
+            "Coffee_image": "/assets/images/Coffee.png",
+            "Brunch_image": "/assets/images/Brunch.png",
+            "Diner_image": "/assets/images/Diner.png",
+            "Dining_image": "/assets/images/Icon Dinning.png",
+            "Bars_image": "/assets/images/Bars.png",
+            "Experiences_image": "/assets/images/Experiences.png",
+        }
+        print(f"New Booking Before Append: {new_booking}")
+
+        try:
+            bookings.append(new_booking)
+            print(f"After appending: {len(bookings)} bookings")
+            print(f"Updated Data: {bookings}")
+
+            with open(file_path, "w") as file:
+                json.dump(bookings, file, indent=4)
+                file.flush()
+            print("Booking data successfully written to file!")
+            with open(file_path, "r") as file:
+                print("Final Booking Data:", file.read())
+
+            print(f"Booking successful: {new_booking}")
+            self.page.go("/loadingscreen")
+            self.page.update()
+
+        except Exception as e:
+            print(f"Error: {e}")
 
     def toggle_dropdown(self, e):
         self.dropdown_items.visible = not self.dropdown_items.visible

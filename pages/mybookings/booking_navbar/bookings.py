@@ -20,6 +20,15 @@ class Bookings(ft.UserControl):
         self.bookings_list = ft.Column(spacing=15, expand=True)
         self.tabs = Tabs(self.switch_tab)
 
+        self.tab_indicator = ft.Container(
+            height=4,
+            width=60,
+            bgcolor="white",
+            animate=ft.animation.Animation(300, "ease_out"),
+        )
+
+        self.tabs_row = self.build_tabs_row()
+
         self.bottom_nav = ft.Container(
             content=ft.Row(
                 controls=[
@@ -63,6 +72,102 @@ class Bookings(ft.UserControl):
         logged_in_user = get_logged_in_user()
         print(f"Logged in user: {logged_in_user}")
 
+        self.tab_indicator = ft.Container(
+            height=4,
+            width=60,
+            bgcolor="white",
+            animate=ft.animation.Animation(300, "ease_out"),
+        )
+
+        self.tabs_row = ft.Container(
+            content=ft.Stack(
+                [
+                    ft.Row(
+                        controls=[
+                            ft.GestureDetector(
+                                on_tap=lambda _: self.switch_tab("Upcoming"),
+                                content=ft.Container(
+                                    content=ft.Text(
+                                        "Upcoming",
+                                        size=14,
+                                        weight="bold",
+                                        color=(
+                                            "blue"
+                                            if self.current_tab == "Upcoming"
+                                            else "white"
+                                        ),
+                                    ),
+                                    bgcolor=(
+                                        "white"
+                                        if self.current_tab == "Upcoming"
+                                        else "black"
+                                    ),
+                                    padding=ft.padding.symmetric(
+                                        horizontal=15, vertical=8
+                                    ),
+                                    border_radius=ft.border_radius.only(
+                                        top_left=15, bottom_left=15
+                                    ),
+                                ),
+                            ),
+                            ft.GestureDetector(
+                                on_tap=lambda _: self.switch_tab("Completed"),
+                                content=ft.Container(
+                                    content=ft.Text(
+                                        "Completed",
+                                        size=14,
+                                        weight="bold",
+                                        color=(
+                                            "blue"
+                                            if self.current_tab == "Completed"
+                                            else "white"
+                                        ),
+                                    ),
+                                    bgcolor=(
+                                        "white"
+                                        if self.current_tab == "Completed"
+                                        else "black"
+                                    ),
+                                    padding=ft.padding.symmetric(
+                                        horizontal=15, vertical=8
+                                    ),
+                                ),
+                            ),
+                            ft.GestureDetector(
+                                on_tap=lambda _: self.switch_tab("Cancelled"),
+                                content=ft.Container(
+                                    content=ft.Text(
+                                        "Cancelled",
+                                        size=14,
+                                        weight="bold",
+                                        color=(
+                                            "blue"
+                                            if self.current_tab == "Cancelled"
+                                            else "white"
+                                        ),
+                                    ),
+                                    bgcolor=(
+                                        "white"
+                                        if self.current_tab == "Cancelled"
+                                        else "black"
+                                    ),
+                                    padding=ft.padding.symmetric(
+                                        horizontal=15, vertical=8
+                                    ),
+                                    border_radius=ft.border_radius.only(
+                                        top_right=15, bottom_right=15
+                                    ),
+                                ),
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    self.tab_indicator,
+                ]
+            ),
+            padding=ft.padding.only(top=5),
+        )
+
         return ft.Container(
             expand=True,
             height=self.page.height,
@@ -72,8 +177,7 @@ class Bookings(ft.UserControl):
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 controls=[
                     ft.Container(
-                        width=375,
-                        height=140,
+                        width=self.page.width,
                         gradient=ft.LinearGradient(
                             begin=ft.alignment.top_center,
                             end=ft.alignment.bottom_center,
@@ -114,14 +218,15 @@ class Bookings(ft.UserControl):
                                         color="black",
                                         bgcolor="white",
                                         height=40,
+                                        width=self.page.width * 0.9,
                                     ),
                                     padding=ft.padding.symmetric(horizontal=15),
                                 ),
+                                self.tabs_row,
                             ],
                         ),
                         padding=ft.padding.only(top=30, left=10, right=10),
                     ),
-                    self.tabs,
                     ft.Container(
                         content=self.bookings_list,
                         expand=True,
@@ -141,17 +246,54 @@ class Bookings(ft.UserControl):
         print(f"Tab selected: {tab_name}")
         self.current_tab = tab_name
 
-        self.filtered_bookings = [
-            booking
-            for booking in self.original_bookings
-            if booking["status"].lower() == tab_name.lower()
-        ]
-
-        print(f"Filtered bookings: {self.filtered_bookings}")
+        tab_positions = {
+            "Upcoming": 0,
+            "Completed": self.page.width / 3,
+            "Cancelled": (self.page.width / 3) * 2,
+        }
+        self.tab_indicator.left = tab_positions[tab_name]
+        self.tabs_row.content = self.build_tabs_row()
         self.update_bookings_view()
+        self.update()
+
+    def build_tabs_row(self):
+        return ft.Stack(
+            [
+                ft.Row(
+                    controls=[
+                        self.build_tab("Upcoming"),
+                        self.build_tab("Completed"),
+                        self.build_tab("Cancelled"),
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                ),
+                self.tab_indicator,
+            ]
+        )
+
+    def build_tab(self, tab_name):
+        is_active = self.current_tab == tab_name
+        return ft.GestureDetector(
+            on_tap=lambda _: self.switch_tab(tab_name),
+            content=ft.Container(
+                content=ft.Text(
+                    tab_name,
+                    size=14,
+                    weight="bold",
+                    color="blue" if is_active else "white",
+                ),
+                bgcolor="white" if is_active else "black",
+                padding=ft.padding.symmetric(horizontal=20, vertical=10),
+                border_radius=ft.border_radius.only(
+                    top_left=15 if tab_name == "Upcoming" else 0,
+                    bottom_left=15 if tab_name == "Upcoming" else 0,
+                    top_right=15 if tab_name == "Cancelled" else 0,
+                    bottom_right=15 if tab_name == "Cancelled" else 0,
+                ),
+            ),
+        )
 
     def apply_filter(self, filters):
-        """Applies selected filters to the bookings list."""
         print(f"Applying filters: {filters}")
         self.filtered_bookings = filter_bookings(self.original_bookings, filters)
         self.update_bookings_view()
@@ -159,14 +301,19 @@ class Bookings(ft.UserControl):
     def update_bookings_view(self):
         print("Updating bookings view... Total bookings:", len(self.filtered_bookings))
         self.bookings_list.controls.clear()
+        filtered = [
+            booking
+            for booking in self.filtered_bookings
+            if booking["status"] == self.current_tab
+        ]
 
-        if not self.filtered_bookings:
-            print("No bookings found for", self.current_tab)
+        if not filtered:
+            print(f"No bookings found for {self.current_tab}")
             self.bookings_list.controls.append(
                 ft.Text(f"No bookings available for {self.current_tab}.")
             )
         else:
-            for booking in self.filtered_bookings:
+            for booking in filtered:
                 print(f"Adding booking: {booking}")
                 self.bookings_list.controls.append(
                     BookingCard(
@@ -179,7 +326,41 @@ class Bookings(ft.UserControl):
 
     def update_lists(self, updated_booking):
         print(f"Updating lists with booking: {updated_booking}")
+        for booking in self.original_bookings:
+            if booking["id"] == updated_booking["id"]:
+                booking["status"] = updated_booking["status"]
+
+        if updated_booking["status"] == "Cancelled":
+            self.save_cancelled_booking(updated_booking)
+
         self.update_bookings_view()
+
+    def save_cancelled_booking(self, booking):
+        file_path = "json/booking.json"
+        try:
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            data.append(
+                {
+                    "title": "Cancelled Booking",
+                    "uuid": get_logged_in_user().get("uuid"),
+                    "booking_id": booking["id"],
+                    "event_name": booking["event_name"],
+                    "status": "Cancelled",
+                    "time": booking["time"],
+                    "date": booking["day"],
+                    "location": booking["location"],
+                    "venue_name": booking["venue_name"],
+                    "book_option_order": booking["category"].lower(),
+                }
+            )
+
+            with open(file_path, "w") as file:
+                json.dump(data, file, indent=4)
+            print("Booking successfully cancelled and saved.")
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Error saving cancelled booking: {e}")
 
     def load_bookings(self):
         logged_in_user = get_logged_in_user()
@@ -234,7 +415,6 @@ class Bookings(ft.UserControl):
             return []
 
     def get_booking_image(booking):
-        """Retrieve the correct image path for the booking."""
         event_name = booking.get("event_name", "Unknown")
         book_option_order = booking.get("book_option_order", "Unknown")
 
