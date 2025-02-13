@@ -4,51 +4,75 @@ import json
 
 
 class BookingDetails(ft.UserControl):
-    def __init__(self, page: ft.Page, go_to):
+
+    def __init__(self, page: ft.Page, go_to, booking_id=None):
         super().__init__()
         self.page = page
         self.go_to = go_to
-
+        self.user_data = get_logged_in_user()
+        self.booking_id = booking_id
         self.user_data = get_logged_in_user()
 
+    def get_booking_details(self):
+
+        try:
+            with open("json/booking.json", "r") as file:
+                bookings = json.load(file)
+
+                if self.booking_id:
+                    for booking in bookings:
+                        if booking.get("booking_id") == self.booking_id:
+                            print(f"✅ Found booking by ID: {self.booking_id}")
+                            return booking
+                    print(f"❌ Booking ID {self.booking_id} not found!")
+
+                logged_in_user = get_logged_in_user()
+                if logged_in_user:
+                    user_bookings = [
+                        b
+                        for b in bookings
+                        if b.get("uuid") == logged_in_user.get("uuid")
+                    ]
+                    if user_bookings:
+                        latest_booking = user_bookings[-1]
+                        print("✅ No booking_id provided, showing latest booking!")
+                        return latest_booking
+
+            return None
+        except FileNotFoundError:
+            print("❌ booking.json file not found!")
+            return None
+        except json.JSONDecodeError:
+            print("❌ Error decoding JSON!")
+            return None
+
     def build(self):
-        logged_in_user = get_logged_in_user()
-        print(f"Logged in user: {logged_in_user}")
+        """Rebuild UI with fresh booking details."""
+        self.booking = self.get_booking_details()
 
         date_time_str = "Date/Time not available"
         event_name = "Unknown Event"
         book_option_order = "Unknown"
         image_path = "assets/images/default.png"
 
-        if logged_in_user:
-            try:
-                with open("json/booking.json", "r") as file:
-                    users = json.load(file)
-                    for user in users:
-                        if user.get("uuid") == logged_in_user.get("uuid"):
-                            date_str = user.get("date", "Unknown Date")
-                            time_str = user.get("time", "Unknown Time")
-                            date_time_str = f"{date_str}\n{time_str}"
-                            event_name = user.get("event_name", "Unknown Event")
-                            book_option_order = user.get("book_option_order", "Unknown")
+        if self.booking:
+            date_str = self.booking.get("date", "Unknown Date")
+            time_str = self.booking.get("time", "Unknown Time")
+            date_time_str = f"{date_str}\n{time_str}"
+            event_name = self.booking.get("event_name", "Unknown Event")
+            book_option_order = self.booking.get("book_option_order", "Unknown")
 
-                            if event_name in ["Bars", "Experiences"]:
-                                image_path = user.get(
-                                    f"{event_name}_image", "assets/images/default.png"
-                                ).lstrip("/")
-                                book_option_order = ""
-                            else:
-                                image_path = user.get(
-                                    f"{book_option_order}_image",
-                                    "assets/images/default.png",
-                                ).lstrip("/")
+            if event_name in ["Bars", "Experiences"]:
+                image_path = self.booking.get(
+                    f"{event_name}_image", "assets/images/default.png"
+                ).lstrip("/")
+                book_option_order = ""
+            else:
+                image_path = self.booking.get(
+                    f"{book_option_order}_image", "assets/images/default.png"
+                ).lstrip("/")
 
-                            print(f"Resolved image path: {image_path}")
-                            break
-            except FileNotFoundError:
-                print("booking.json file not found")
-            except json.JSONDecodeError:
-                print("Error decoding booking.json")
+            print(f"✅ Displaying: {event_name} on {date_time_str}")
 
         self.page.assets_dir = "assets"
 
@@ -72,7 +96,11 @@ class BookingDetails(ft.UserControl):
                                 icon_color="white",
                                 on_click=lambda _: self.go_to("/homepage", self.page),
                             ),
-                            ft.Text("ORBT-BR0001", color="white", weight="bold"),
+                            ft.Text(
+                                self.booking.get("booking_id", "No ID"),
+                                color="white",
+                                weight="bold",
+                            ),
                         ],
                         alignment="spaceBetween",
                     ),

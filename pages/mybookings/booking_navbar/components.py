@@ -28,7 +28,7 @@ class BookingCard(ft.UserControl):
             return self.cancelled_card()
 
     def upcoming_card(self):
-        event_name = self.booking["event_name"]
+        event_name = self.booking.get("event_name", "Unknown Event")
         image_path = self.booking.get("image", "assets/images/default.png")
         image_path = os.path.join("assets", "images", os.path.basename(image_path))
 
@@ -38,140 +38,177 @@ class BookingCard(ft.UserControl):
 
         show_category = event_name not in ["Bars", "Experiences"]
 
-        return ft.Container(
-            content=ft.Column(
-                spacing=10,
-                controls=[
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        tab_bar = ft.Tabs(
+            selected_index=0,
+            animation_duration=300,
+            indicator_tab_size=3,
+            indicator_color="black",
+            tabs=[
+                ft.Tab(text="This Week"),
+                ft.Tab(text="Next Week"),
+                ft.Tab(text="Later"),
+            ],
+        )
+
+        return ft.Column(
+            spacing=10,
+            controls=[
+                tab_bar,
+                ft.Container(
+                    content=ft.Column(
+                        spacing=10,
                         controls=[
                             ft.Row(
-                                spacing=5,
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                                 controls=[
-                                    ft.Image(
-                                        src=image_path,
-                                        width=24,
-                                        height=24,
-                                        fit=ft.ImageFit.CONTAIN,
+                                    ft.Row(
+                                        spacing=5,
+                                        controls=[
+                                            ft.Image(
+                                                src=image_path,
+                                                width=24,
+                                                height=24,
+                                                fit=ft.ImageFit.CONTAIN,
+                                            ),
+                                            ft.Text(event_name, size=16, weight="bold"),
+                                            ft.Icon(
+                                                name=ft.icons.STAR,
+                                                color="orange",
+                                                size=14,
+                                            ),
+                                        ],
                                     ),
-                                    ft.Text(
-                                        self.booking["event_name"],
-                                        size=16,
-                                        weight="bold",
-                                    ),
-                                    ft.Icon(
-                                        name=ft.icons.STAR, color="orange", size=14
+                                    ft.Container(
+                                        content=ft.Text(
+                                            self.booking.get("category", "").upper(),
+                                            size=10,
+                                            weight="bold",
+                                        ),
+                                        bgcolor="white",
+                                        border=ft.border.all(1, "black"),
+                                        border_radius=10,
+                                        padding=ft.padding.symmetric(
+                                            horizontal=10, vertical=3
+                                        ),
+                                        visible=show_category,
                                     ),
                                 ],
                             ),
-                            ft.Container(
-                                content=ft.Text(
-                                    self.booking["category"].upper(),
-                                    size=10,
-                                    weight="bold",
-                                ),
-                                bgcolor="white",
-                                border=ft.border.all(1, "black"),
-                                border_radius=10,
-                                padding=ft.padding.symmetric(horizontal=10, vertical=3),
-                                visible=show_category,
-                            ),
-                        ],
-                    ),
-                    ft.Divider(height=1, color="black"),
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                        controls=[
-                            ft.Column(
-                                spacing=2,
+                            ft.Divider(height=1, color="black"),
+                            ft.Row(
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                                 controls=[
-                                    ft.Text(
-                                        "DATE & TIME",
-                                        size=10,
-                                        color="gray",
-                                        weight="bold",
+                                    ft.Column(
+                                        spacing=2,
+                                        controls=[
+                                            ft.Text(
+                                                "DATE & TIME",
+                                                size=10,
+                                                color="gray",
+                                                weight="bold",
+                                            ),
+                                            ft.Text(
+                                                self.booking.get("day", "Unknown"),
+                                                size=14,
+                                                weight="bold",
+                                            ),
+                                            ft.Text(
+                                                self.booking.get("time", "Unknown"),
+                                                size=14,
+                                                weight="bold",
+                                            ),
+                                        ],
                                     ),
-                                    ft.Text(
-                                        f"{self.booking['day']} {self.booking['time']}",
-                                        size=14,
-                                        weight="bold",
-                                    ),
-                                ],
-                            ),
-                            ft.Column(
-                                spacing=2,
-                                controls=[
-                                    ft.Text(
-                                        "LOCATION", size=10, color="gray", weight="bold"
-                                    ),
-                                    ft.Text(
-                                        spans=[
-                                            ft.TextSpan(
-                                                text=self.booking["location"],
-                                                style=ft.TextStyle(
-                                                    size=14,
-                                                    color="black",
-                                                    weight="bold",
-                                                    decoration=ft.TextDecoration.UNDERLINE,
+                                    ft.Column(
+                                        spacing=2,
+                                        controls=[
+                                            ft.Text(
+                                                "LOCATION",
+                                                size=10,
+                                                color="gray",
+                                                weight="bold",
+                                            ),
+                                            ft.Text(
+                                                self.booking.get(
+                                                    "venue_name", "Unknown Venue"
                                                 ),
+                                                size=14,
+                                                weight="bold",
+                                                color="black",
+                                            ),
+                                            ft.Text(
+                                                spans=[
+                                                    ft.TextSpan(
+                                                        text=self.booking.get(
+                                                            "location",
+                                                            "Location Not Found",
+                                                        ),
+                                                        style=ft.TextStyle(
+                                                            size=14,
+                                                            color="black",
+                                                            weight="bold",
+                                                            decoration=ft.TextDecoration.UNDERLINE,
+                                                        ),
+                                                    )
+                                                ]
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                            ft.Row(
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                controls=[
+                                    ft.ElevatedButton(
+                                        text="Cancel",
+                                        on_click=self.cancel_booking,
+                                        style=ft.ButtonStyle(
+                                            bgcolor={
+                                                ft.MaterialState.DEFAULT: "transparent",
+                                                ft.MaterialState.HOVERED: "red",
+                                            },
+                                            color="black",
+                                            padding=ft.padding.symmetric(
+                                                horizontal=20, vertical=8
+                                            ),
+                                            text_style=ft.TextStyle(
+                                                size=14, weight="bold"
+                                            ),
+                                        ),
+                                    ),
+                                    ft.ElevatedButton(
+                                        text="View Details",
+                                        on_click=lambda _: (
+                                            self.go_to(
+                                                "/bookingdetails",
+                                                self.page,
+                                                booking_id=self.booking["id"],
                                             )
-                                        ]
+                                            if self.go_to
+                                            else print(
+                                                "Error: go_to function is not set"
+                                            )
+                                        ),
+                                        style=ft.ButtonStyle(
+                                            bgcolor={ft.MaterialState.DEFAULT: "blue"},
+                                            color="white",
+                                            padding=ft.padding.symmetric(
+                                                horizontal=20, vertical=8
+                                            ),
+                                            text_style=ft.TextStyle(
+                                                size=14, weight="bold"
+                                            ),
+                                        ),
                                     ),
                                 ],
                             ),
                         ],
                     ),
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                        controls=[
-                            ft.ElevatedButton(
-                                text="Cancel",
-                                on_click=self.cancel_booking,
-                                style=ft.ButtonStyle(
-                                    bgcolor={
-                                        ft.MaterialState.DEFAULT: "transparent",
-                                        ft.MaterialState.HOVERED: "red",
-                                    },
-                                    color="black",
-                                    padding=ft.padding.symmetric(
-                                        horizontal=20, vertical=8
-                                    ),
-                                    text_style=ft.TextStyle(
-                                        size=14,
-                                        font_family="Instruments Sans",
-                                        weight="bold",
-                                    ),
-                                ),
-                            ),
-                            ft.ElevatedButton(
-                                text="View Details",
-                                on_click=lambda _: (
-                                    self.go_to("/bookingdetails", self.page)
-                                    if self.go_to
-                                    else print("Error: go_to function is not set")
-                                ),
-                                style=ft.ButtonStyle(
-                                    bgcolor={
-                                        ft.MaterialState.DEFAULT: "blue",
-                                    },
-                                    color="white",
-                                    padding=ft.padding.symmetric(
-                                        horizontal=20, vertical=8
-                                    ),
-                                    text_style=ft.TextStyle(
-                                        size=14,
-                                        font_family="Instruments Sans",
-                                        weight="bold",
-                                    ),
-                                ),
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-            padding=15,
-            border_radius=15,
-            bgcolor="#EFE6FF",
+                    padding=15,
+                    border_radius=15,
+                    bgcolor="#EFE6FF",
+                ),
+            ],
         )
 
     def completed_card(self):
@@ -179,6 +216,14 @@ class BookingCard(ft.UserControl):
             content=ft.Column(
                 spacing=10,
                 controls=[
+                    ft.Tabs(
+                        selected_index=0,
+                        tabs=[
+                            ft.Tab(text="This Week"),
+                            ft.Tab(text="Next Week"),
+                            ft.Tab(text="Later"),
+                        ],
+                    ),
                     ft.Row(
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                         controls=[
@@ -258,96 +303,120 @@ class BookingCard(ft.UserControl):
 
         show_category = event_name not in ["Bars", "Experiences"]
 
-        return ft.Container(
-            content=ft.Column(
-                spacing=10,
-                controls=[
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        tab_bar = ft.Tabs(
+            selected_index=0,
+            animation_duration=300,
+            indicator_tab_size=3,
+            indicator_color="black",
+            tabs=[
+                ft.Tab(text="Recents"),
+                ft.Tab(text="This Month"),
+                ft.Tab(text="Older Events"),
+            ],
+        )
+
+        return ft.Column(
+            spacing=10,
+            controls=[
+                tab_bar,
+                ft.Container(
+                    content=ft.Column(
+                        spacing=10,
                         controls=[
                             ft.Row(
-                                spacing=5,
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                                 controls=[
-                                    ft.Icon(
-                                        name=ft.icons.LOCATION_ON_OUTLINED,
-                                        size=24,
-                                        color="#6D6D6D",
+                                    ft.Row(
+                                        spacing=5,
+                                        controls=[
+                                            ft.Icon(
+                                                name=ft.icons.LOCATION_ON_OUTLINED,
+                                                size=24,
+                                                color="#6D6D6D",
+                                            ),
+                                            ft.Text(
+                                                self.booking.get(
+                                                    "venue_name", "Unknown"
+                                                ),
+                                                size=16,
+                                                weight="bold",
+                                                color="#6D6D6D",
+                                            ),
+                                        ],
+                                    ),
+                                    ft.Container(
+                                        content=ft.Text(
+                                            self.booking["category"].upper(),
+                                            size=10,
+                                            weight="bold",
+                                            color="#6D6D6D",
+                                        ),
+                                        bgcolor="white",
+                                        border=ft.border.all(1, "#6D6D6D"),
+                                        border_radius=10,
+                                        padding=ft.padding.symmetric(
+                                            horizontal=10, vertical=3
+                                        ),
+                                        visible=show_category,
+                                    ),
+                                ],
+                            ),
+                            ft.Divider(height=1, color="#6D6D6D"),
+                            ft.Row(
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                controls=[
+                                    ft.Column(
+                                        spacing=3,
+                                        controls=[
+                                            ft.Text(
+                                                self.booking["day"],
+                                                size=12,
+                                                weight="bold",
+                                                color="#6D6D6D",
+                                            ),
+                                            ft.Text(
+                                                self.booking["time"],
+                                                size=12,
+                                                weight="bold",
+                                                color="#6D6D6D",
+                                            ),
+                                            ft.Text(
+                                                self.booking["location"],
+                                                size=12,
+                                                color="#6D6D6D",
+                                            ),
+                                        ],
                                     ),
                                     ft.Text(
-                                        self.booking.get("venue_name", "Unknown"),
-                                        size=16,
+                                        str(self.booking.get("event_name", "N/A")),
+                                        size=12,
                                         weight="bold",
                                         color="#6D6D6D",
                                     ),
                                 ],
                             ),
-                            ft.Container(
-                                content=ft.Text(
-                                    self.booking["category"].upper(),
-                                    size=10,
-                                    weight="bold",
-                                    color="#6D6D6D",
-                                ),
-                                bgcolor="white",
-                                border=ft.border.all(1, "#6D6D6D"),
-                                border_radius=10,
-                                padding=ft.padding.symmetric(horizontal=10, vertical=3),
-                                visible=show_category,
-                            ),
-                        ],
-                    ),
-                    ft.Divider(height=1, color="#6D6D6D"),
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                        controls=[
-                            ft.Column(
-                                spacing=3,
+                            ft.Row(
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                                 controls=[
                                     ft.Text(
-                                        self.booking["day"],
-                                        size=12,
-                                        weight="bold",
-                                        color="#6D6D6D",
+                                        "Cancelled", size=14, color="red", weight="bold"
                                     ),
                                     ft.Text(
-                                        self.booking["time"],
+                                        str(self.booking.get("id", "N/A")),
                                         size=12,
                                         weight="bold",
-                                        color="#6D6D6D",
-                                    ),
-                                    ft.Text(
-                                        self.booking["location"],
-                                        size=12,
                                         color="#6D6D6D",
                                     ),
                                 ],
                             ),
-                            ft.Text(
-                                str(self.booking.get("event_name", "N/A")),
-                                size=12,
-                                weight="bold",
-                                color="#6D6D6D",
-                            ),
                         ],
                     ),
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                        controls=[
-                            ft.Text("Cancelled", size=14, color="red", weight="bold"),
-                            ft.Text(
-                                str(self.booking.get("id", "N/A")),
-                                size=12,
-                                weight="bold",
-                                color="#6D6D6D",
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-            padding=15,
-            border_radius=15,
-            bgcolor="white",
-            border=ft.border.all(1, "#6D6D6D"),
+                    padding=15,
+                    border_radius=15,
+                    bgcolor="white",
+                    border=ft.border.all(1, "#6D6D6D"),
+                ),
+            ],
         )
 
 

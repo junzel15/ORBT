@@ -104,7 +104,13 @@ def go_to(route, page, **kwargs):
 
     print(f"Navigating to {route} with kwargs: {kwargs}")
 
-    view_class = ROUTES[route]
+    base_route = route.split("/")[1]
+
+    if f"/{base_route}" in ROUTES:
+        view_class = ROUTES[f"/{base_route}"]
+    else:
+        print(f"Error: Route '{route}' not found in ROUTES")
+        return
 
     if hasattr(view_class, "__init__"):
         init_params = view_class.__init__.__code__.co_varnames
@@ -118,9 +124,9 @@ def go_to(route, page, **kwargs):
     view = view_instance.render() if hasattr(view_instance, "render") else view_instance
 
     if not hasattr(view, "route"):
-        view = ft.View(route=route, controls=[view])
+        view = ft.View(route=f"/{base_route}", controls=[view])
 
-    if not page.views or page.views[-1].route != route:
+    if not page.views or page.views[-1].route != f"/{base_route}":
         page.views.append(view)
 
     page.go(view.route)

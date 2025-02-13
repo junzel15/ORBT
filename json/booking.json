@@ -1,11 +1,35 @@
 [
     {
+        "title": "Cancelled Booking",
         "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
+        "booking_id": "ORBT - 003",
+        "event_name": "Dining",
+        "status": "Cancelled",
+        "time": "11:00 AM",
+        "date": "JANUARY 04, 2025",
+        "location": "Pagadian City",
+        "venue_name": "Water Front Hotel",
+        "book_option_order": "Coffee"
+    },
+    {
+        "title": "Cancelled Booking",
+        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
+        "booking_id": "ORBT - 002",
+        "event_name": "Dining",
+        "status": "Cancelled",
+        "time": "10:00 AM",
+        "date": "JANUARY 03, 2025",
+        "location": "Pagadian City",
+        "venue_name": "Water Front Hotel",
+        "book_option_order": "diner"
+    },
+    {
+        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
+        "event_name": "Dining",
         "booking_id": "ORBT - 001",
         "date": "JANUARY 01, 2025",
         "time": "08:00 AM",
         "location": "Pagadian City",
-        "event_name": "Dining",
         "book_option_order": "Coffee",
         "status": "Upcoming",
         "venue_name": "Water Front Hotel",
@@ -15,46 +39,5 @@
         "Dining_image": "/assets/images/Icon Dinning.png",
         "Bars_image": "/assets/images/Bars.png",
         "Experiences_image": "/assets/images/Experiences.png"
-    },
-    {
-        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
-        "booking_id": "ORBT - 002",
-        "date": "JANUARY 03, 2025",
-        "time": "10:00 AM",
-        "location": "Pagadian City",
-        "event_name": "Dining",
-        "book_option_order": "Brunch",
-        "status": "Upcoming",
-        "venue_name": "Water Front Hotel",
-        "Coffee_image": "/assets/images/Coffee.png",
-        "Brunch_image": "/assets/images/Brunch.png",
-        "Diner_image": "/assets/images/Diner.png",
-        "Dining_image": "/assets/images/Icon Dinning.png",
-        "Bars_image": "/assets/images/Bars.png",
-        "Experiences_image": "/assets/images/Experiences.png"
-    },
-    {
-        "title": "Cancelled Booking",
-        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
-        "booking_id": "ORBT - 001",
-        "event_name": "Dining",
-        "status": "Cancelled",
-        "time": "08:00 AM",
-        "date": "JANUARY 01, 2025",
-        "location": "Pagadian City",
-        "venue_name": "Water Front Hotel",
-        "book_option_order": "coffee"
-    },
-    {
-        "title": "Cancelled Booking",
-        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
-        "booking_id": "ORBT - 002",
-        "event_name": "Dining",
-        "status": "Cancelled",
-        "time": "10:00 AM",
-        "date": "JANUARY 03, 2025",
-        "location": "Pagadian City",
-        "venue_name": "Water Front Hotel",
-        "book_option_order": "brunch"
     }
 ]

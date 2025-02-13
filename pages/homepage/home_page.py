@@ -1,6 +1,7 @@
 import flet as ft
 import json
 from global_state import get_logged_in_user, update_user_data
+import uuid
 
 
 class HomePage:
@@ -13,39 +14,26 @@ class HomePage:
 
     def save_booking(self, event_name):
         user = get_logged_in_user()
-        if user:
-            user_uuid = user["uuid"]
-            self.selected_event_name = event_name
-
-            try:
-                with open("json/booking.json", "r+") as file:
-                    try:
-                        users = json.load(file)
-                    except json.JSONDecodeError:
-                        users = []
-
-                    for u in users:
-                        if u["uuid"] == user_uuid:
-                            u["event_name"] = event_name
-                            break
-
-                    file.seek(0)
-                    json.dump(users, file, indent=4)
-                    file.truncate()
-
-                with open("json/booking.json", "r") as file:
-                    users = json.load(file)
-                    for u in users:
-                        if u["uuid"] == user_uuid:
-                            update_user_data(u)
-                            break
-
-                print(f"Event '{event_name}' saved successfully for user {user_uuid}.")
-
-            except (FileNotFoundError, json.JSONDecodeError) as ex:
-                print(f"Error saving event: {ex}")
-        else:
+        if not user:
             print("No user is logged in.")
+            return
+
+        user_uuid = user["uuid"]
+        file_path = "json/booking.json"
+
+        try:
+            with open(file_path, "r") as file:
+                bookings = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            bookings = []
+
+        new_booking = {"uuid": user_uuid, "event_name": event_name}
+        bookings.append(new_booking)
+
+        with open(file_path, "w") as file:
+            json.dump(bookings, file, indent=4)
+
+        print(f"✅ Event '{event_name}' saved successfully for user {user_uuid}.")
 
     def on_option_click(self, event_name, route):
         self.save_booking(event_name)

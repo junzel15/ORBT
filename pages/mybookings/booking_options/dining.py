@@ -149,28 +149,30 @@ class DiningPage:
         if not self.selected_date or not self.selected_time or not self.current_tab:
             print("Please select a date, time, and tab before booking.")
             return
-        print(f"User data before booking: {user}")
 
-        if not user.get("event_name"):
-            print("Error: No event selected.")
-            return
-
-        self.selected_event_name = user["event_name"]
-        print(f"Event Name: {self.selected_event_name}")
-        print(f"Selected Tab: {self.current_tab}")
-
+        user_uuid = user["uuid"]
         file_path = "json/booking.json"
-        bookings = []
+
         try:
             with open(file_path, "r") as file:
                 bookings = json.load(file)
         except (FileNotFoundError, json.JSONDecodeError):
             print("No existing bookings or invalid file format. Starting fresh.")
+            bookings = []
+
+        unbooked_event = next(
+            (b for b in bookings if b["uuid"] == user_uuid and "booking_id" not in b),
+            None,
+        )
+
+        if not unbooked_event:
+            print("❌ No unbooked event found for this user.")
+            return
 
         existing_ids = [
             int(booking["booking_id"].split(" - ")[1])
             for booking in bookings
-            if booking.get("booking_id", "").startswith("ORBT -")
+            if "booking_id" in booking and booking["booking_id"].startswith("ORBT -")
         ]
         print(f"Existing Booking IDs: {existing_ids}")
 
@@ -187,38 +189,31 @@ class DiningPage:
         booking_id = f"ORBT - {next_id:03}"
         print(f"Generated Booking ID: {booking_id}")
 
-        new_booking = {
-            "uuid": user["uuid"],
-            "booking_id": booking_id,
-            "date": self.selected_date,
-            "time": self.selected_time,
-            "location": "Pagadian City",
-            "event_name": self.selected_event_name,
-            "book_option_order": self.current_tab,
-            "status": "Upcoming",
-            "venue_name": "Water Front Hotel",
-            "Coffee_image": "/assets/images/Coffee.png",
-            "Brunch_image": "/assets/images/Brunch.png",
-            "Diner_image": "/assets/images/Diner.png",
-            "Dining_image": "/assets/images/Icon Dinning.png",
-            "Bars_image": "/assets/images/Bars.png",
-            "Experiences_image": "/assets/images/Experiences.png",
-        }
-        print(f"New Booking Before Append: {new_booking}")
+        unbooked_event.update(
+            {
+                "booking_id": booking_id,
+                "date": self.selected_date,
+                "time": self.selected_time,
+                "location": "Pagadian City",
+                "book_option_order": self.current_tab,
+                "status": "Upcoming",
+                "venue_name": "Water Front Hotel",
+                "Coffee_image": "/assets/images/Coffee.png",
+                "Brunch_image": "/assets/images/Brunch.png",
+                "Diner_image": "/assets/images/Diner.png",
+                "Dining_image": "/assets/images/Icon Dinning.png",
+                "Bars_image": "/assets/images/Bars.png",
+                "Experiences_image": "/assets/images/Experiences.png",
+            }
+        )
+
+        print(f"✅ Updated Booking: {unbooked_event}")
 
         try:
-            bookings.append(new_booking)
-            print(f"After appending: {len(bookings)} bookings")
-            print(f"Updated Data: {bookings}")
-
             with open(file_path, "w") as file:
                 json.dump(bookings, file, indent=4)
-                file.flush()
-            print("Booking data successfully written to file!")
-            with open(file_path, "r") as file:
-                print("Final Booking Data:", file.read())
 
-            print(f"Booking successful: {new_booking}")
+            print("✅ Booking details successfully updated in booking.json")
             self.page.go("/loadingscreen")
             self.page.update()
 

@@ -75,7 +75,7 @@ class Bookings(ft.UserControl):
         self.tab_indicator = ft.Container(
             height=4,
             width=60,
-            bgcolor="white",
+            bgcolor="transparent",
             animate=ft.animation.Animation(300, "ease_out"),
         )
 
@@ -178,11 +178,8 @@ class Bookings(ft.UserControl):
                 controls=[
                     ft.Container(
                         width=self.page.width,
-                        gradient=ft.LinearGradient(
-                            begin=ft.alignment.top_center,
-                            end=ft.alignment.bottom_center,
-                            colors=["#5300FA", "#000000"],
-                        ),
+                        image_src="assets/images/Rectangle.png",
+                        image_fit=ft.ImageFit.COVER,
                         content=ft.Column(
                             spacing=10,
                             controls=[
@@ -331,6 +328,11 @@ class Bookings(ft.UserControl):
                 booking["status"] = updated_booking["status"]
 
         if updated_booking["status"] == "Cancelled":
+            self.original_bookings = [
+                booking
+                for booking in self.original_bookings
+                if booking["id"] != updated_booking["id"]
+            ]
             self.save_cancelled_booking(updated_booking)
 
         self.update_bookings_view()
@@ -340,6 +342,15 @@ class Bookings(ft.UserControl):
         try:
             with open(file_path, "r") as file:
                 data = json.load(file)
+
+            data = [
+                b
+                for b in data
+                if not (
+                    b.get("status") == "Upcoming"
+                    and b.get("booking_id") == booking["id"]
+                )
+            ]
 
             data.append(
                 {
@@ -358,7 +369,7 @@ class Bookings(ft.UserControl):
 
             with open(file_path, "w") as file:
                 json.dump(data, file, indent=4)
-            print("Booking successfully cancelled and saved.")
+            print("Booking successfully moved to Cancelled and saved.")
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error saving cancelled booking: {e}")
 
