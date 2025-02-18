@@ -15,7 +15,7 @@ class LoginPage:
 
         self.header_section = ft.Container(
             content=ft.Image(
-                src="assets/images/logo_blue.png",
+                src="images/logo_blue.png",
                 fit=ft.ImageFit.CONTAIN,
                 height=42,
             ),
@@ -114,7 +114,7 @@ class LoginPage:
                         content=ft.Row(
                             [
                                 ft.Image(
-                                    src="assets/images/icon_google.png",
+                                    src="images/icon_google.png",
                                     width=24,
                                     height=24,
                                     fit=ft.ImageFit.COVER,
@@ -134,7 +134,7 @@ class LoginPage:
                         content=ft.Row(
                             [
                                 ft.Image(
-                                    src="assets/images/icon_fb.png",
+                                    src="images/icon_fb.png",
                                     width=18,
                                     height=18,
                                     fit=ft.ImageFit.COVER,
@@ -234,7 +234,7 @@ class LoginPage:
                 expand=True,
                 controls=[
                     ft.Image(
-                        src="assets/images/registration_bg.png",
+                        src="images/registration_bg.png",
                         fit=ft.ImageFit.COVER,
                         expand=True,
                     ),

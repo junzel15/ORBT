@@ -1,5 +1,6 @@
 import threading
 import flet as ft
+from flet import UserControl
 
 
 class LoadingScreen(ft.UserControl):
@@ -18,7 +19,7 @@ class LoadingScreen(ft.UserControl):
                     ft.Container(height=40),
                     ft.Container(
                         content=ft.Image(
-                            src="assets/images/Loading Screen.png",
+                            src="images/Loading Screen.png",
                             width=255,
                             height=321,
                         ),

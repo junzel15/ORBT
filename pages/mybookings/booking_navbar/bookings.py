@@ -4,6 +4,7 @@ from pages.mybookings.booking_navbar.components import BookingCard, Tabs, Filter
 from pages.mybookings.booking_navbar.helpers import filter_bookings
 from global_state import get_logged_in_user
 import os
+from flet import UserControl
 
 
 class Bookings(ft.UserControl):
@@ -16,6 +17,8 @@ class Bookings(ft.UserControl):
         self.original_bookings = self.load_bookings()
         self.filtered_bookings = self.original_bookings
 
+        self.bookings_list = ft.Column()
+
         self.filter_modal = FilterModal(self.apply_filter)
         self.bookings_list = ft.Column(spacing=15, expand=True)
         self.tabs = Tabs(self.switch_tab)
@@ -27,42 +30,52 @@ class Bookings(ft.UserControl):
             animate=ft.animation.Animation(300, "ease_out"),
         )
 
+        self.bookings_list = ft.ListView(
+            expand=True,
+            spacing=15,
+            padding=ft.padding.symmetric(horizontal=15),
+            auto_scroll=True,
+        )
+
         self.tabs_row = self.build_tabs_row()
 
-        self.bottom_nav = ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.IconButton(
-                        content=ft.Image(
-                            src="assets/images/Home.png", width=28, height=28
+        self.bottom_nav = ft.SafeArea(
+            content=ft.Container(
+                content=ft.Row(
+                    controls=[
+                        ft.IconButton(
+                            content=ft.Image(
+                                src="images/Home.png", width=28, height=28
+                            ),
+                            on_click=lambda _: self.go_to("/homepage", self.page),
                         ),
-                        on_click=lambda _: self.go_to("/homepage", self.page),
-                    ),
-                    ft.IconButton(
-                        content=ft.Image(
-                            src="assets/images/Star.png", width=28, height=28
+                        ft.IconButton(
+                            content=ft.Image(
+                                src="images/Star.png", width=28, height=28
+                            ),
+                            on_click=lambda _: self.go_to("/bookings", self.page),
                         ),
-                        on_click=lambda _: self.go_to("/bookings", self.page),
-                    ),
-                    ft.IconButton(
-                        content=ft.Image(
-                            src="assets/images/Message.png", width=28, height=28
+                        ft.IconButton(
+                            content=ft.Image(
+                                src="images/Message.png", width=28, height=28
+                            ),
+                            on_click=lambda _: self.go_to("/messages", self.page),
                         ),
-                        on_click=lambda _: self.go_to("/messages", self.page),
-                    ),
-                    ft.IconButton(
-                        content=ft.Image(
-                            src="assets/images/Profile.png", width=28, height=28
+                        ft.IconButton(
+                            content=ft.Image(
+                                src="images/Profile.png", width=28, height=28
+                            ),
+                            on_click=lambda _: self.go_to("/profile", self.page),
                         ),
-                        on_click=lambda _: self.go_to("/profile", self.page),
-                    ),
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_AROUND,
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
+                ),
+                bgcolor="white",
+                border_radius=30,
+                padding=ft.padding.symmetric(vertical=10),
+                shadow=ft.BoxShadow(blur_radius=5, color="#00000020"),
             ),
-            bgcolor="white",
-            border_radius=30,
-            padding=ft.padding.symmetric(vertical=10),
-            shadow=ft.BoxShadow(blur_radius=5, color="#00000020"),
+            expand=False,
         )
 
     def did_mount(self):
@@ -71,6 +84,8 @@ class Bookings(ft.UserControl):
     def build(self):
         logged_in_user = get_logged_in_user()
         print(f"Logged in user: {logged_in_user}")
+
+        self.bookings_list = ft.Column(spacing=15, expand=True)
 
         self.tab_indicator = ft.Container(
             height=4,
@@ -225,16 +240,11 @@ class Bookings(ft.UserControl):
                         padding=ft.padding.only(top=30, left=10, right=10),
                     ),
                     ft.Container(
-                        content=self.bookings_list,
                         expand=True,
+                        content=self.bookings_list,
                         padding=ft.padding.symmetric(horizontal=15),
                     ),
-                    ft.Container(
-                        content=self.bottom_nav,
-                        alignment=ft.alignment.bottom_center,
-                        padding=ft.padding.only(bottom=10),
-                        expand=False,
-                    ),
+                    self.bottom_nav,
                 ],
             ),
         )
@@ -297,17 +307,23 @@ class Bookings(ft.UserControl):
 
     def update_bookings_view(self):
         print("Updating bookings view... Total bookings:", len(self.filtered_bookings))
+
         self.bookings_list.controls.clear()
+
         filtered = [
-            booking
-            for booking in self.filtered_bookings
-            if booking["status"] == self.current_tab
+            b
+            for b in self.filtered_bookings
+            if b["status"].lower() == self.current_tab.lower()
         ]
 
         if not filtered:
             print(f"No bookings found for {self.current_tab}")
             self.bookings_list.controls.append(
-                ft.Text(f"No bookings available for {self.current_tab}.")
+                ft.Text(
+                    f"No bookings available for {self.current_tab}.",
+                    size=16,
+                    color="gray",
+                )
             )
         else:
             for booking in filtered:
@@ -318,7 +334,6 @@ class Bookings(ft.UserControl):
                     ).build()
                 )
 
-        self.bookings_list.update()
         self.update()
 
     def update_lists(self, updated_booking):
@@ -360,10 +375,10 @@ class Bookings(ft.UserControl):
                     "event_name": booking["event_name"],
                     "status": "Cancelled",
                     "time": booking["time"],
-                    "date": booking["day"],
+                    "date": booking["date"],
                     "location": booking["location"],
                     "venue_name": booking["venue_name"],
-                    "book_option_order": booking["category"].lower(),
+                    "book_option_order": booking["book_option_order"],
                 }
             )
 
@@ -411,11 +426,12 @@ class Bookings(ft.UserControl):
                                 "emoji": "🍽️",
                                 "status": booking.get("status", "Upcoming"),
                                 "time": booking["time"],
-                                "day": booking["date"],
+                                "date": booking["date"],
                                 "location": booking["location"],
                                 "venue_name": venue_name,
                                 "category": book_option_order.upper(),
                                 "image": image_path,
+                                "book_option_order": book_option_order,
                             }
                         )
 
@@ -425,6 +441,7 @@ class Bookings(ft.UserControl):
             print(f"Error loading bookings: {e}")
             return []
 
+    @staticmethod
     def get_booking_image(booking):
         event_name = booking.get("event_name", "Unknown")
         book_option_order = booking.get("book_option_order", "Unknown")

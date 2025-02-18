@@ -255,7 +255,7 @@ class GenderPage(ft.UserControl):
             ),
             shape=ft.RoundedRectangleBorder(radius=10),
             side={
-                ft.ControlState.DEFAULT: ft.BorderSide(1, "#FFFFFF"),
+                ft.UserControlState.DEFAULT: ft.BorderSide(1, "#FFFFFF"),
             },
         )
 

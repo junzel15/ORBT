@@ -11,18 +11,7 @@
         "venue_name": "Water Front Hotel",
         "book_option_order": "Coffee"
     },
-    {
-        "title": "Cancelled Booking",
-        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
-        "booking_id": "ORBT - 002",
-        "event_name": "Dining",
-        "status": "Cancelled",
-        "time": "10:00 AM",
-        "date": "JANUARY 03, 2025",
-        "location": "Pagadian City",
-        "venue_name": "Water Front Hotel",
-        "book_option_order": "diner"
-    },
+
     {
         "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
         "event_name": "Dining",

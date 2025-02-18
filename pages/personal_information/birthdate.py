@@ -356,7 +356,7 @@ class BirthdatePage(ft.UserControl):
                         bgcolor=ft.Colors.TRANSPARENT if day != self.day else "#5300FA",
                         shape=ft.RoundedRectangleBorder(radius=5),
                         side={
-                            ft.ControlState.DEFAULT: ft.BorderSide(
+                            ft.UserControlState.DEFAULT: ft.BorderSide(
                                 1,
                                 ft.Colors.TRANSPARENT if day != self.day else "#5300FA",
                             ),

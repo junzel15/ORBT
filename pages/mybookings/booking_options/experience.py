@@ -165,7 +165,7 @@ class ExperiencePage:
                     content=ft.Row(
                         controls=[
                             ft.Image(
-                                src="assets/images/Icon Experiences.png",
+                                src="images/Icon Experiences.png",
                                 width=70,
                                 height=50,
                                 fit=ft.ImageFit.CONTAIN,
@@ -347,7 +347,7 @@ class ExperiencePage:
                                 controls=[
                                     ft.Container(
                                         content=ft.Image(
-                                            src="assets/images/Group.png",
+                                            src="images/Group.png",
                                             width=50,
                                             height=50,
                                         ),
@@ -433,7 +433,7 @@ class ExperiencePage:
 
         background = ft.Container(
             content=ft.Image(
-                src="assets/images/Dark Background 2 Screen.png",
+                src="images/Dark Background 2 Screen.png",
                 fit=ft.ImageFit.COVER,
             ),
             width=self.page.window_width,

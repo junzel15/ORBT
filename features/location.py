@@ -1,4 +1,5 @@
 import flet as ft
+from flet import UserControl
 
 
 class LocationPage(ft.UserControl):
@@ -52,7 +53,7 @@ class LocationPage(ft.UserControl):
                     ft.Container(height=20),
                     ft.Container(
                         content=ft.Image(
-                            src="assets/images/location global.png",
+                            src="images/location global.png",
                             width=319,
                             height=298,
                         ),

@@ -183,7 +183,7 @@ class ProfilePage:
                 controls=[
                     ft.IconButton(
                         content=ft.Image(
-                            src="assets/images/Home.png",
+                            src="images/Home.png",
                             width=(24 if not is_mobile else 20),
                             height=(24 if not is_mobile else 20),
                         ),
@@ -191,7 +191,7 @@ class ProfilePage:
                     ),
                     ft.IconButton(
                         content=ft.Image(
-                            src="assets/images/Star.png",
+                            src="images/Star.png",
                             width=(24 if not is_mobile else 20),
                             height=(24 if not is_mobile else 20),
                         ),
@@ -199,7 +199,7 @@ class ProfilePage:
                     ),
                     ft.IconButton(
                         content=ft.Image(
-                            src="assets/images/Message.png",
+                            src="images/Message.png",
                             width=(24 if not is_mobile else 20),
                             height=(24 if not is_mobile else 20),
                         ),
@@ -207,7 +207,7 @@ class ProfilePage:
                     ),
                     ft.IconButton(
                         content=ft.Image(
-                            src="assets/images/Profile.png",
+                            src="images/Profile.png",
                             width=(24 if not is_mobile else 20),
                             height=(24 if not is_mobile else 20),
                         ),

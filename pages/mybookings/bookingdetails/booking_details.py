@@ -11,10 +11,8 @@ class BookingDetails(ft.UserControl):
         self.go_to = go_to
         self.user_data = get_logged_in_user()
         self.booking_id = booking_id
-        self.user_data = get_logged_in_user()
 
     def get_booking_details(self):
-
         try:
             with open("json/booking.json", "r") as file:
                 bookings = json.load(file)
@@ -22,9 +20,8 @@ class BookingDetails(ft.UserControl):
                 if self.booking_id:
                     for booking in bookings:
                         if booking.get("booking_id") == self.booking_id:
-                            print(f"✅ Found booking by ID: {self.booking_id}")
                             return booking
-                    print(f"❌ Booking ID {self.booking_id} not found!")
+                    print(f" Booking ID {self.booking_id} not found!")
 
                 logged_in_user = get_logged_in_user()
                 if logged_in_user:
@@ -35,7 +32,6 @@ class BookingDetails(ft.UserControl):
                     ]
                     if user_bookings:
                         latest_booking = user_bookings[-1]
-                        print("✅ No booking_id provided, showing latest booking!")
                         return latest_booking
 
             return None
@@ -46,8 +42,70 @@ class BookingDetails(ft.UserControl):
             print("❌ Error decoding JSON!")
             return None
 
+    def cancel_event(self, e):
+        self.booking = self.get_booking_details()
+
+        if self.booking:
+            booking_id = self.booking.get("booking_id")
+            if not booking_id:
+                print("❌ Error: Booking does not have a 'booking_id' key.")
+                return
+
+            print(f"🚨 Cancelling booking with ID: {booking_id}")
+
+            self.booking["status"] = "Cancelled"
+
+            self.save_cancelled_booking(self.booking)
+
+            print(
+                f"✅ Booking ID {booking_id} status updated to: {self.booking['status']}"
+            )
+
+            self.go_to("/cancelbooking", self.page)
+        else:
+            print("❌ Error: No booking selected to cancel.")
+
+    def save_cancelled_booking(self, booking):
+        file_path = "json/booking.json"
+        try:
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            booking_id = booking.get("booking_id")
+            if not booking_id:
+                print("Error: Booking does not have a 'booking_id' key.")
+                return
+
+            data = [
+                b
+                for b in data
+                if not (
+                    b.get("status") == "Upcoming" and b.get("booking_id") == booking_id
+                )
+            ]
+
+            data.append(
+                {
+                    "title": "Cancelled Booking",
+                    "uuid": get_logged_in_user().get("uuid"),
+                    "booking_id": booking_id,
+                    "event_name": booking.get("event_name", "Unknown"),
+                    "status": "Cancelled",
+                    "time": booking.get("time", "Unknown"),
+                    "date": booking.get("date", "Unknown"),
+                    "location": booking.get("location", "Unknown"),
+                    "venue_name": booking.get("venue_name", "Unknown"),
+                    "book_option_order": booking.get("book_option_order", "Unknown"),
+                }
+            )
+
+            with open(file_path, "w") as file:
+                json.dump(data, file, indent=4)
+            print("Booking successfully moved to Cancelled and saved.")
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Error saving cancelled booking: {e}")
+
     def build(self):
-        """Rebuild UI with fresh booking details."""
         self.booking = self.get_booking_details()
 
         date_time_str = "Date/Time not available"
@@ -76,13 +134,6 @@ class BookingDetails(ft.UserControl):
 
         self.page.assets_dir = "assets"
 
-        (
-            ft.Text(book_option_order, color="white", size=10)
-            if book_option_order
-            else None
-        ),
-        ft.Image(src=image_path, width=100, height=100),
-
         return ft.Container(
             image_src="assets/images/Dark Background 2 Screen.png",
             image_fit=ft.ImageFit.COVER,
@@ -97,7 +148,7 @@ class BookingDetails(ft.UserControl):
                                 on_click=lambda _: self.go_to("/homepage", self.page),
                             ),
                             ft.Text(
-                                self.booking.get("booking_id", "No ID"),
+                                self.booking["booking_id"] if self.booking else "No ID",
                                 color="white",
                                 weight="bold",
                             ),
@@ -256,7 +307,7 @@ class BookingDetails(ft.UserControl):
                                     ft.Row(
                                         [
                                             ft.Image(
-                                                src="assets/images/US.png",
+                                                src="images/US.png",
                                                 width=20,
                                                 height=20,
                                             ),
@@ -271,7 +322,7 @@ class BookingDetails(ft.UserControl):
                                     ft.Row(
                                         [
                                             ft.Image(
-                                                src="assets/images/PH.png",
+                                                src="images/PH.png",
                                                 width=20,
                                                 height=20,
                                             ),
@@ -322,7 +373,7 @@ class BookingDetails(ft.UserControl):
                                 ft.Row(
                                     [
                                         ft.Image(
-                                            src="assets/images/Icon Aries.png",
+                                            src="images/Icon Aries.png",
                                             width=25,
                                             height=25,
                                         ),
@@ -339,7 +390,7 @@ class BookingDetails(ft.UserControl):
                                 ft.Row(
                                     [
                                         ft.Image(
-                                            src="assets/images/Icon Taurus.png",
+                                            src="images/Icon Taurus.png",
                                             width=25,
                                             height=25,
                                         ),
@@ -356,7 +407,7 @@ class BookingDetails(ft.UserControl):
                                 ft.Row(
                                     [
                                         ft.Image(
-                                            src="assets/images/Icon Gemini.png",
+                                            src="images/Icon Gemini.png",
                                             width=25,
                                             height=25,
                                         ),
@@ -373,7 +424,7 @@ class BookingDetails(ft.UserControl):
                                 ft.Row(
                                     [
                                         ft.Image(
-                                            src="assets/images/Icon Cancer.png",
+                                            src="images/Icon Cancer.png",
                                             width=25,
                                             height=25,
                                         ),
@@ -511,6 +562,7 @@ class BookingDetails(ft.UserControl):
                                 bgcolor="white",
                                 color="black",
                                 width=150,
+                                on_click=self.cancel_event,
                             ),
                             ft.ElevatedButton(
                                 "View E-Ticket",

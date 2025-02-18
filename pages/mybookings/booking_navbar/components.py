@@ -38,22 +38,9 @@ class BookingCard(ft.UserControl):
 
         show_category = event_name not in ["Bars", "Experiences"]
 
-        tab_bar = ft.Tabs(
-            selected_index=0,
-            animation_duration=300,
-            indicator_tab_size=3,
-            indicator_color="black",
-            tabs=[
-                ft.Tab(text="This Week"),
-                ft.Tab(text="Next Week"),
-                ft.Tab(text="Later"),
-            ],
-        )
-
         return ft.Column(
             spacing=10,
             controls=[
-                tab_bar,
                 ft.Container(
                     content=ft.Column(
                         spacing=10,
@@ -216,14 +203,6 @@ class BookingCard(ft.UserControl):
             content=ft.Column(
                 spacing=10,
                 controls=[
-                    ft.Tabs(
-                        selected_index=0,
-                        tabs=[
-                            ft.Tab(text="This Week"),
-                            ft.Tab(text="Next Week"),
-                            ft.Tab(text="Later"),
-                        ],
-                    ),
                     ft.Row(
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                         controls=[
@@ -303,22 +282,9 @@ class BookingCard(ft.UserControl):
 
         show_category = event_name not in ["Bars", "Experiences"]
 
-        tab_bar = ft.Tabs(
-            selected_index=0,
-            animation_duration=300,
-            indicator_tab_size=3,
-            indicator_color="black",
-            tabs=[
-                ft.Tab(text="Recents"),
-                ft.Tab(text="This Month"),
-                ft.Tab(text="Older Events"),
-            ],
-        )
-
         return ft.Column(
             spacing=10,
             controls=[
-                tab_bar,
                 ft.Container(
                     content=ft.Column(
                         spacing=10,
@@ -369,7 +335,7 @@ class BookingCard(ft.UserControl):
                                         spacing=3,
                                         controls=[
                                             ft.Text(
-                                                self.booking["day"],
+                                                self.booking.get("date", "Unknown"),
                                                 size=12,
                                                 weight="bold",
                                                 color="#6D6D6D",

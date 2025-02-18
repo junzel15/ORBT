@@ -12,7 +12,7 @@ class SplashScreen(ft.View):
                     content=ft.Stack(
                         controls=[
                             ft.Image(
-                                src="assets/images/splash.png",
+                                src="images/splash.png",
                                 fit=ft.ImageFit.COVER,
                                 expand=True,
                             ),

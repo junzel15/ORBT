@@ -20,7 +20,7 @@ from pages.mybookings.booking_options.experience import ExperiencePage
 from pages.profiles.profile_page import ProfilePage
 from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
-from pages.messages.messages import MessagesPage
+from pages.chat.messages import MessagesPage
 from pages.login.login_page import LoginPage
 from pages.login.components.forgot_password import ForgotPassword
 from pages.login.components.otp import OtpPage
@@ -41,6 +41,8 @@ from pages.mybookings.booking_options.shared.booking_confirmation import (
 from pages.mybookings.booking_navbar.bookings import Bookings
 from pages.mybookings.booking_navbar.components import BookingCard, Tabs, FilterModal
 from pages.mybookings.booking_navbar.helpers import filter_bookings
+from pages.mybookings.bookingdetails.cancel_booking import CancelBooking
+from pages.mybookings.bookingdetails.cancel_successfull import CancelSuccessful
 
 
 ROUTES = {
@@ -77,6 +79,8 @@ ROUTES = {
     "/bookings": Bookings,
     "/components": (BookingCard, Tabs, FilterModal),
     "/filters": filter_bookings,
+    "/cancelbooking": CancelBooking,
+    "/cancelsuccessfull": CancelSuccessful,
 }
 
 

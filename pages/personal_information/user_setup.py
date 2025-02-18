@@ -13,7 +13,7 @@ class UserSetupPage(ft.UserControl):
         self.page.bgcolor = "#000000"
 
         self.image = ft.Image(
-            src="assets/images/user_setup.png",
+            src="images/user_setup.png",
             width=271,
             height=203,
             fit="contain",

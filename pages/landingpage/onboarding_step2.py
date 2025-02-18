@@ -13,7 +13,7 @@ class OnboardingStep2(ft.View):
                         controls=[
                             ft.Container(
                                 content=ft.Image(
-                                    src="assets/images/ORBT Logo - Splash Screen.png",
+                                    src="images/ORBT Logo - Splash Screen.png",
                                     fit=ft.ImageFit.CONTAIN,
                                     height=30,
                                 ),
@@ -22,7 +22,7 @@ class OnboardingStep2(ft.View):
                             ),
                             ft.Container(
                                 content=ft.Image(
-                                    src="assets/images/Onboarding 2 Graphics.png",
+                                    src="images/Onboarding 2 Graphics.png",
                                     fit=ft.ImageFit.CONTAIN,
                                     height=300,
                                 ),

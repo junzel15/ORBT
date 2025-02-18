@@ -15,7 +15,7 @@ class ConfirmationPassword(ft.UserControl):
                     ft.Container(height=40),
                     ft.Container(
                         content=ft.Image(
-                            src="assets/images/password_bg.png", width=255, height=321
+                            src="images/password_bg.png", width=255, height=321
                         ),
                         alignment=ft.alignment.top_center,
                         padding=ft.Padding(0, 0, 0, 0),

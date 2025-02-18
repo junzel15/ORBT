@@ -302,7 +302,7 @@ class DiningPage:
                     content=ft.Row(
                         controls=[
                             ft.Image(
-                                src="assets/images/Icon Dinning.png",
+                                src="images/Icon Dinning.png",
                                 width=70,
                                 height=50,
                                 fit=ft.ImageFit.CONTAIN,
@@ -484,7 +484,7 @@ class DiningPage:
                                 controls=[
                                     ft.Container(
                                         content=ft.Image(
-                                            src="assets/images/Group.png",
+                                            src="images/Group.png",
                                             width=50,
                                             height=50,
                                         ),
@@ -570,7 +570,7 @@ class DiningPage:
 
         background = ft.Container(
             content=ft.Image(
-                src="assets/images/Dark Background 2 Screen.png",
+                src="images/Dark Background 2 Screen.png",
                 fit=ft.ImageFit.COVER,
             ),
             width=self.page.window_width,

@@ -1,4 +1,5 @@
 import flet as ft
+from flet import UserControl
 
 
 class ConfirmationScreen(ft.UserControl):
@@ -15,7 +16,7 @@ class ConfirmationScreen(ft.UserControl):
                     ft.Container(height=40),
                     ft.Container(
                         content=ft.Image(
-                            src="assets/images/Booking Successful.png",
+                            src="images/Booking Successful.png",
                             width=255,
                             height=321,
                         ),

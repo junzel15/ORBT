@@ -180,7 +180,7 @@ class InterestPage(ft.UserControl):
                     color="#5300FA" if is_selected else ft.Colors.WHITE,
                     shape=ft.RoundedRectangleBorder(radius=20),
                     side={
-                        ft.ControlState.DEFAULT: ft.BorderSide(
+                        ft.UserControlState.DEFAULT: ft.BorderSide(
                             1, ft.Colors.TRANSPARENT if is_selected else "#5300FA"
                         ),
                     },

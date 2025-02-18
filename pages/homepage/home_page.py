@@ -42,7 +42,7 @@ class HomePage:
     def render(self):
         self.user = get_logged_in_user()
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
-        is_mobile = self.page.window_width < 600
+        is_mobile = self.page.width < 600
 
         self.Notification_Section = ft.Container(
             content=ft.Row(
@@ -50,7 +50,7 @@ class HomePage:
                     ft.Row(
                         controls=[
                             ft.Image(
-                                src="assets/images/Location.png",
+                                src="images/Location.png",
                                 width=(32 if not is_mobile else 24),
                                 height=32 if not is_mobile else 24,
                             ),
@@ -65,7 +65,7 @@ class HomePage:
                         spacing=8,
                     ),
                     ft.Image(
-                        src="assets/images/Notify.png",
+                        src="images/Notify.png",
                         width=24 if not is_mobile else 20,
                         height=24 if not is_mobile else 20,
                     ),
@@ -133,7 +133,7 @@ class HomePage:
 
         self.Image_Section = ft.Container(
             content=ft.Image(
-                src="assets/images/Homepage Graphics.png",
+                src="images/Homepage Graphics.png",
                 width=(350 if not is_mobile else 250),
                 height=150 if not is_mobile else 120,
                 fit=ft.ImageFit.COVER,
@@ -149,7 +149,7 @@ class HomePage:
                         content=ft.Row(
                             controls=[
                                 ft.Image(
-                                    src="assets/images/Icon Dinning.png",
+                                    src="images/Icon Dinning.png",
                                     width=(50 if not is_mobile else 40),
                                     height=30 if not is_mobile else 24,
                                     fit=ft.ImageFit.CONTAIN,
@@ -178,7 +178,7 @@ class HomePage:
                         content=ft.Row(
                             controls=[
                                 ft.Image(
-                                    src="assets/images/Icon Bars.png",
+                                    src="images/Icon Bars.png",
                                     width=50 if not is_mobile else 40,
                                     height=30 if not is_mobile else 24,
                                     fit=ft.ImageFit.CONTAIN,
@@ -207,7 +207,7 @@ class HomePage:
                         content=ft.Row(
                             controls=[
                                 ft.Image(
-                                    src="assets/images/Icon Experiences.png",
+                                    src="images/Icon Experiences.png",
                                     width=50 if not is_mobile else 40,
                                     height=30 if not is_mobile else 24,
                                     fit=ft.ImageFit.CONTAIN,
@@ -253,7 +253,7 @@ class HomePage:
                     ft.Container(
                         content=ft.IconButton(
                             content=ft.Image(
-                                src="assets/images/Home.png",
+                                src="images/Home.png",
                                 width=24,
                                 height=24,
                             ),
@@ -265,7 +265,7 @@ class HomePage:
                     ft.Container(
                         content=ft.IconButton(
                             content=ft.Image(
-                                src="assets/images/Star.png",
+                                src="images/Star.png",
                                 width=24,
                                 height=24,
                             ),
@@ -277,7 +277,7 @@ class HomePage:
                     ft.Container(
                         content=ft.IconButton(
                             content=ft.Image(
-                                src="assets/images/Message.png",
+                                src="images/Message.png",
                                 width=24,
                                 height=24,
                             ),
@@ -289,7 +289,7 @@ class HomePage:
                     ft.Container(
                         content=ft.IconButton(
                             content=ft.Image(
-                                src="assets/images/Profile.png",
+                                src="images/Profile.png",
                                 width=24,
                                 height=24,
                             ),

@@ -1,4 +1,5 @@
 import flet as ft
+from flet import UserControl
 
 
 class NotificationPage(ft.UserControl):
@@ -52,7 +53,7 @@ class NotificationPage(ft.UserControl):
                     ft.Container(height=20),
                     ft.Container(
                         content=ft.Image(
-                            src="assets/images/notification.png", width=319, height=298
+                            src="images/notification.png", width=319, height=298
                         ),
                         alignment=ft.alignment.top_center,
                         padding=ft.Padding(0, 0, 0, 0),
