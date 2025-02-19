@@ -118,12 +118,12 @@ class RegistrationPage(ft.UserControl):
             "book_option_order": "",
             "status": "Upcoming",
             "venue_name": "Water Front Hotel",
-            "Coffee_image": "/assets/images/Coffee.png",
-            "Brunch_image": "/assets/images/Brunch.png",
-            "Diner_image": "/assets/images/Diner.png",
-            "Dining_image": "/assets/images/Icon Dinning.png",
-            "Bars_image": "/assets/images/Bars.png",
-            "Experiences_image": "/assets/images/Experiences.png",
+            "Coffee_image": "images/Coffee.png",
+            "Brunch_image": "images/Brunch.png",
+            "Diner_image": "images/Diner.png",
+            "Dining_image": "images/Icon Dinning.png",
+            "Bars_image": "images/Bars.png",
+            "Experiences_image": "images/Experiences.png",
         }
 
         self.save_booking_to_json(booking_data)

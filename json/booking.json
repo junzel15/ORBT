@@ -9,9 +9,8 @@
         "date": "JANUARY 04, 2025",
         "location": "Pagadian City",
         "venue_name": "Water Front Hotel",
-        "book_option_order": "Coffee"
+        "book_option_order": "Brunch"
     },
-
     {
         "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
         "event_name": "Dining",
@@ -22,11 +21,45 @@
         "book_option_order": "Coffee",
         "status": "Upcoming",
         "venue_name": "Water Front Hotel",
-        "Coffee_image": "/assets/images/Coffee.png",
-        "Brunch_image": "/assets/images/Brunch.png",
-        "Diner_image": "/assets/images/Diner.png",
-        "Dining_image": "/assets/images/Icon Dinning.png",
-        "Bars_image": "/assets/images/Bars.png",
-        "Experiences_image": "/assets/images/Experiences.png"
+        "Coffee_image": "images/Coffee.png",
+        "Brunch_image": "images/Brunch.png",
+        "Diner_image": "images/Diner.png",
+        "Dining_image": "images/Icon Dinning.png",
+        "Bars_image": "images/Bars.png",
+        "Experiences_image": "images/Experiences.png"
+    },
+    {
+        "uuid": "992b8364-90a6-4771-8e98-45409a69626f",
+        "event_name": "Dining",
+        "booking_id": "ORBT - 002",
+        "date": "JANUARY 02, 2025",
+        "time": "09:00 AM",
+        "location": "Pagadian City",
+        "book_option_order": "Brunch",
+        "status": "Upcoming",
+        "venue_name": "Water Front Hotel",
+        "Coffee_image": "images/Coffee.png",
+        "Brunch_image": "images/Brunch.png",
+        "Diner_image": "images/Diner.png",
+        "Dining_image": "images/Icon Dinning.png",
+        "Bars_image": "images/Bars.png",
+        "Experiences_image": "images/Experiences.png"
+    },
+    {
+        "uuid": "002a5340-e6bb-4c62-8a1b-93c04c15603c",
+        "booking_id": "ORBT-BR0001",
+        "date": "",
+        "time": "",
+        "location": "Pagadian City",
+        "event_name": "",
+        "book_option_order": "",
+        "status": "Upcoming",
+        "venue_name": "Water Front Hotel",
+        "Coffee_image": "images/Coffee.png",
+        "Brunch_image": "images/Brunch.png",
+        "Diner_image": "images/Diner.png",
+        "Dining_image": "images/Icon Dinning.png",
+        "Bars_image": "images/Bars.png",
+        "Experiences_image": "images/Experiences.png"
     }
 ]

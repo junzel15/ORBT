@@ -33,7 +33,7 @@ class HomePage:
         with open(file_path, "w") as file:
             json.dump(bookings, file, indent=4)
 
-        print(f"✅ Event '{event_name}' saved successfully for user {user_uuid}.")
+        print(f" Event '{event_name}' saved successfully for user {user_uuid}.")
 
     def on_option_click(self, event_name, route):
         self.save_booking(event_name)
@@ -139,7 +139,7 @@ class HomePage:
                 fit=ft.ImageFit.COVER,
             ),
             alignment=ft.alignment.center,
-            margin=ft.margin.symmetric(vertical=16),
+            margin=ft.margin.symmetric(vertical=8),
         )
 
         self.Options_Section = ft.Container(
@@ -244,7 +244,6 @@ class HomePage:
                 colors=["#1a1a1a", "#5300FA"],
             ),
             border_radius=12,
-            expand=True,
         )
 
         self.bottom_nav = ft.Container(
@@ -310,8 +309,6 @@ class HomePage:
             controls=[
                 self.Notification_Section,
                 self.Greeting_Description_Section,
-                self.Image_Section,
-                self.Options_Section,
             ],
             expand=True,
         )
@@ -322,7 +319,14 @@ class HomePage:
                     content=self.main_content,
                     expand=True,
                 ),
-                self.bottom_nav,
+                ft.Column(
+                    controls=[
+                        self.Image_Section,
+                        self.Options_Section,
+                        self.bottom_nav,
+                    ],
+                    spacing=0,
+                ),
             ],
             expand=True,
             spacing=0,

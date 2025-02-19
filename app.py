@@ -141,7 +141,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/login", page)
+    go_to("/homepage", page)
 
 
 ft.app(target=main)

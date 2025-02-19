@@ -1,5 +1,6 @@
 import flet as ft
 import json
+from flet import UserControl
 
 
 class GenderPage(ft.UserControl):
@@ -255,7 +256,7 @@ class GenderPage(ft.UserControl):
             ),
             shape=ft.RoundedRectangleBorder(radius=10),
             side={
-                ft.UserControlState.DEFAULT: ft.BorderSide(1, "#FFFFFF"),
+                ft.ControlState.DEFAULT: ft.BorderSide(1, "#FFFFFF"),
             },
         )
 

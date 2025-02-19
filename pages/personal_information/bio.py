@@ -1,5 +1,6 @@
 import flet as ft
 import json
+from flet import UserControl
 
 
 class BioPage(ft.UserControl):

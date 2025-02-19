@@ -23,6 +23,30 @@
         "otp": "6512",
         "verified": false,
         "profile_image": ""
+    },
+    {
+        "uuid": "002a5340-e6bb-4c62-8a1b-93c04c15603c",
+        "full_name": "TEST",
+        "email": "test@gmail.com",
+        "password": "$2b$12$c7FoPcURD9kUoyrTMaShPOSvsdTUrHJWhkFX178d5Fpw1Ta8xSQ56",
+        "phone_number": "123456",
+        "address": "",
+        "gender": "male",
+        "birthdate": "1990-09-12",
+        "bio": "TEST",
+        "interests": [
+            "Art",
+            "Sports",
+            "Plants",
+            "Travels",
+            "Films",
+            "Concerts",
+            "Food",
+            "Coffee",
+            "Cooking"
+        ],
+        "otp": "5923",
+        "verified": false,
+        "profile_image": ""
     }
- 
 ]

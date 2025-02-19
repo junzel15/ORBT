@@ -36,10 +36,10 @@ class BookingDetails(ft.UserControl):
 
             return None
         except FileNotFoundError:
-            print("❌ booking.json file not found!")
+            print(" booking.json file not found!")
             return None
         except json.JSONDecodeError:
-            print("❌ Error decoding JSON!")
+            print(" Error decoding JSON!")
             return None
 
     def cancel_event(self, e):
@@ -48,22 +48,22 @@ class BookingDetails(ft.UserControl):
         if self.booking:
             booking_id = self.booking.get("booking_id")
             if not booking_id:
-                print("❌ Error: Booking does not have a 'booking_id' key.")
+                print(" Error: Booking does not have a 'booking_id' key.")
                 return
 
-            print(f"🚨 Cancelling booking with ID: {booking_id}")
+            print(f" Cancelling booking with ID: {booking_id}")
 
             self.booking["status"] = "Cancelled"
 
             self.save_cancelled_booking(self.booking)
 
             print(
-                f"✅ Booking ID {booking_id} status updated to: {self.booking['status']}"
+                f" Booking ID {booking_id} status updated to: {self.booking['status']}"
             )
 
             self.go_to("/cancelbooking", self.page)
         else:
-            print("❌ Error: No booking selected to cancel.")
+            print(" Error: No booking selected to cancel.")
 
     def save_cancelled_booking(self, booking):
         file_path = "json/booking.json"
