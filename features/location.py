@@ -9,6 +9,10 @@ class LocationPage(ft.UserControl):
         self.go_to = go_to
         self.page = page
 
+        self.page.window_width = 400
+        self.page.window_height = 735
+        self.page.update()
+
     def build(self):
         return ft.Container(
             content=ft.Column(
@@ -60,7 +64,7 @@ class LocationPage(ft.UserControl):
                         alignment=ft.alignment.top_center,
                         padding=ft.Padding(0, 0, 0, 0),
                     ),
-                    ft.Container(height=110),
+                    ft.Container(height=60),
                     ft.Container(
                         content=ft.Column(
                             controls=[

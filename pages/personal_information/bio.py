@@ -10,6 +10,10 @@ class BioPage(ft.UserControl):
         self.page = page
         self.bio_input = None
 
+        self.page.window_width = 450
+        self.page.window_height = 790
+        self.page.update()
+
     def save_bio_and_next(self):
         if not self.bio_input or not self.bio_input.value.strip():
             print("Bio input is empty or not available.")

@@ -21,6 +21,10 @@ class BirthdatePage(ft.UserControl):
         )
         self.day_grid_container = None
 
+        self.page.window_width = 450
+        self.page.window_height = 790
+        self.page.update()
+
     def save_birthdate_and_next(self):
         user_birthdate = f"{self.year}-{self.month:02}-{self.day:02}"
 

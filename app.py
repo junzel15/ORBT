@@ -58,8 +58,8 @@ ROUTES = {
     "/bars": BarsPage,
     "/experience": ExperiencePage,
     "/profile": ProfilePage,
-    "/profile/settings": ProfileSettingsPage,
-    "/profile/edit": ProfileEditPage,
+    "/settings": ProfileSettingsPage,
+    "/edit": ProfileEditPage,
     "/messages": MessagesPage,
     "/login": LoginPage,
     "/forgotpassword": ForgotPassword,
@@ -141,7 +141,7 @@ def main(page: ft.Page):
 
     page.on_route_change = lambda _: go_to(page.route, page)
 
-    go_to("/homepage", page)
+    go_to("/login", page)
 
 
 ft.app(target=main)

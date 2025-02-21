@@ -8,6 +8,11 @@ class ResetPasswordPage(ft.UserControl):
         super().__init__()
         self.page = page
         self.go_to = go_to
+
+        self.page.window_width = 380
+        self.page.window_height = 680
+        self.page.update()
+
         self.password = ft.TextField(
             label="New Password",
             password=True,

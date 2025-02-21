@@ -14,6 +14,31 @@ class Bookings(ft.UserControl):
         self.go_to = go_to
         self.current_tab = "Upcoming"
 
+        self.set_mobile_view()
+
+        self.page.on_resize = self.adjust_window_size
+        self.adjust_window_size()
+        self.page.update()
+
+    def set_mobile_view(self):
+        self.page.window_width = 400
+        self.page.window_height = 680
+
+    def adjust_window_size(self, _=None):
+        screen_width = self.page.window_width
+        screen_height = self.page.window_height
+
+        if screen_width <= 480:
+            self.set_mobile_view()
+        elif 481 <= screen_width <= 1024:
+            self.page.window_width = min(screen_width, 800)
+            self.page.window_height = min(screen_height, 1000)
+        else:
+            self.page.window_width = min(screen_width, 1200)
+            self.page.window_height = min(screen_height, 900)
+
+        self.page.update()
+
         self.original_bookings = self.load_bookings()
         self.filtered_bookings = self.original_bookings
 
@@ -39,43 +64,32 @@ class Bookings(ft.UserControl):
 
         self.tabs_row = self.build_tabs_row()
 
-        self.bottom_nav = ft.SafeArea(
-            content=ft.Container(
-                content=ft.Row(
-                    controls=[
-                        ft.IconButton(
-                            content=ft.Image(
-                                src="images/Home.png", width=28, height=28
-                            ),
-                            on_click=lambda _: self.go_to("/homepage", self.page),
-                        ),
-                        ft.IconButton(
-                            content=ft.Image(
-                                src="images/Star.png", width=28, height=28
-                            ),
-                            on_click=lambda _: self.go_to("/bookings", self.page),
-                        ),
-                        ft.IconButton(
-                            content=ft.Image(
-                                src="images/Message.png", width=28, height=28
-                            ),
-                            on_click=lambda _: self.go_to("/messages", self.page),
-                        ),
-                        ft.IconButton(
-                            content=ft.Image(
-                                src="images/Profile.png", width=28, height=28
-                            ),
-                            on_click=lambda _: self.go_to("/profile", self.page),
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
-                ),
-                bgcolor="white",
-                border_radius=30,
-                padding=ft.padding.symmetric(vertical=10),
-                shadow=ft.BoxShadow(blur_radius=5, color="#00000020"),
+        self.bottom_nav = ft.Container(
+            content=ft.Row(
+                controls=[
+                    ft.IconButton(
+                        content=ft.Image(src="images/Home.png", width=28, height=28),
+                        on_click=lambda _: self.go_to("/homepage", self.page),
+                    ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Star.png", width=28, height=28),
+                        on_click=lambda _: self.go_to("/bookings", self.page),
+                    ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Message.png", width=28, height=28),
+                        on_click=lambda _: self.go_to("/messages", self.page),
+                    ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Profile.png", width=28, height=28),
+                        on_click=lambda _: self.go_to("/profile", self.page),
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_AROUND,
             ),
-            expand=False,
+            bgcolor="white",
+            border_radius=30,
+            padding=ft.padding.symmetric(vertical=10),
+            shadow=ft.BoxShadow(blur_radius=5, color="#00000020"),
         )
 
     def did_mount(self):
@@ -188,8 +202,6 @@ class Bookings(ft.UserControl):
             height=self.page.height,
             content=ft.Column(
                 spacing=0,
-                expand=True,
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 controls=[
                     ft.Container(
                         width=self.page.width,
@@ -244,7 +256,10 @@ class Bookings(ft.UserControl):
                         content=self.bookings_list,
                         padding=ft.padding.symmetric(horizontal=15),
                     ),
-                    self.bottom_nav,
+                    ft.Container(
+                        height=60,
+                        content=self.bottom_nav,
+                    ),
                 ],
             ),
         )

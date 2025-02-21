@@ -12,6 +12,10 @@ class UserSetupPage(ft.UserControl):
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#000000"
 
+        self.page.window_width = 400
+        self.page.window_height = 730
+        self.page.update()
+
         self.image = ft.Image(
             src="images/user_setup.png",
             width=271,

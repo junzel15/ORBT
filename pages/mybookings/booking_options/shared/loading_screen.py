@@ -9,6 +9,31 @@ class LoadingScreen(ft.UserControl):
         self.page = page
         self.go_to = go_to
 
+        self.set_mobile_view()
+
+        self.page.on_resize = self.adjust_window_size
+        self.adjust_window_size()
+        self.page.update()
+
+    def set_mobile_view(self):
+        self.page.window_width = 400
+        self.page.window_height = 680
+
+    def adjust_window_size(self, _=None):
+        screen_width = self.page.window_width
+        screen_height = self.page.window_height
+
+        if screen_width <= 480:
+            self.set_mobile_view()
+        elif 481 <= screen_width <= 1024:
+            self.page.window_width = min(screen_width, 800)
+            self.page.window_height = min(screen_height, 1000)
+        else:
+            self.page.window_width = min(screen_width, 1200)
+            self.page.window_height = min(screen_height, 900)
+
+        self.page.update()
+
         super().__init__()
         self.start_timer()
 

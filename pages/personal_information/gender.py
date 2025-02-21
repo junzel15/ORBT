@@ -14,6 +14,10 @@ class GenderPage(ft.UserControl):
         self.selected_gender = None
         self.buttons = {}
 
+        self.page.window_width = 450
+        self.page.window_height = 790
+        self.page.update()
+
     def on_button_click(self, button_id):
         if button_id == self.selected_button:
             return

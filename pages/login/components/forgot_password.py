@@ -12,6 +12,10 @@ class ForgotPassword(ft.UserControl):
         self.users = self.load_users()
         self.current_user = self.get_current_user()
 
+        self.page.window_width = 380
+        self.page.window_height = 680
+        self.page.update()
+
     def build(self):
 
         phone_number = self.current_user.get("phone_number", "Not Available")

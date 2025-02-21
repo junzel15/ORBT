@@ -15,6 +15,10 @@ class ProfileEditPage(ft.UserControl):
         self.page.bgcolor = "#F8F9FA"
         self.user = get_logged_in_user() or {}
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
         self.build_ui()
         self.page.add(self.render())
 

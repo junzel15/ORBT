@@ -11,6 +11,10 @@ class OtpPage(ft.UserControl):
         self.verify_button = None
         self.entered_otp = ""
 
+        self.page.window_width = 380
+        self.page.window_height = 680
+        self.page.update()
+
     def build(self):
         def create_text_field(index):
 

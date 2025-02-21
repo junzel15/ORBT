@@ -8,6 +8,10 @@ class ConfirmationPassword(ft.UserControl):
         super().__init__()
         self.page = page
 
+        self.page.window_width = 380
+        self.page.window_height = 680
+        self.page.update()
+
     def build(self):
         return ft.Container(
             content=ft.Column(
@@ -39,7 +43,7 @@ class ConfirmationPassword(ft.UserControl):
                         ),
                     ),
                     ft.Container(height=20),
-                    ft.Container(height=120),
+                    ft.Container(height=40),
                     ft.Container(
                         padding=ft.Padding(20, 0, 0, 0),
                         content=ft.ElevatedButton(

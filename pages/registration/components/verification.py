@@ -9,6 +9,10 @@ class VerificationPage(ft.UserControl):
         self.text_fields = []
         self.verify_button = None
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
     def build(self):
         def create_text_field(index):
             """Create a TextField with focus and change handlers."""

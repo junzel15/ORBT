@@ -16,6 +16,10 @@ class ProfileSettingsPage(ft.UserControl):
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
         self.main_content = None
         self.build_ui()
 
@@ -80,7 +84,7 @@ class ProfileSettingsPage(ft.UserControl):
                         ft.icons.EDIT,
                         "Edit Profile",
                         on_click=lambda e: self.go_to(
-                            "/profile/edit",
+                            "/edit",
                             self.page,
                         ),
                     ),

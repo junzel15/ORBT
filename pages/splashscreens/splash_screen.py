@@ -26,6 +26,10 @@ class SplashScreen(ft.View):
         self.go_to = go_to
         self.start_timer()
 
+        self.page.window_width = 330
+        self.page.window_height = 680
+        self.page.update()
+
     def start_timer(self):
         def timer_thread():
             import time

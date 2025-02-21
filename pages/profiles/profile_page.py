@@ -18,6 +18,10 @@ class ProfilePage:
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
     def render(self):
 
         self.user = get_logged_in_user() or {}
@@ -43,9 +47,7 @@ class ProfilePage:
                                 icon=ft.icons.MORE_VERT,
                                 icon_size=24,
                                 bgcolor="transparent",
-                                on_click=lambda _: self.go_to(
-                                    "/profile/settings", self.page
-                                ),
+                                on_click=lambda _: self.go_to("/settings", self.page),
                             ),
                         ],
                         alignment="spaceBetween",

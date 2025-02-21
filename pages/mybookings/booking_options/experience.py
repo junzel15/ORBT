@@ -39,6 +39,10 @@ class ExperiencePage:
 
         self.bookings = self.load_booking_data()
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
     def on_resize(self, e):
         pass
 

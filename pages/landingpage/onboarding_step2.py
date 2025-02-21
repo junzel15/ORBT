@@ -122,3 +122,10 @@ class OnboardingStep2(ft.View):
                 ),
             ],
         )
+
+        self.page = page
+        self.go_to = go_to
+
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()

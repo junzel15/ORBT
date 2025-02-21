@@ -12,6 +12,31 @@ class HomePage:
         self.user = get_logged_in_user()
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
 
+        self.set_mobile_view()
+
+        self.page.on_resize = self.adjust_window_size
+        self.adjust_window_size()
+        self.page.update()
+
+    def set_mobile_view(self):
+        self.page.window_width = 400
+        self.page.window_height = 680
+
+    def adjust_window_size(self, _=None):
+        screen_width = self.page.window_width
+        screen_height = self.page.window_height
+
+        if screen_width <= 480:
+            self.set_mobile_view()
+        elif 481 <= screen_width <= 1024:
+            self.page.window_width = min(screen_width, 800)
+            self.page.window_height = min(screen_height, 1000)
+        else:
+            self.page.window_width = min(screen_width, 1200)
+            self.page.window_height = min(screen_height, 900)
+
+        self.page.update()
+
     def save_booking(self, event_name):
         user = get_logged_in_user()
         if not user:
@@ -44,33 +69,28 @@ class HomePage:
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
         is_mobile = self.page.width < 600
 
-        self.Notification_Section = ft.Container(
+        self.Header_Section = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Row(
-                        controls=[
-                            ft.Image(
-                                src="images/Location.png",
-                                width=(32 if not is_mobile else 24),
-                                height=32 if not is_mobile else 24,
-                            ),
-                            ft.Text(
-                                "Add your location",
-                                size=(14 if not is_mobile else 12),
-                                style="Instrument Sans",
-                                color="#747688",
-                                expand=1,
-                            ),
-                        ],
-                        spacing=8,
+                    ft.Image(
+                        src="images/Location.png",
+                        width=24,
+                        height=24,
+                    ),
+                    ft.Text(
+                        "Add your location",
+                        size=12 if is_mobile else 14,
+                        style="Instrument Sans",
+                        color="#747688",
+                        expand=True,
                     ),
                     ft.Image(
                         src="images/Notify.png",
-                        width=24 if not is_mobile else 20,
-                        height=24 if not is_mobile else 20,
+                        width=20,
+                        height=20,
                     ),
                 ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                alignment=ft.MainAxisAlignment.CENTER,
             ),
             padding=ft.padding.symmetric(horizontal=16),
             margin=ft.margin.only(bottom=16),
@@ -83,14 +103,14 @@ class HomePage:
                         controls=[
                             ft.Text(
                                 "Hello, ",
-                                size=16 if not is_mobile else 14,
+                                size=16,
                                 style="Instrument Sans",
                                 color="#000000",
                                 text_align=ft.TextAlign.CENTER,
                             ),
                             ft.Text(
                                 self.user_name,
-                                size=16 if not is_mobile else 14,
+                                size=16,
                                 style="Instrument Sans",
                                 color="#6D28D9",
                                 text_align=ft.TextAlign.CENTER,
@@ -100,14 +120,14 @@ class HomePage:
                     ),
                     ft.Text(
                         "Find your crowd",
-                        size=26 if not is_mobile else 20,
+                        size=20 if not is_mobile else 18,
                         style="Instrument Sans",
                         color="#000000",
                         text_align=ft.TextAlign.CENTER,
                     ),
                     ft.Text(
                         "Share the moment",
-                        size=26 if not is_mobile else 20,
+                        size=20 if not is_mobile else 18,
                         style="Sora",
                         color=ft.LinearGradient(
                             begin=ft.alignment.top_center,
@@ -118,7 +138,7 @@ class HomePage:
                     ),
                     ft.Text(
                         "Book now, meet 5 strangers,\nand let the fun find you.",
-                        size=16 if not is_mobile else 14,
+                        size=14,
                         style="Instrument Sans",
                         color="#4B4B4B",
                         text_align=ft.TextAlign.CENTER,
@@ -129,17 +149,18 @@ class HomePage:
             ),
             alignment=ft.alignment.center,
             padding=ft.padding.symmetric(horizontal=16),
+            margin=ft.margin.only(bottom=24),
         )
 
         self.Image_Section = ft.Container(
             content=ft.Image(
                 src="images/Homepage Graphics.png",
-                width=(350 if not is_mobile else 250),
-                height=150 if not is_mobile else 120,
+                width=self.page.width * 0.9,
+                height=130,
                 fit=ft.ImageFit.COVER,
             ),
             alignment=ft.alignment.center,
-            margin=ft.margin.symmetric(vertical=8),
+            margin=ft.margin.only(top=8, bottom=25),
         )
 
         self.Options_Section = ft.Container(
@@ -150,21 +171,21 @@ class HomePage:
                             controls=[
                                 ft.Image(
                                     src="images/Icon Dinning.png",
-                                    width=(50 if not is_mobile else 40),
-                                    height=30 if not is_mobile else 24,
+                                    width=40,
+                                    height=24,
                                     fit=ft.ImageFit.CONTAIN,
                                 ),
                                 ft.Text(
                                     "Dining",
                                     expand=1,
-                                    size=(24 if not is_mobile else 18),
+                                    size=18,
                                     style="Sora",
                                     color="#FFFFFF",
                                 ),
                                 ft.Icon(
                                     ft.icons.ARROW_FORWARD,
                                     color="white",
-                                    size=(24 if not is_mobile else 20),
+                                    size=20,
                                 ),
                             ],
                             alignment=ft.MainAxisAlignment.START,
@@ -179,13 +200,13 @@ class HomePage:
                             controls=[
                                 ft.Image(
                                     src="images/Icon Bars.png",
-                                    width=50 if not is_mobile else 40,
-                                    height=30 if not is_mobile else 24,
+                                    width=40,
+                                    height=24,
                                     fit=ft.ImageFit.CONTAIN,
                                 ),
                                 ft.Text(
                                     "Bars",
-                                    size=24 if not is_mobile else 18,
+                                    size=18,
                                     style="Sora",
                                     color="#FFFFFF",
                                     expand=1,
@@ -193,7 +214,7 @@ class HomePage:
                                 ft.Icon(
                                     ft.icons.ARROW_FORWARD,
                                     color="white",
-                                    size=24 if not is_mobile else 20,
+                                    size=20,
                                 ),
                             ],
                             alignment=ft.MainAxisAlignment.START,
@@ -208,13 +229,13 @@ class HomePage:
                             controls=[
                                 ft.Image(
                                     src="images/Icon Experiences.png",
-                                    width=50 if not is_mobile else 40,
-                                    height=30 if not is_mobile else 24,
+                                    width=40,
+                                    height=24,
                                     fit=ft.ImageFit.CONTAIN,
                                 ),
                                 ft.Text(
                                     "Experiences",
-                                    size=24 if not is_mobile else 18,
+                                    size=18,
                                     style="Sora",
                                     color="#FFFFFF",
                                     expand=1,
@@ -222,7 +243,7 @@ class HomePage:
                                 ft.Icon(
                                     ft.icons.ARROW_FORWARD,
                                     color="white",
-                                    size=24 if not is_mobile else 20,
+                                    size=20,
                                 ),
                             ],
                             alignment=ft.MainAxisAlignment.START,
@@ -249,53 +270,45 @@ class HomePage:
         self.bottom_nav = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Home.png",
-                                width=24,
-                                height=24,
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/home", self.page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="images/Home.png",
+                            width=24,
+                            height=24,
                         ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/home", self.page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Star.png",
-                                width=24,
-                                height=24,
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings", self.page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="images/Star.png",
+                            width=24,
+                            height=24,
                         ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/bookings", self.page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Message.png",
-                                width=24,
-                                height=24,
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/messages", self.page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="images/Message.png",
+                            width=24,
+                            height=24,
                         ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/messages", self.page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Profile.png",
-                                width=24,
-                                height=24,
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/profile", self.page),
+                    ft.IconButton(
+                        content=ft.Image(
+                            src="images/Profile.png",
+                            width=24,
+                            height=24,
                         ),
+                        icon_size=24,
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/profile", self.page),
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_AROUND,
@@ -307,7 +320,7 @@ class HomePage:
 
         self.main_content = ft.ListView(
             controls=[
-                self.Notification_Section,
+                self.Header_Section,
                 self.Greeting_Description_Section,
             ],
             expand=True,
@@ -322,11 +335,11 @@ class HomePage:
                 ft.Column(
                     controls=[
                         self.Image_Section,
-                        self.Options_Section,
-                        self.bottom_nav,
                     ],
                     spacing=0,
                 ),
+                self.Options_Section,
+                self.bottom_nav,
             ],
             expand=True,
             spacing=0,

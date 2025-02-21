@@ -40,6 +40,10 @@ class DiningPage:
 
         self.bookings = self.load_booking_data()
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
     def on_resize(self, e):
         pass
 
@@ -47,9 +51,6 @@ class DiningPage:
         self.page.views.clear()
         self.page.go("/homepage")
         self.page.update()
-
-    def render(self):
-        self.page.on_resize = self.on_resize
 
     def toggle_tile(self, tile):
         self.expanded_state[tile] = not self.expanded_state[tile]
@@ -66,9 +67,6 @@ class DiningPage:
         toggle_ref.current.update()
         content_ref.current.update()
         self.page.update()
-
-    def render(self):
-        self.page.on_resize = self.on_resize
 
     def load_booking_data(self):
         try:
@@ -166,7 +164,7 @@ class DiningPage:
         )
 
         if not unbooked_event:
-            print("❌ No unbooked event found for this user.")
+            print(" No unbooked event found for this user.")
             return
 
         existing_ids = [

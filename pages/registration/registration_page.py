@@ -29,6 +29,10 @@ class RegistrationPage(ft.UserControl):
         )
         self.country_phone_code_selector = CountryPhoneCodeSelector(self.countries)
 
+        self.page.window_width = 400
+        self.page.window_height = 800
+        self.page.update()
+
     def is_valid_email(self, email):
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         return re.match(email_regex, email) is not None

@@ -23,6 +23,10 @@ class InterestPage(ft.UserControl):
         ]
         self.filtered_suggestions = self.suggestions.copy()
 
+        self.page.window_width = 450
+        self.page.window_height = 790
+        self.page.update()
+
     def build(self):
         return ft.Container(
             content=ft.Column(
