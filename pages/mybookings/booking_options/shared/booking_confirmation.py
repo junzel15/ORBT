@@ -9,29 +9,8 @@ class ConfirmationScreen(ft.UserControl):
         super().__init__()
         self.page = page
 
-        self.set_mobile_view()
-
-        self.page.on_resize = self.adjust_window_size
-        self.adjust_window_size()
-        self.page.update()
-
-    def set_mobile_view(self):
         self.page.window_width = 400
-        self.page.window_height = 740
-
-    def adjust_window_size(self, _=None):
-        screen_width = self.page.window_width
-        screen_height = self.page.window_height
-
-        if screen_width <= 480:
-            self.set_mobile_view()
-        elif 481 <= screen_width <= 1024:
-            self.page.window_width = min(screen_width, 800)
-            self.page.window_height = min(screen_height, 1000)
-        else:
-            self.page.window_width = min(screen_width, 1200)
-            self.page.window_height = min(screen_height, 900)
-
+        self.page.window_height = 750
         self.page.update()
 
     def build(self):
@@ -68,7 +47,7 @@ class ConfirmationScreen(ft.UserControl):
                             color="#FFFFFF",
                         ),
                     ),
-                    ft.Container(height=20),
+                    ft.Container(height=10),
                     ft.Container(height=50),
                     ft.Container(
                         padding=ft.Padding(20, 0, 0, 0),
@@ -97,7 +76,6 @@ class ConfirmationScreen(ft.UserControl):
                         ),
                     ),
                     ft.Container(height=10),
-                    ft.Container(height=1000),
                 ],
                 alignment=ft.MainAxisAlignment.START,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -106,7 +84,7 @@ class ConfirmationScreen(ft.UserControl):
             alignment=ft.alignment.top_center,
             image_src="assets/images/Dark Background 2 Screen.png",
             image_fit=ft.ImageFit.COVER,
-            padding=ft.Padding(20, 0, 20, 10),
+            padding=ft.Padding(15, 0, 15, 5),
         )
 
     def on_get_started_click(self, _):

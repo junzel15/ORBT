@@ -157,6 +157,10 @@ class BookingDetails(ft.UserControl):
 
             print(f"✅ Displaying: {event_name} on {date_time_str}")
 
+        booking_id = (
+            self.booking.get("booking_id", "No ID") if self.booking else "No ID"
+        )
+
         self.page.assets_dir = "assets"
 
         return ft.Container(
@@ -173,7 +177,7 @@ class BookingDetails(ft.UserControl):
                                 on_click=lambda _: self.go_to("/homepage", self.page),
                             ),
                             ft.Text(
-                                self.booking["booking_id"] if self.booking else "No ID",
+                                booking_id,
                                 color="white",
                                 weight="bold",
                             ),

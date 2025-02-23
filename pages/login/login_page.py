@@ -13,7 +13,7 @@ class LoginPage:
         self.users = self.load_users()
         self.logged_in_user = None
 
-        self.page.window_width = 380
+        self.page.window_width = 350
         self.page.window_height = 680
         self.page.update()
 

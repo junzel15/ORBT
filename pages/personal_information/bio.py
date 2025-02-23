@@ -10,7 +10,7 @@ class BioPage(ft.UserControl):
         self.page = page
         self.bio_input = None
 
-        self.page.window_width = 450
+        self.page.window_width = 420
         self.page.window_height = 790
         self.page.update()
 

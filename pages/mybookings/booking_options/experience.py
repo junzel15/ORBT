@@ -2,6 +2,7 @@ import flet as ft
 from datetime import datetime
 import json
 from global_state import get_logged_in_user, update_user_data
+import uuid
 
 
 class ExperiencePage:
@@ -126,16 +127,16 @@ class ExperiencePage:
     def save_date_time_to_user(self):
         user = get_logged_in_user()
         if user:
-            user["date"] = self.selected_date
-            user["time"] = self.selected_time
+            user["selected_date"] = self.selected_date
+            user["selected_time"] = self.selected_time
 
             try:
                 with open("json/booking.json", "r+") as file:
                     users = json.load(file)
                     for u in users:
                         if u["uuid"] == user["uuid"]:
-                            u["date"] = self.selected_date
-                            u["time"] = self.selected_time
+                            u["selected_date"] = self.selected_date
+                            u["selected_time"] = self.selected_time
                             break
                     file.seek(0)
                     json.dump(users, file, indent=4)
@@ -148,8 +149,68 @@ class ExperiencePage:
             print("No user is logged in.")
 
     def book_now(self, e):
-        self.page.go("/loadingscreen")
-        self.page.update()
+        user = get_logged_in_user()
+        if not user:
+            print("No user is logged in.")
+            return
+
+        if not self.selected_date or not self.selected_time:
+            print("Please select a date and time before booking.")
+            return
+
+        user_uuid = user["uuid"]
+        file_path = "json/booking.json"
+
+        try:
+            with open(file_path, "r") as file:
+                bookings = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            print("No existing bookings or invalid file format. Starting fresh.")
+            bookings = []
+
+        print(f"Current bookings: {bookings}")
+
+        unbooked_event = next(
+            (b for b in bookings if b["uuid"] == user_uuid and "booking_id" not in b),
+            None,
+        )
+
+        if not unbooked_event:
+            print("No unbooked event found for this user.")
+            return
+
+        booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
+        print(f"Generated Booking ID: {booking_id}")
+
+        unbooked_event.update(
+            {
+                "booking_id": booking_id,
+                "date": self.selected_date,
+                "time": self.selected_time,
+                "location": "Pagadian City",
+                "status": "Upcoming",
+                "venue_name": "Water Front Hotel",
+                "Coffee_image": "images/Coffee.png",
+                "Brunch_image": "images/Brunch.png",
+                "Diner_image": "images/Diner.png",
+                "Dining_image": "images/Icon Dinning.png",
+                "Bars_image": "images/Bars.png",
+                "Experiences_image": "images/Experiences.png",
+            }
+        )
+
+        print(f"Updated Booking: {unbooked_event}")
+
+        try:
+            with open(file_path, "w") as file:
+                json.dump(bookings, file, indent=4)
+
+            print("Booking details successfully updated in booking.json")
+            self.page.go("/loadingscreen")
+            self.page.update()
+
+        except Exception as e:
+            print(f"Error: {e}")
 
     def toggle_dropdown(self, e):
         self.dropdown_items.visible = not self.dropdown_items.visible
@@ -436,16 +497,20 @@ class ExperiencePage:
         )
 
         background = ft.Container(
+            expand=True,
             content=ft.Image(
                 src="images/Dark Background 2 Screen.png",
+                width=float("inf"),
+                height=float("inf"),
                 fit=ft.ImageFit.COVER,
             ),
-            width=self.page.window_width,
-            height=self.page.window_height,
             alignment=ft.alignment.center,
         )
 
         main_content = ft.Container(
+            width=400,
+            height=self.page.height,
+            alignment=ft.alignment.center,
             content=ft.Column(
                 controls=[
                     header,
@@ -460,7 +525,6 @@ class ExperiencePage:
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 scroll=ft.ScrollMode.AUTO,
             ),
-            expand=True,
             padding=ft.padding.all(16),
         )
 
@@ -470,6 +534,7 @@ class ExperiencePage:
                 ft.Stack(
                     controls=[background, main_content],
                     expand=True,
+                    alignment=ft.alignment.center,
                 )
             ],
         )

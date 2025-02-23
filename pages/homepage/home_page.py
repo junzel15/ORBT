@@ -278,7 +278,7 @@ class HomePage:
                         ),
                         icon_size=24,
                         icon_color="#000000",
-                        on_click=lambda _: self.go_to("/home", self.page),
+                        on_click=lambda _: self.go_to("/homepage", self.page),
                     ),
                     ft.IconButton(
                         content=ft.Image(

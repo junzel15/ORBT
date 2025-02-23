@@ -144,6 +144,7 @@ class DiningPage:
         if not user:
             print("No user is logged in.")
             return
+
         if not self.selected_date or not self.selected_time or not self.current_tab:
             print("Please select a date, time, and tab before booking.")
             return
@@ -158,33 +159,18 @@ class DiningPage:
             print("No existing bookings or invalid file format. Starting fresh.")
             bookings = []
 
+        print(f"Current bookings: {bookings}")
+
         unbooked_event = next(
             (b for b in bookings if b["uuid"] == user_uuid and "booking_id" not in b),
             None,
         )
 
         if not unbooked_event:
-            print(" No unbooked event found for this user.")
+            print("No unbooked event found for this user.")
             return
 
-        existing_ids = [
-            int(booking["booking_id"].split(" - ")[1])
-            for booking in bookings
-            if "booking_id" in booking and booking["booking_id"].startswith("ORBT -")
-        ]
-        print(f"Existing Booking IDs: {existing_ids}")
-
-        next_id = None
-        for i in range(1, 6):
-            if i not in existing_ids:
-                next_id = i
-                break
-
-        if next_id is None:
-            print("Maximum number of bookings reached. Cannot create a new booking.")
-            return
-
-        booking_id = f"ORBT - {next_id:03}"
+        booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
         print(f"Generated Booking ID: {booking_id}")
 
         unbooked_event.update(
@@ -205,13 +191,13 @@ class DiningPage:
             }
         )
 
-        print(f"✅ Updated Booking: {unbooked_event}")
+        print(f"Updated Booking: {unbooked_event}")
 
         try:
             with open(file_path, "w") as file:
                 json.dump(bookings, file, indent=4)
 
-            print("✅ Booking details successfully updated in booking.json")
+            print("Booking details successfully updated in booking.json")
             self.page.go("/loadingscreen")
             self.page.update()
 
@@ -567,16 +553,20 @@ class DiningPage:
         )
 
         background = ft.Container(
+            expand=True,
             content=ft.Image(
                 src="images/Dark Background 2 Screen.png",
+                width=float("inf"),
+                height=float("inf"),
                 fit=ft.ImageFit.COVER,
             ),
-            width=self.page.window_width,
-            height=self.page.window_height,
             alignment=ft.alignment.center,
         )
 
         main_content = ft.Container(
+            width=400,
+            height=self.page.height,
+            alignment=ft.alignment.center,
             content=ft.Column(
                 controls=[
                     header,
@@ -592,7 +582,6 @@ class DiningPage:
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 scroll=ft.ScrollMode.AUTO,
             ),
-            expand=True,
             padding=ft.padding.all(16),
         )
 
@@ -602,6 +591,7 @@ class DiningPage:
                 ft.Stack(
                     controls=[background, main_content],
                     expand=True,
+                    alignment=ft.alignment.center,
                 )
             ],
         )

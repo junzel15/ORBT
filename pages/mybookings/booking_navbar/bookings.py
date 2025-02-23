@@ -4,7 +4,6 @@ from pages.mybookings.booking_navbar.components import BookingCard, Tabs, Filter
 from pages.mybookings.booking_navbar.helpers import filter_bookings
 from global_state import get_logged_in_user
 import os
-from flet import UserControl
 
 
 class Bookings(ft.UserControl):
@@ -42,10 +41,14 @@ class Bookings(ft.UserControl):
         self.original_bookings = self.load_bookings()
         self.filtered_bookings = self.original_bookings
 
-        self.bookings_list = ft.Column()
+        self.bookings_list = ft.ListView(
+            expand=True,
+            spacing=15,
+            padding=ft.padding.symmetric(horizontal=15),
+            auto_scroll=False,
+        )
 
         self.filter_modal = FilterModal(self.apply_filter)
-        self.bookings_list = ft.Column(spacing=15, expand=True)
         self.tabs = Tabs(self.switch_tab)
 
         self.tab_indicator = ft.Container(
@@ -53,13 +56,6 @@ class Bookings(ft.UserControl):
             width=60,
             bgcolor="white",
             animate=ft.animation.Animation(300, "ease_out"),
-        )
-
-        self.bookings_list = ft.ListView(
-            expand=True,
-            spacing=15,
-            padding=ft.padding.symmetric(horizontal=15),
-            auto_scroll=True,
         )
 
         self.tabs_row = self.build_tabs_row()
@@ -98,15 +94,6 @@ class Bookings(ft.UserControl):
     def build(self):
         logged_in_user = get_logged_in_user()
         print(f"Logged in user: {logged_in_user}")
-
-        self.bookings_list = ft.Column(spacing=15, expand=True)
-
-        self.tab_indicator = ft.Container(
-            height=4,
-            width=60,
-            bgcolor="transparent",
-            animate=ft.animation.Animation(300, "ease_out"),
-        )
 
         self.tabs_row = ft.Container(
             content=ft.Stack(
