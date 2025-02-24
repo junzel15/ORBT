@@ -1,5 +1,6 @@
 import flet as ft
 from flet import UserControl
+from pages.chat import stream_chat
 
 
 class MessagesPage(ft.UserControl):
@@ -7,6 +8,7 @@ class MessagesPage(ft.UserControl):
         super().__init__()
         self.page = page
         self.go_to = go_to
+        self.channel_id = "general"
 
         self.page.title = "Messages"
         self.page.padding = 0
@@ -14,7 +16,6 @@ class MessagesPage(ft.UserControl):
         self.page.bgcolor = "#F8F9FA"
 
         self.set_mobile_view()
-
         self.page.on_resize = self.adjust_window_size
         self.adjust_window_size()
         self.page.update()
@@ -28,11 +29,7 @@ class MessagesPage(ft.UserControl):
                         bgcolor="transparent",
                         on_click=lambda e: self.go_to("/homepage", page),
                     ),
-                    ft.Text(
-                        "Messages",
-                        size=18,
-                        weight="bold",
-                    ),
+                    ft.Text("Messages", size=18, weight="bold"),
                 ],
                 alignment="start",
                 vertical_alignment="center",
@@ -64,86 +61,58 @@ class MessagesPage(ft.UserControl):
             padding=15,
         )
 
-        self.messages_section = ft.Container(
-            content=ft.Column(
-                controls=[
-                    self.message_item(
-                        ft.icons.EVENT,
-                        "Event: BRO001",
-                        "ORB: The countdown is over - Let the...",
-                        "Exp: 4hrs",
-                        color="#6200EE",
-                    ),
-                    self.message_item(
-                        ft.icons.EVENT,
-                        "Event: BAO001",
-                        "Inka: On my way guys, See you!",
-                        "Exp: 4hrs",
-                        color="#6200EE",
-                    ),
-                    self.message_item(
-                        ft.icons.FAVORITE,
-                        "Event: EXO001",
-                        "You: See you!",
-                        "Exp: 4hrs",
-                        color="#6200EE",
-                    ),
-                ]
-            ),
-            padding=15,
+        self.messages_column = ft.Column()
+        self.load_messages()
+
+        self.message_input = ft.TextField(
+            hint_text="Type a message...",
+            expand=True,
+            border_radius=5,
+            on_submit=self.send_message,
         )
 
-        is_mobile = self.page.window_width < 600
+        self.send_button = ft.IconButton(icon=ft.icons.SEND, on_click=self.send_message)
+
+        self.input_section = ft.Row(
+            [self.message_input, self.send_button], alignment="spaceBetween"
+        )
+
+        self.messages_section = ft.Container(content=self.messages_column, padding=15)
+
+        self.main_content = ft.ListView(
+            controls=[
+                self.header_section,
+                self.search_section,
+                self.filter_section,
+                self.messages_section,
+                self.input_section,
+            ],
+            expand=True,
+            padding=ft.padding.all(16),
+        )
+
         self.bottom_nav = ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Home.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/homepage", page),
-                        ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Home.png", width=24, height=24),
+                        icon_size=24,
+                        on_click=lambda _: self.go_to("/homepage", page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Star.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda _: self.go_to("/bookings", page),
-                        ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Star.png", width=24, height=24),
+                        icon_size=24,
+                        on_click=lambda _: self.go_to("/bookings", page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Message.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda e: self.go_to("/messages", page),
-                        ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Message.png", width=24, height=24),
+                        icon_size=24,
+                        on_click=lambda e: self.go_to("/messages", page),
                     ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            content=ft.Image(
-                                src="images/Profile.png",
-                                width=(24 if not is_mobile else 20),
-                                height=(24 if not is_mobile else 20),
-                            ),
-                            icon_size=24,
-                            icon_color="#000000",
-                            on_click=lambda e: self.go_to("/profile", page),
-                        ),
+                    ft.IconButton(
+                        content=ft.Image(src="images/Profile.png", width=24, height=24),
+                        icon_size=24,
+                        on_click=lambda e: self.go_to("/profile", page),
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_AROUND,
@@ -152,48 +121,56 @@ class MessagesPage(ft.UserControl):
             border_radius=30,
         )
 
-        self.main_content = ft.ListView(
-            controls=[
-                self.header_section,
-                self.search_section,
-                self.filter_section,
-                self.messages_section,
-            ],
-            expand=True,
-            padding=ft.padding.all(16),
-        )
+        self.page.controls.append(self.main_content)
+        self.page.controls.append(self.bottom_nav)
 
-    def message_item(self, icon, name, message, time, color="white"):
+        print("MessagesPage initialized")
+
+    def load_messages(self):
+        messages = stream_chat.get_messages(self.channel_id)
+        print("Loaded messages:", messages)
+        self.messages_column.controls.clear()
+        for msg in messages:
+            print("Processing message:", msg)
+            self.messages_column.controls.append(
+                self.message_item(
+                    msg.get("user_id", "Unknown"),
+                    msg.get("text", ""),
+                    msg.get("created_at", ""),
+                )
+            )
+        self.update()
+
+    def send_message(self, e):
+        message_text = self.message_input.value.strip()
+        if message_text:
+            stream_chat.send_message(self.channel_id, message_text)
+            self.message_input.value = ""
+            self.load_messages()
+        self.update()
+
+    def message_item(self, sender, message, time):
+        sender_name = sender if sender else "Unknown"
+        message_text = message if message else "(No Message)"
+        timestamp = time if time else "Unknown Time"
+
         return ft.Container(
             padding=10,
             content=ft.Row(
                 [
-                    ft.Icon(icon, size=40, color=color),
+                    ft.Icon(ft.icons.PERSON, size=40, color="#6200EE"),
                     ft.Column(
                         [
-                            ft.Text(name, weight="bold", size=14),
-                            ft.Text(message, size=12, color="gray"),
+                            ft.Text(sender_name, weight="bold", size=14),
+                            ft.Text(message_text, size=12, color="gray"),
                         ],
                         spacing=2,
                         expand=True,
                     ),
-                    ft.Text(time, size=12, color="gray"),
+                    ft.Text(timestamp, size=12, color="gray"),
                 ],
                 alignment="spaceBetween",
             ),
-        )
-
-    def render(self):
-        return ft.Column(
-            controls=[
-                ft.Container(
-                    content=self.main_content,
-                    expand=True,
-                ),
-                self.bottom_nav,
-            ],
-            expand=True,
-            spacing=0,
         )
 
     def set_mobile_view(self):
@@ -212,5 +189,4 @@ class MessagesPage(ft.UserControl):
         else:
             self.page.window_width = min(screen_width, 1200)
             self.page.window_height = min(screen_height, 900)
-
         self.page.update()
