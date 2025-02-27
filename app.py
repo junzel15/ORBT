@@ -1,5 +1,4 @@
 import flet as ft
-import json
 import sys
 import os
 
@@ -84,27 +83,11 @@ ROUTES = {
 }
 
 
-def get_user_data():
-    try:
-        with open("json/users.json", "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        print("Error: user_data.json not found!")
-        return []
-    except json.JSONDecodeError:
-        print("Error: Failed to decode JSON!")
-        return []
-
-
 user_data = None
 
 
 def go_to(route, page, **kwargs):
     global user_data
-
-    if not user_data:
-        user_data_list = get_user_data()
-        user_data = user_data_list[0] if user_data_list else {}
 
     print(f"Navigating to {route} with kwargs: {kwargs}")
 
@@ -134,7 +117,6 @@ def go_to(route, page, **kwargs):
         page.views.append(view)
 
     page.go(view.route)
-    page.update()
 
 
 def main(page: ft.Page):

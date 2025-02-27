@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 from global_state import get_logged_in_user, update_user_data
 import uuid
+from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
 
 
 class ExperiencePage:
@@ -76,9 +77,11 @@ class ExperiencePage:
 
     def load_booking_data(self):
         try:
-            with open("json/date.json", "r") as file:
-                return json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
+
+            items = dynamo_read("bookingDates", "id", "all")
+            return items if items else []
+        except Exception as e:
+            print(f"Error loading booking data: {e}")
             return []
 
     def select_date(self, e, date_str):
@@ -126,27 +129,18 @@ class ExperiencePage:
 
     def save_date_time_to_user(self):
         user = get_logged_in_user()
-        if user:
-            user["selected_date"] = self.selected_date
-            user["selected_time"] = self.selected_time
-
-            try:
-                with open("json/booking.json", "r+") as file:
-                    users = json.load(file)
-                    for u in users:
-                        if u["uuid"] == user["uuid"]:
-                            u["selected_date"] = self.selected_date
-                            u["selected_time"] = self.selected_time
-                            break
-                    file.seek(0)
-                    json.dump(users, file, indent=4)
-                    file.truncate()
-                update_user_data(user)
-                print("Date and time saved successfully.")
-            except (FileNotFoundError, json.JSONDecodeError) as ex:
-                print(f"Error saving user data: {ex}")
-        else:
+        if not user:
             print("No user is logged in.")
+            return
+
+        user["selected_date"] = self.selected_date
+        user["selected_time"] = self.selected_time
+
+        print(
+            f"Date and time saved for user {user['uuid']}: {self.selected_date} - {self.selected_time}"
+        )
+
+        dynamo_write("bookings", user)
 
     def book_now(self, e):
         user = get_logged_in_user()
@@ -154,19 +148,13 @@ class ExperiencePage:
             print("No user is logged in.")
             return
 
-        if not self.selected_date or not self.selected_time:
-            print("Please select a date and time before booking.")
+        if not self.selected_date or not self.selected_time or not self.current_tab:
+            print("Please select a date, time, and tab before booking.")
             return
 
         user_uuid = user["uuid"]
-        file_path = "json/booking.json"
 
-        try:
-            with open(file_path, "r") as file:
-                bookings = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            print("No existing bookings or invalid file format. Starting fresh.")
-            bookings = []
+        bookings = dynamo_read("bookings", "uuid", user_uuid)
 
         print(f"Current bookings: {bookings}")
 
@@ -188,6 +176,7 @@ class ExperiencePage:
                 "date": self.selected_date,
                 "time": self.selected_time,
                 "location": "Pagadian City",
+                "book_option_order": self.current_tab,
                 "status": "Upcoming",
                 "venue_name": "Water Front Hotel",
                 "Coffee_image": "images/Coffee.png",
@@ -201,16 +190,11 @@ class ExperiencePage:
 
         print(f"Updated Booking: {unbooked_event}")
 
-        try:
-            with open(file_path, "w") as file:
-                json.dump(bookings, file, indent=4)
+        dynamo_write("bookings", unbooked_event)
 
-            print("Booking details successfully updated in booking.json")
-            self.page.go("/loadingscreen")
-            self.page.update()
-
-        except Exception as e:
-            print(f"Error: {e}")
+        print("Booking details successfully updated in DynamoDB")
+        self.page.go("/loadingscreen")
+        self.page.update()
 
     def toggle_dropdown(self, e):
         self.dropdown_items.visible = not self.dropdown_items.visible

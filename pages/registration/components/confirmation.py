@@ -3,7 +3,7 @@ import flet as ft
 
 class ConfirmationPage(ft.UserControl):
 
-    def __init__(self, page, go_to):
+    def __init__(self, page, go_to, user_email=None):
         self.go_to = go_to
         super().__init__()
         self.page = page
@@ -11,6 +11,7 @@ class ConfirmationPage(ft.UserControl):
         self.page.window_width = 400
         self.page.window_height = 680
         self.page.update()
+        self.user_email = user_email
 
     def build(self):
         return ft.Container(
@@ -83,5 +84,5 @@ class ConfirmationPage(ft.UserControl):
         )
 
     def on_get_started_click(self, _):
-        print("Back Click")
-        self.page.go("/usersetup")
+        print("Get Started Click")
+        self.go_to("/usersetup", self.page, user_email=self.user_email)

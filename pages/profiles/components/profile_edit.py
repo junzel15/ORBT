@@ -1,6 +1,6 @@
 import flet as ft
-from global_state import get_logged_in_user, update_user_data
-import json
+from global_state import get_logged_in_user
+from dynamodb.dynamoDB_profiles import dynamo_write
 
 
 class ProfileEditPage(ft.UserControl):
@@ -300,7 +300,6 @@ class ProfileEditPage(ft.UserControl):
 
     def save_changes(self, e):
         try:
-
             updated_user = {
                 "full_name": self.main_content[1].content.controls[1].value,
                 "email": self.main_content[2].content.controls[1].value,
@@ -313,20 +312,7 @@ class ProfileEditPage(ft.UserControl):
                 "profile_image": self.user.get("profile_image", ""),
             }
 
-            update_user_data(updated_user)
-
-            with open("json/users.json", "r") as file:
-                users = json.load(file)
-
-            for user in users:
-                if user["email"] == self.user["email"]:
-                    for key, value in updated_user.items():
-                        if user.get(key) != value:
-                            user[key] = value
-                    break
-
-            with open("json/users.json", "w") as file:
-                json.dump(users, file, indent=4)
+            dynamo_write("profiles", updated_user)
 
             self.page.show_snack_bar(
                 ft.SnackBar(

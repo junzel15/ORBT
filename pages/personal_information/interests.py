@@ -1,11 +1,11 @@
 import flet as ft
-import json
-import os
 from flet import UserControl
+from dynamodb.dynamoDB_profiles import dynamo_write
 
 
 class InterestPage(ft.UserControl):
-    def __init__(self, page, go_to):
+
+    def __init__(self, page, go_to, user_email=None):
         super().__init__()
         self.go_to = go_to
         self.page = page
@@ -22,6 +22,8 @@ class InterestPage(ft.UserControl):
             "Coffee",
         ]
         self.filtered_suggestions = self.suggestions.copy()
+
+        self.user_email = user_email
 
         self.page.window_width = 450
         self.page.window_height = 790
@@ -246,25 +248,17 @@ class InterestPage(ft.UserControl):
 
     def save_interests(self):
         try:
-            with open("json/users.json", "r") as file:
-                users = json.load(file)
-
-            if not users:
-                raise ValueError("No users found in database")
-
-            current_user = users[-1]
-
-            if "uuid" not in current_user:
-                raise ValueError("Current user does not have a UUID")
-
-            current_user["interests"] = list(self.selected_interests)
-
-            with open("json/users.json", "w") as file:
-                json.dump(users, file, indent=4)
-
-            print(
-                f"Interests {self.selected_interests} saved for user {current_user['uuid']}"
+            user_email = self.user_email
+            if not user_email:
+                print("User email not found")
+                return
+            dynamo_write(
+                "profiles",
+                {"email": user_email, "interests": list(self.selected_interests)},
             )
+            print(f"Interests {self.selected_interests} saved for user {user_email}")
 
         except Exception as e:
             print(f"Error saving interests: {e}")
+
+        self.go_to("/location", self.page)

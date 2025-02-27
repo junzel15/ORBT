@@ -1,5 +1,5 @@
 import flet as ft
-import json
+from dynamodb.dynamoDB_profiles import dynamo_read
 
 
 class OtpPage(ft.UserControl):
@@ -171,30 +171,13 @@ class OtpPage(ft.UserControl):
         self.page.go("/forgotpassword")
 
     def on_verify_click(self, _):
-        print("Verify Click")
-        self.page.go("/resetpassword")
-
-        def on_verify_click(self, _):
-
-            with open("json/users.json", "r") as file:
-                users = json.load(file)
-
-            otp_verified = False
-            for user in users:
-                if user["otp"]["reset_password"] == self.entered_otp:
-                    otp_verified = True
-                    break
-
-            if otp_verified:
-                print("OTP Verified")
-                self.go_to("/resetpassword", self.page)
-            else:
-                print("Invalid OTP")
-
-        return ft.Column(
-            controls=[...],
-            spacing=10,
-        )
+        email = self.page.session.get("email")
+        user = dynamo_read("profiles", "email", email)
+        if user and user["otp"]["reset_password"] == self.entered_otp:
+            print("OTP Verified")
+            self.go_to("/resetpassword", self.page)
+        else:
+            print("Invalid OTP")
 
     def on_change(self, event):
         self.entered_otp = "".join([field.value for field in self.text_fields])

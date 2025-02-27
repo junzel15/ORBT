@@ -1,11 +1,11 @@
 import flet as ft
-import json
 from flet import UserControl
+from dynamodb.dynamoDB_profiles import dynamo_write
 
 
 class GenderPage(ft.UserControl):
 
-    def __init__(self, page, go_to):
+    def __init__(self, page, go_to, user_email=None):
         super().__init__()
         self.page = page
         self.go_to = go_to
@@ -13,6 +13,7 @@ class GenderPage(ft.UserControl):
         self.previous_selected_button = None
         self.selected_gender = None
         self.buttons = {}
+        self.user_email = user_email
 
         self.page.window_width = 450
         self.page.window_height = 790
@@ -35,33 +36,21 @@ class GenderPage(ft.UserControl):
             return
 
         try:
-            with open("json/users.json", "r") as file:
-                users = json.load(file)
-
-            if not users:
-                raise ValueError("No users found in database")
-
-            current_user = users[-1]
-
-            if "uuid" not in current_user:
-                raise ValueError("Current user does not have a UUID")
-
-            current_user["gender"] = self.selected_gender
-
-            with open("json/users.json", "w") as file:
-                json.dump(users, file, indent=4)
-
-            print(
-                f"Gender '{self.selected_gender}' saved for user {current_user['uuid']}"
+            user_email = self.user_email
+            if not user_email:
+                print("User email not found")
+                return
+            dynamo_write(
+                "profiles", {"email": user_email, "gender": self.selected_gender}
             )
+            print(f"Gender '{self.selected_gender}' saved for user {user_email}")
 
         except Exception as e:
             print(f"Error saving gender: {e}")
 
-        self.go_to("/birthdate", self.page)
+        self.go_to("/birthdate", self.page, user_email=user_email)
 
     def build(self):
-        print("build(self)")
         self.buttons = {
             "male": self.create_button(
                 "images/icon_male_normal.png",

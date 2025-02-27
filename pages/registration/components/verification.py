@@ -2,12 +2,14 @@ import flet as ft
 
 
 class VerificationPage(ft.UserControl):
-    def __init__(self, page, go_to):
+
+    def __init__(self, page, go_to, user_email=None):
         super().__init__()
         self.go_to = go_to
         self.page = page
         self.text_fields = []
         self.verify_button = None
+        self.user_email = user_email  # Store the user email
 
         self.page.window_width = 400
         self.page.window_height = 680
@@ -15,17 +17,16 @@ class VerificationPage(ft.UserControl):
 
     def build(self):
         def create_text_field(index):
-            """Create a TextField with focus and change handlers."""
 
             def on_focus(event):
-                """Change the border color when the field is focused."""
+
                 event.control.border_color = "#5300FA"
                 if event.control.value == "-":
                     event.control.value = ""
                 event.control.update()
 
             def on_change(event):
-                """Allow only one digit, move to the next field, and validate inputs."""
+
                 if len(event.control.value) > 1:
                     event.control.value = event.control.value[-1]
                 if event.control.value.isdigit() and index < len(self.text_fields) - 1:
@@ -52,7 +53,7 @@ class VerificationPage(ft.UserControl):
             return text_field
 
         def validate_inputs():
-            """Enable the verify button only if all fields have valid inputs."""
+
             all_filled = all(field.value.isdigit() for field in self.text_fields)
             if all_filled:
                 self.verify_button.bgcolor = "#5300FA"
@@ -174,4 +175,4 @@ class VerificationPage(ft.UserControl):
 
     def on_verify_click(self, _):
         print("Verify Click")
-        self.page.go("/confirmation")
+        self.go_to("/confirmation", self.page, user_email=self.user_email)

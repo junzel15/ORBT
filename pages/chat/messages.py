@@ -18,7 +18,6 @@ class MessagesPage(ft.UserControl):
         self.set_mobile_view()
         self.page.on_resize = self.adjust_window_size
         self.adjust_window_size()
-        self.page.update()
 
         self.header_section = ft.Container(
             content=ft.Row(
@@ -124,6 +123,8 @@ class MessagesPage(ft.UserControl):
         self.page.controls.append(self.main_content)
         self.page.controls.append(self.bottom_nav)
 
+        self.page.update()
+
         print("MessagesPage initialized")
 
     def load_messages(self):
@@ -139,7 +140,7 @@ class MessagesPage(ft.UserControl):
                     msg.get("created_at", ""),
                 )
             )
-        self.update()
+        self.page.update()
 
     def send_message(self, e):
         message_text = self.message_input.value.strip()
@@ -147,7 +148,7 @@ class MessagesPage(ft.UserControl):
             stream_chat.send_message(self.channel_id, message_text)
             self.message_input.value = ""
             self.load_messages()
-        self.update()
+        self.page.update()
 
     def message_item(self, sender, message, time):
         sender_name = sender if sender else "Unknown"

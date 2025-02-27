@@ -1,5 +1,5 @@
 import flet as ft
-import json
+from dynamodb.dynamoDB_profiles import dynamo_read, dynamo_write
 import bcrypt
 
 
@@ -55,27 +55,18 @@ class ResetPasswordPage(ft.UserControl):
         self.update()
 
     def reset_password(self, e):
-
         new_password = self.password.value
-
         hashed_password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
 
-        with open("json/users.json", "r") as file:
-            users = json.load(file)
-
-        for user in users:
-            if user["email"] == "elvis@gmail.com":
-                user["password"] = hashed_password.decode()
-                break
-
-        with open("json/users.json", "w") as file:
-            json.dump(users, file)
-
-        print("Password has been reset successfully!")
-        self.go_to("/confirmationpassword", self.page)
+        email = self.page.session.get("email")
+        user = dynamo_read("profiles", "email", email)
+        if user:
+            user["password"] = hashed_password.decode()
+            dynamo_write("profiles", user)
+            print("Password has been reset successfully!")
+            self.go_to("/confirmationpassword", self.page)
 
     def hash_password(self, password):
-
         import hashlib
 
         return hashlib.sha256(password.encode()).hexdigest()

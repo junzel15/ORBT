@@ -1,20 +1,10 @@
-import json
+from dynamodb.dynamoDB_profiles import dynamo_read
 
 
-def get_user_data(email):
+def get_user_from_dynamodb(email):
     try:
 
-        with open("json/users.json", "r") as file:
-            users = json.load(file)
-
-        for user in users:
-            if user["email"] == email:
-                return user
-
-        return None
-    except FileNotFoundError:
-        print("Error: user_data.json not found!")
-        return None
-    except json.JSONDecodeError:
-        print("Error: Failed to decode JSON!")
+        return dynamo_read("profiles", "email", email)
+    except Exception as e:
+        print(f"Error retrieving user from DynamoDB: {e}")
         return None

@@ -1,9 +1,9 @@
 import flet as ft
-import json
+import os
+from global_state import get_logged_in_user
 from pages.mybookings.booking_navbar.components import BookingCard, Tabs, FilterModal
 from pages.mybookings.booking_navbar.helpers import filter_bookings
-from global_state import get_logged_in_user
-import os
+from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write, dynamo_delete
 
 
 class Bookings(ft.UserControl):
@@ -343,6 +343,7 @@ class Bookings(ft.UserControl):
         for booking in self.original_bookings:
             if booking["id"] == updated_booking["id"]:
                 booking["status"] = updated_booking["status"]
+                dynamo_write("bookings", booking)
 
         if updated_booking["status"] == "Cancelled":
             self.original_bookings = [
@@ -355,39 +356,32 @@ class Bookings(ft.UserControl):
         self.update_bookings_view()
 
     def save_cancelled_booking(self, booking):
-        file_path = "json/booking.json"
         try:
-            with open(file_path, "r") as file:
-                data = json.load(file)
+            booking_id = booking.get("id")
+            if not booking_id:
+                print("Error: Booking does not have a 'booking_id' key.")
+                return
 
-            data = [
-                b
-                for b in data
-                if not (
-                    b.get("status") == "Upcoming"
-                    and b.get("booking_id") == booking["id"]
-                )
-            ]
+            dynamo_delete("bookings", "booking_id", booking_id)
 
-            data.append(
+            dynamo_write(
+                "bookings",
                 {
                     "title": "Cancelled Booking",
                     "uuid": get_logged_in_user().get("uuid"),
-                    "booking_id": booking["id"],
-                    "event_name": booking["event_name"],
+                    "booking_id": booking_id,
+                    "event_name": booking.get("event_name", "Unknown"),
                     "status": "Cancelled",
-                    "time": booking["time"],
-                    "date": booking["date"],
-                    "location": booking["location"],
-                    "venue_name": booking["venue_name"],
-                    "book_option_order": booking["book_option_order"],
-                }
+                    "time": booking.get("time", "Unknown"),
+                    "date": booking.get("date", "Unknown"),
+                    "location": booking.get("location", "Unknown"),
+                    "venue_name": booking.get("venue_name", "Unknown"),
+                    "book_option_order": booking.get("book_option_order", "Unknown"),
+                },
             )
 
-            with open(file_path, "w") as file:
-                json.dump(data, file, indent=4)
             print("Booking successfully moved to Cancelled and saved.")
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+        except Exception as e:
             print(f"Error saving cancelled booking: {e}")
 
     def load_bookings(self):
@@ -396,50 +390,49 @@ class Bookings(ft.UserControl):
             print("No logged-in user found.")
             return []
 
-        file_path = "json/booking.json"
-        print(f"Looking for file: {os.path.abspath(file_path)}")
-
         try:
-            with open(file_path, "r") as file:
-                data = json.load(file)
-                user_bookings = []
 
-                for booking in data:
-                    if booking.get("uuid") == logged_in_user.get("uuid"):
-                        event_name = booking.get("event_name", "Unknown")
-                        book_option_order = booking.get("book_option_order", "Unknown")
-                        venue_name = booking.get("venue_name", "Unknown")
+            user_bookings = dynamo_read("bookings", "uuid", logged_in_user.get("uuid"))
+            if not user_bookings:
+                return []
 
-                        image_key = f"{event_name}_image"
-                        image_path = booking.get(image_key, "assets/images/default.png")
+            user_bookings_list = []
 
-                        image_path = os.path.join(
-                            "assets", "images", os.path.basename(image_path)
-                        )
+            for booking in user_bookings:
+                event_name = booking.get("event_name", "Unknown")
+                book_option_order = booking.get("book_option_order", "Unknown")
+                venue_name = booking.get("venue_name", "Unknown")
 
-                        if not os.path.exists(image_path):
-                            print(f"Image not found: {image_path}, using default.")
-                            image_path = "assets/images/default.png"
+                image_key = f"{event_name}_image"
+                image_path = booking.get(image_key, "assets/images/default.png")
 
-                        user_bookings.append(
-                            {
-                                "id": booking["booking_id"],
-                                "event_name": event_name,
-                                "emoji": "🍽️",
-                                "status": booking.get("status", "Upcoming"),
-                                "time": booking["time"],
-                                "date": booking["date"],
-                                "location": booking["location"],
-                                "venue_name": venue_name,
-                                "category": book_option_order.upper(),
-                                "image": image_path,
-                                "book_option_order": book_option_order,
-                            }
-                        )
+                image_path = os.path.join(
+                    "assets", "images", os.path.basename(image_path)
+                )
 
-                print(f"Loaded {len(user_bookings)} bookings with images.")
-                return user_bookings
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+                if not os.path.exists(image_path):
+                    print(f"Image not found: {image_path}, using default.")
+                    image_path = "assets/images/default.png"
+
+                user_bookings_list.append(
+                    {
+                        "id": booking["booking_id"],
+                        "event_name": event_name,
+                        "emoji": "🍽️",
+                        "status": booking.get("status", "Upcoming"),
+                        "time": booking["time"],
+                        "date": booking["date"],
+                        "location": booking["location"],
+                        "venue_name": venue_name,
+                        "category": book_option_order.upper(),
+                        "image": image_path,
+                        "book_option_order": book_option_order,
+                    }
+                )
+
+            print(f"Loaded {len(user_bookings_list)} bookings with images.")
+            return user_bookings_list
+        except Exception as e:
             print(f"Error loading bookings: {e}")
             return []
 

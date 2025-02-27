@@ -13,7 +13,6 @@ chat_client = StreamChat(api_key=STREAM_API_KEY, api_secret=STREAM_API_SECRET)
 try:
     test_channel = chat_client.channel("messaging", "test_channel")
     test_channel.create("test_user")
-    print("Channel successfully created or retrieved!")
 except Exception as e:
     print(f"StreamChat setup error: {e}")
 

@@ -2,12 +2,7 @@ import flet as ft
 
 
 class ProfileSettingsPage(ft.UserControl):
-
-    def __init__(
-        self,
-        page: ft.Page,
-        go_to,
-    ):
+    def __init__(self, page: ft.Page, go_to):
         self.page = page
         self.go_to = go_to
 
@@ -62,10 +57,7 @@ class ProfileSettingsPage(ft.UserControl):
                     ft.IconButton(
                         icon=ft.icons.ARROW_BACK,
                         icon_size=24,
-                        on_click=lambda e: self.go_to(
-                            "/profile",
-                            self.page,
-                        ),
+                        on_click=lambda e: self.go_to("/profile", self.page),
                     ),
                     ft.Text("Settings", size=20, weight="bold", color="#000000"),
                 ],
@@ -83,10 +75,7 @@ class ProfileSettingsPage(ft.UserControl):
                     create_list_item(
                         ft.icons.EDIT,
                         "Edit Profile",
-                        on_click=lambda e: self.go_to(
-                            "/edit",
-                            self.page,
-                        ),
+                        on_click=lambda e: self.go_to("/edit", self.page),
                     ),
                     create_list_item(ft.icons.BLOCK, "Blocked"),
                     create_list_item(
@@ -122,19 +111,13 @@ class ProfileSettingsPage(ft.UserControl):
             padding=ft.padding.symmetric(horizontal=10, vertical=15),
             height=50,
             ink=True,
+            on_click=lambda e: self.go_to("./login", self.page),
         )
 
         self.main_content = ft.Column(
-            controls=[
-                self.header_section,
-                self.items_section,
-                self.logout_item,
-            ],
+            controls=[self.header_section, self.items_section, self.logout_item],
             expand=True,
         )
 
     def render(self):
-        return ft.Column(
-            controls=[self.main_content],
-            expand=True,
-        )
+        return ft.Column(controls=[self.main_content], expand=True)

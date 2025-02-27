@@ -1,10 +1,9 @@
 import flet as ft
 from global_state import get_logged_in_user
-import json
+from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write, dynamo_delete
 
 
 class BookingDetails(ft.UserControl):
-
     def __init__(self, page: ft.Page, go_to, booking_id=None):
         super().__init__()
         self.page = page
@@ -39,32 +38,25 @@ class BookingDetails(ft.UserControl):
 
     def get_booking_details(self):
         try:
-            with open("json/booking.json", "r") as file:
-                bookings = json.load(file)
 
-                if self.booking_id:
-                    for booking in bookings:
-                        if booking.get("booking_id") == self.booking_id:
-                            return booking
-                    print(f" Booking ID {self.booking_id} not found!")
+            if self.booking_id:
+                booking = dynamo_read("bookings", "booking_id", self.booking_id)
+                if booking:
+                    return booking
+                print(f"Booking ID {self.booking_id} not found!")
 
-                logged_in_user = get_logged_in_user()
-                if logged_in_user:
-                    user_bookings = [
-                        b
-                        for b in bookings
-                        if b.get("uuid") == logged_in_user.get("uuid")
-                    ]
-                    if user_bookings:
-                        latest_booking = user_bookings[-1]
-                        return latest_booking
+            logged_in_user = get_logged_in_user()
+            if logged_in_user:
+                user_bookings = dynamo_read(
+                    "bookings", "uuid", logged_in_user.get("uuid")
+                )
+                if user_bookings:
+                    latest_booking = user_bookings[-1]
+                    return latest_booking
 
             return None
-        except FileNotFoundError:
-            print(" booking.json file not found!")
-            return None
-        except json.JSONDecodeError:
-            print(" Error decoding JSON!")
+        except Exception as e:
+            print(f"Error getting booking details: {e}")
             return None
 
     def cancel_event(self, e):
@@ -73,43 +65,34 @@ class BookingDetails(ft.UserControl):
         if self.booking:
             booking_id = self.booking.get("booking_id")
             if not booking_id:
-                print(" Error: Booking does not have a 'booking_id' key.")
+                print("Error: Booking does not have a 'booking_id' key.")
                 return
 
-            print(f" Cancelling booking with ID: {booking_id}")
+            print(f"Cancelling booking with ID: {booking_id}")
 
             self.booking["status"] = "Cancelled"
 
             self.save_cancelled_booking(self.booking)
 
             print(
-                f" Booking ID {booking_id} status updated to: {self.booking['status']}"
+                f"Booking ID {booking_id} status updated to: {self.booking['status']}"
             )
 
             self.go_to("/cancelbooking", self.page)
         else:
-            print(" Error: No booking selected to cancel.")
+            print("Error: No booking selected to cancel.")
 
     def save_cancelled_booking(self, booking):
-        file_path = "json/booking.json"
         try:
-            with open(file_path, "r") as file:
-                data = json.load(file)
-
             booking_id = booking.get("booking_id")
             if not booking_id:
                 print("Error: Booking does not have a 'booking_id' key.")
                 return
 
-            data = [
-                b
-                for b in data
-                if not (
-                    b.get("status") == "Upcoming" and b.get("booking_id") == booking_id
-                )
-            ]
+            dynamo_delete("bookings", "booking_id", booking_id)
 
-            data.append(
+            dynamo_write(
+                "bookings",
                 {
                     "title": "Cancelled Booking",
                     "uuid": get_logged_in_user().get("uuid"),
@@ -121,13 +104,11 @@ class BookingDetails(ft.UserControl):
                     "location": booking.get("location", "Unknown"),
                     "venue_name": booking.get("venue_name", "Unknown"),
                     "book_option_order": booking.get("book_option_order", "Unknown"),
-                }
+                },
             )
 
-            with open(file_path, "w") as file:
-                json.dump(data, file, indent=4)
             print("Booking successfully moved to Cancelled and saved.")
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+        except Exception as e:
             print(f"Error saving cancelled booking: {e}")
 
     def build(self):

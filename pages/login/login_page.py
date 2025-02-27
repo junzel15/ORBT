@@ -1,8 +1,7 @@
 import flet as ft
-import json
-from utils.authenticate import authenticate_user
-from utils.account_provider import get_user_data
 from global_state import update_user_data
+from utils.authenticate import authenticate_user
+from dynamodb.dynamoDB_profiles import dynamo_read
 
 
 class LoginPage:
@@ -10,7 +9,6 @@ class LoginPage:
         self.page = page
         self.go_to = go_to
 
-        self.users = self.load_users()
         self.logged_in_user = None
 
         self.page.window_width = 350
@@ -193,13 +191,14 @@ class LoginPage:
             bgcolor="transparent",
         )
 
-    def load_users(self):
+    def get_user_from_dynamodb(self, email):
         try:
-            with open("json/users.json", "r") as file:
-                return json.load(file)
+            print(f"Fetching user with email: {email}")
+
+            return dynamo_read("profiles", "email", email)
         except Exception as e:
-            print(f"Error loading users.json: {e}")
-            return []
+            print(f"Error retrieving user from DynamoDB: {e}")
+        return None
 
     def login(self, _):
         email = self.email_field.value.strip()
@@ -215,19 +214,17 @@ class LoginPage:
             self.show_snackbar_message("Invalid email and password!")
             return
 
-        user_data_from_db = get_user_data(email)
+        user_data_from_db = self.get_user_from_dynamodb(email)
 
         if user_data_from_db is None:
             self.show_snackbar_message("Error: User data not found.")
             return
 
         update_user_data(user_data_from_db)
-
         self.show_snackbar_message(f"Welcome, {user_data_from_db['full_name']}!")
         self.go_to("/homepage", self.page)
 
     def show_snackbar_message(self, message):
-        """Display a snackbar with the provided message."""
         self.page.snack_bar = ft.SnackBar(content=ft.Text(message))
         self.page.snack_bar.open = True
         self.page.update()

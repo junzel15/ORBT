@@ -1,7 +1,6 @@
 import flet as ft
-import json
-from global_state import get_logged_in_user, update_user_data
-import uuid
+from global_state import get_logged_in_user
+from dynamodb.dynamoDB_bookings import dynamo_write
 
 
 class HomePage:
@@ -44,21 +43,11 @@ class HomePage:
             return
 
         user_uuid = user["uuid"]
-        file_path = "json/booking.json"
-
-        try:
-            with open(file_path, "r") as file:
-                bookings = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            bookings = []
-
         new_booking = {"uuid": user_uuid, "event_name": event_name}
-        bookings.append(new_booking)
 
-        with open(file_path, "w") as file:
-            json.dump(bookings, file, indent=4)
+        dynamo_write("bookings", new_booking)
 
-        print(f" Event '{event_name}' saved successfully for user {user_uuid}.")
+        print(f"Event '{event_name}' saved successfully for user {user_uuid}.")
 
     def on_option_click(self, event_name, route):
         self.save_booking(event_name)

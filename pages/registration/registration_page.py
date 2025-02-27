@@ -1,5 +1,4 @@
 import flet as ft
-import json
 import bcrypt
 import re
 import random
@@ -7,6 +6,7 @@ from pages.registration.components.customtextfield import CustomTextField
 from pages.registration.components.country_code_selector import CountryPhoneCodeSelector
 from pages.registration.components.country_data import load_country_data
 import uuid
+from dynamodb.dynamoDB_profiles import dynamo_write, dynamo_read
 
 
 class RegistrationPage(ft.UserControl):
@@ -39,26 +39,14 @@ class RegistrationPage(ft.UserControl):
 
     def is_email_unique(self, email):
         try:
-            with open("json/users.json", "r") as file:
-                users = json.load(file)
-                return not any(user["email"] == email for user in users)
-        except FileNotFoundError:
-            return True
+            response = dynamo_read("profiles", "email", email)
+            return response is None
+        except Exception as e:
+            print(f"Error reading DynamoDB: {e}")
+            return False
 
     def hash_password(self, password):
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
-    def save_user_to_json(self, user_data):
-        try:
-            with open("json/users.json", "r") as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            data = []
-
-        data.append(user_data)
-
-        with open("json/users.json", "w") as file:
-            json.dump(data, file, indent=4)
 
     def generate_otp(self):
         return str(random.randint(1000, 9999))
@@ -91,16 +79,15 @@ class RegistrationPage(ft.UserControl):
         print(f"Generated OTP: {otp}")
 
         password_hashed = self.hash_password(password)
-
         user_uuid = str(uuid.uuid4())
 
         user_data = {
+            "email": email,
             "uuid": user_uuid,
             "full_name": full_name,
-            "email": email,
             "password": password_hashed,
             "phone_number": phone_number,
-            "address": "",
+            "address": "Boston, U.S.A",
             "gender": "",
             "birthdate": "",
             "bio": "",
@@ -110,18 +97,18 @@ class RegistrationPage(ft.UserControl):
             "profile_image": "",
         }
 
-        self.save_user_to_json(user_data)
+        dynamo_write("profiles", user_data)
 
         booking_data = {
             "uuid": user_uuid,
             "booking_id": "ORBT-BR0001",
             "date": "",
             "time": "",
-            "location": "Pagadian City",
+            "location": "Boston, U.S.A",
             "event_name": "",
             "book_option_order": "",
             "status": "Upcoming",
-            "venue_name": "Water Front Hotel",
+            "venue_name": "Viga, 245-275 Washington St, Boston, MA 02108 ",
             "Coffee_image": "images/Coffee.png",
             "Brunch_image": "images/Brunch.png",
             "Diner_image": "images/Diner.png",
@@ -130,26 +117,14 @@ class RegistrationPage(ft.UserControl):
             "Experiences_image": "images/Experiences.png",
         }
 
-        self.save_booking_to_json(booking_data)
+        self.go_to("/verification", self.page, user_email=email)
 
         self.error_message.value = "Account created successfully! OTP sent."
         self.error_message.color = "green"
         self.error_message.visible = True
         self.page.update()
 
-        self.page.go("/verification")
-
-    def save_booking_to_json(self, booking_data):
-        try:
-            with open("json/booking.json", "r") as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            data = []
-
-        data.append(booking_data)
-
-        with open("json/booking.json", "w") as file:
-            json.dump(data, file, indent=4)
+        self.go_to("/verification", self.page, user_email=email)
 
     def build(self):
         return ft.Container(

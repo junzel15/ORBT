@@ -2,7 +2,8 @@ import flet as ft
 
 
 class UserSetupPage(ft.UserControl):
-    def __init__(self, page: ft.Page, go_to):
+
+    def __init__(self, page: ft.Page, go_to, user_email=None):
         super().__init__()
         self.page = page
         self.go_to = go_to
@@ -11,6 +12,7 @@ class UserSetupPage(ft.UserControl):
         self.page.padding = 0
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#000000"
+        self.user_email = user_email
 
         self.page.window_width = 400
         self.page.window_height = 730
@@ -41,7 +43,9 @@ class UserSetupPage(ft.UserControl):
 
         self.continue_button = ft.ElevatedButton(
             text="Continue",
-            on_click=lambda e: self.go_to("/gender", self.page),
+            on_click=lambda e: self.go_to(
+                "/gender", self.page, user_email=self.user_email
+            ),
             bgcolor="#7C4DFF",
             color="white",
             width=300,

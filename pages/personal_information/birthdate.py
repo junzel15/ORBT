@@ -1,16 +1,16 @@
 import flet as ft
 import calendar
 import datetime
-import json
 from flet import UserControl
+from dynamodb.dynamoDB_profiles import dynamo_write
 
 
 class BirthdatePage(ft.UserControl):
-    def __init__(self, page, go_to, user_id):
+
+    def __init__(self, page, go_to, user_email=None):
         super().__init__()
         self.go_to = go_to
         self.page = page
-        self.user_id = str(user_id)
         self.year = 1990
         self.month = 9
         self.day = 12
@@ -21,6 +21,8 @@ class BirthdatePage(ft.UserControl):
         )
         self.day_grid_container = None
 
+        self.user_email = user_email
+
         self.page.window_width = 450
         self.page.window_height = 790
         self.page.update()
@@ -29,28 +31,17 @@ class BirthdatePage(ft.UserControl):
         user_birthdate = f"{self.year}-{self.month:02}-{self.day:02}"
 
         try:
-            with open("json/users.json", "r") as file:
-                users = json.load(file)
-
-            if not users:
-                raise ValueError("No users found in database")
-
-            current_user = users[-1]
-
-            if "uuid" not in current_user:
-                raise ValueError("Current user does not have a UUID")
-
-            current_user["birthdate"] = user_birthdate
-
-            with open("json/users.json", "w") as file:
-                json.dump(users, file, indent=4)
-
-            print(f"Birthdate '{user_birthdate}' saved for user {current_user['uuid']}")
+            user_email = self.user_email
+            if not user_email:
+                print("User email not found")
+                return
+            dynamo_write("profiles", {"email": user_email, "birthdate": user_birthdate})
+            print(f"Birthdate '{user_birthdate}' saved for user {user_email}")
 
         except Exception as e:
             print(f"Error saving birthdate: {e}")
 
-        self.go_to("/bio", self.page)
+        self.go_to("/bio", self.page, user_email=user_email)
 
     def build(self):
         return ft.Container(
@@ -296,12 +287,8 @@ class BirthdatePage(ft.UserControl):
         return self.day_grid_container
 
     def render_days_grid(self):
-        print("render_days_grid")
         first_weekday, num_days = calendar.monthrange(self.year, self.month)
         first_weekday = (first_weekday + 1) % 7
-
-        print("first_weekday: ", first_weekday)
-        print("num_days", num_days)
 
         previous_month = self.month - 1 if self.month > 1 else 12
         previous_year = self.year if self.month > 1 else self.year - 1
@@ -422,19 +409,16 @@ class BirthdatePage(ft.UserControl):
 
     def on_day_select(self, day):
         self.day = day
-        print("on_day_select: ", day)
         self.update_selected_date()
 
     def update_selected_date(self):
         self.selected_date_text.value = f"{self.month:02}/{self.day:02}/{self.year}"
-        print("self.selected_date_text.value: ", self.selected_date_text.value)
         self.selected_date_text.update()
         self.update_calendar()
 
     def update_calendar(self):
         self.day_grid_container.content.controls.clear()
         self.day_grid_container.content = self.render_days_grid()
-        print(f"Updated content: {self.day_grid_container.content}")
         self.day_grid_container.update()
 
     def on_next_click(self):

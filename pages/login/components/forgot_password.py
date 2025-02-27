@@ -1,6 +1,6 @@
 import flet as ft
 import random
-import json
+from dynamodb.dynamoDB_profiles import dynamo_read, dynamo_write
 
 
 class ForgotPassword(ft.UserControl):
@@ -9,7 +9,6 @@ class ForgotPassword(ft.UserControl):
         self.page = page
         self.go_to = go_to
         self.selected_option = "sms"
-        self.users = self.load_users()
         self.current_user = self.get_current_user()
 
         self.page.window_width = 380
@@ -17,7 +16,6 @@ class ForgotPassword(ft.UserControl):
         self.page.update()
 
     def build(self):
-
         phone_number = self.current_user.get("phone_number", "Not Available")
         email = self.current_user.get("email", "Not Available")
 
@@ -67,7 +65,7 @@ class ForgotPassword(ft.UserControl):
                         controls=[
                             ft.Text("via Email:", size=12, color=ft.colors.GREY),
                             ft.Text(
-                                email[:5] + "***@gmail.com",
+                                email[:5] + "***",
                                 size=16,
                                 weight=ft.FontWeight.BOLD,
                             ),
@@ -161,34 +159,23 @@ class ForgotPassword(ft.UserControl):
             self.page.snack_bar.open = True
             self.page.update()
 
-    def load_users(self):
-        try:
-            with open("json/users.json", "r") as file:
-                return json.load(file)
-        except Exception as e:
-            print(f"Error loading users.json: {e}")
-            return []
-
     def get_current_user(self):
-
-        return self.users[0] if self.users else {}
+        email = self.page.session.get("email")
+        return dynamo_read("profiles", "email", email) if email else {}
 
     def generate_otp(self):
         return str(random.randint(1000, 9999))
 
     def update_user_otp(self, email, otp):
-        for user in self.users:
-            if user["email"] == email:
-                user["otp"]["reset_password"] = otp
-                with open("json/users.json", "w") as file:
-                    json.dump(self.users, file, indent=4)
-                return True
+        user = dynamo_read("profiles", "email", email)
+        if user:
+            user["otp"]["reset_password"] = otp
+            dynamo_write("profiles", user)
+            return True
         return False
 
     def send_sms(self, phone_number, otp):
-
         print(f"Sending SMS to {phone_number}: OTP {otp}")
 
     def send_email(self, email, otp):
-
         print(f"Sending Email to {email}: OTP {otp}")
