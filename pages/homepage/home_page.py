@@ -45,13 +45,15 @@ class HomePage:
         user_uuid = user["uuid"]
         new_booking = {"uuid": user_uuid, "event_name": event_name}
 
+        print(f"Saving booking: {new_booking}")
+
         dynamo_write("bookings", new_booking)
 
         print(f"Event '{event_name}' saved successfully for user {user_uuid}.")
 
     def on_option_click(self, event_name, route):
         self.save_booking(event_name)
-        self.go_to(route, self.page)
+        self.go_to(route, self.page, kwargs={"event_name": event_name})
 
     def render(self):
         self.user = get_logged_in_user()

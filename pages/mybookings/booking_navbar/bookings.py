@@ -3,7 +3,7 @@ import os
 from global_state import get_logged_in_user
 from pages.mybookings.booking_navbar.components import BookingCard, Tabs, FilterModal
 from pages.mybookings.booking_navbar.helpers import filter_bookings
-from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write, dynamo_delete
+from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
 
 
 class Bookings(ft.UserControl):
@@ -89,7 +89,7 @@ class Bookings(ft.UserControl):
         )
 
     def did_mount(self):
-        self.switch_tab("Upcoming")
+        self.update_bookings_view()
 
     def build(self):
         logged_in_user = get_logged_in_user()
@@ -315,7 +315,7 @@ class Bookings(ft.UserControl):
         filtered = [
             b
             for b in self.filtered_bookings
-            if b["status"].lower() == self.current_tab.lower()
+            if b["status"].strip().lower() == self.current_tab.lower()  # Fix filtering
         ]
 
         if not filtered:
@@ -340,47 +340,40 @@ class Bookings(ft.UserControl):
 
     def update_lists(self, updated_booking):
         print(f"Updating lists with booking: {updated_booking}")
+
         for booking in self.original_bookings:
             if booking["id"] == updated_booking["id"]:
                 booking["status"] = updated_booking["status"]
-                dynamo_write("bookings", booking)
+                break
 
         if updated_booking["status"] == "Cancelled":
-            self.original_bookings = [
-                booking
-                for booking in self.original_bookings
-                if booking["id"] != updated_booking["id"]
-            ]
             self.save_cancelled_booking(updated_booking)
 
         self.update_bookings_view()
 
     def save_cancelled_booking(self, booking):
         try:
-            booking_id = booking.get("id")
-            if not booking_id:
-                print("Error: Booking does not have a 'booking_id' key.")
+            booking_id = booking.get("booking_id")
+            user_uuid = booking.get("uuid")
+
+            if not booking_id or not user_uuid:
+                print("Error: Booking does not have a 'booking_id' or 'uuid' key.")
                 return
 
-            dynamo_delete("bookings", "booking_id", booking_id)
+            updated_booking = booking.copy()
+            updated_booking["status"] = "Cancelled"
 
-            dynamo_write(
-                "bookings",
-                {
-                    "title": "Cancelled Booking",
-                    "uuid": get_logged_in_user().get("uuid"),
-                    "booking_id": booking_id,
-                    "event_name": booking.get("event_name", "Unknown"),
-                    "status": "Cancelled",
-                    "time": booking.get("time", "Unknown"),
-                    "date": booking.get("date", "Unknown"),
-                    "location": booking.get("location", "Unknown"),
-                    "venue_name": booking.get("venue_name", "Unknown"),
-                    "book_option_order": booking.get("book_option_order", "Unknown"),
-                },
-            )
+            success = dynamo_write("bookings", updated_booking)
+            if not success:
+                print(f"Error: Failed to update booking {booking_id} in the database.")
+                return
 
-            print("Booking successfully moved to Cancelled and saved.")
+            print(f"Booking {booking_id} successfully marked as Cancelled.")
+
+            self.original_bookings = self.load_bookings()
+            self.filtered_bookings = self.original_bookings
+            self.update_bookings_view()
+
         except Exception as e:
             print(f"Error saving cancelled booking: {e}")
 
@@ -391,10 +384,12 @@ class Bookings(ft.UserControl):
             return []
 
         try:
-
             user_bookings = dynamo_read("bookings", "uuid", logged_in_user.get("uuid"))
             if not user_bookings:
                 return []
+
+            if isinstance(user_bookings, dict):
+                user_bookings = [user_bookings]
 
             user_bookings_list = []
 
@@ -402,6 +397,8 @@ class Bookings(ft.UserControl):
                 event_name = booking.get("event_name", "Unknown")
                 book_option_order = booking.get("book_option_order", "Unknown")
                 venue_name = booking.get("venue_name", "Unknown")
+
+                print(f"Processing booking: {booking}")
 
                 image_key = f"{event_name}_image"
                 image_path = booking.get(image_key, "assets/images/default.png")
@@ -416,13 +413,13 @@ class Bookings(ft.UserControl):
 
                 user_bookings_list.append(
                     {
-                        "id": booking["booking_id"],
+                        "id": booking.get("booking_id", "No ID"),
                         "event_name": event_name,
                         "emoji": "🍽️",
                         "status": booking.get("status", "Upcoming"),
-                        "time": booking["time"],
-                        "date": booking["date"],
-                        "location": booking["location"],
+                        "time": booking.get("time", "Unknown Time"),
+                        "date": booking.get("date", "Unknown Date"),
+                        "location": booking.get("location", "Unknown Location"),
                         "venue_name": venue_name,
                         "category": book_option_order.upper(),
                         "image": image_path,

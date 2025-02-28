@@ -38,21 +38,21 @@ class BookingDetails(ft.UserControl):
 
     def get_booking_details(self):
         try:
-
             if self.booking_id:
                 booking = dynamo_read("bookings", "booking_id", self.booking_id)
-                if booking:
+                if isinstance(booking, dict):
                     return booking
-                print(f"Booking ID {self.booking_id} not found!")
+                print(f"Booking ID {self.booking_id} not found or invalid format!")
 
             logged_in_user = get_logged_in_user()
             if logged_in_user:
                 user_bookings = dynamo_read(
                     "bookings", "uuid", logged_in_user.get("uuid")
                 )
-                if user_bookings:
-                    latest_booking = user_bookings[-1]
-                    return latest_booking
+                if isinstance(user_bookings, dict):
+                    return user_bookings
+                elif isinstance(user_bookings, list) and user_bookings:
+                    return user_bookings[-1]
 
             return None
         except Exception as e:

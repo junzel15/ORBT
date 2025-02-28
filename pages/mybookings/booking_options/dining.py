@@ -3,6 +3,7 @@ from datetime import datetime
 import uuid
 from global_state import get_logged_in_user
 from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
+from dynamodb.dynamoDB_bookingDates import dynamo_read_all
 
 
 class DiningPage:
@@ -10,6 +11,7 @@ class DiningPage:
         self.page = page
         self.go_to = go_to
         self.page.title = "Dining"
+        self.event_name = kwargs.get("event_name", "Unknown")
         self.page.theme_mode = None
         self.page.padding = 0
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -18,12 +20,12 @@ class DiningPage:
         self.tab_buttons = {}
         self.expanded_state = {"before": False, "expect": False}
 
-        self.selected_date = kwargs.get("selected_date", "Default Date")
+        self.selected_date = kwargs.get("selected_date", "Select a date")
+        self.selected_time = None
 
         self.dropdown_items = None
         self.date_dropdown = None
 
-        self.selected_date = "Select a date"
         self.time_text_value = "10:00 AM"
 
         self.before_toggle_ref = ft.Ref[ft.Text]()
@@ -32,8 +34,7 @@ class DiningPage:
         self.expect_content_ref = ft.Ref[ft.Container]()
 
         self.date_text = ft.Text(self.selected_date, size=14, color="white")
-
-        self.time_text = ft.Text(self.time_text_value, size=14, color="white")
+        self.time_text = ft.Text("", size=14, color="white")
 
         self.page.on_resize = self.on_resize
 
@@ -69,9 +70,23 @@ class DiningPage:
 
     def load_booking_data(self):
         try:
+            items = dynamo_read_all("bookingDates")
+            print("Fetched items:", items)
 
-            items = dynamo_read("bookingDates", "id", "all")
-            return items if items else []
+            dinning_items = [item for item in items if item.get("id") == "dinning"]
+
+            if dinning_items and "dates" in dinning_items[0]:
+                corrected_dates = [
+                    {
+                        "select_a_date": date[0],
+                        "select_a_time": (
+                            date[1].split(": ")[1] if ": " in date[1] else date[1]
+                        ),
+                    }
+                    for date in dinning_items[0]["dates"]
+                ]
+                return corrected_dates
+            return []
         except Exception as e:
             print(f"Error loading booking data: {e}")
             return []
@@ -79,6 +94,8 @@ class DiningPage:
     def select_date(self, e, date_str):
         try:
             formatted_date = date_str.upper()
+            print(f"Selecting date: {formatted_date}")
+
             matching_bookings = [
                 b for b in self.bookings if b["select_a_date"] == formatted_date
             ]
@@ -86,6 +103,7 @@ class DiningPage:
             if matching_bookings:
                 self.selected_date = formatted_date
                 self.selected_time = matching_bookings[0]["select_a_time"]
+                print(f"Selected time: {self.selected_time}")
 
                 self.date_text.value = f"{self.selected_date} - {self.selected_time}"
 
@@ -118,6 +136,8 @@ class DiningPage:
 
         except ValueError as ex:
             print(f"Error parsing date: {date_str} - {ex}")
+        except Exception as ex:
+            print(f"An unexpected error occurred: {ex}")
 
     def save_date_time_to_user(self):
         user = get_logged_in_user()
@@ -139,6 +159,11 @@ class DiningPage:
         if not user:
             print("No user is logged in.")
             return
+
+        if not event_name:
+            print("⚠️ Warning: event_name is missing! Defaulting to 'Unknown'.")
+            event_name = "Unknown"
+
         user["event_name"] = event_name
         print(f"Event '{event_name}' saved successfully for user {user['uuid']}.")
 
@@ -156,43 +181,29 @@ class DiningPage:
 
         user_uuid = user["uuid"]
 
-        bookings = dynamo_read("bookings", "uuid", user_uuid)
-
-        print(f"Current bookings: {bookings}")
-
-        unbooked_event = next(
-            (b for b in bookings if b["uuid"] == user_uuid and "booking_id" not in b),
-            None,
-        )
-
-        if not unbooked_event:
-            print("No unbooked event found for this user.")
-            return
-
         booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
         print(f"Generated Booking ID: {booking_id}")
 
-        unbooked_event.update(
-            {
-                "booking_id": booking_id,
-                "date": self.selected_date,
-                "time": self.selected_time,
-                "location": "Pagadian City",
-                "book_option_order": self.current_tab,
-                "status": "Upcoming",
-                "venue_name": "Water Front Hotel",
-                "Coffee_image": "images/Coffee.png",
-                "Brunch_image": "images/Brunch.png",
-                "Diner_image": "images/Diner.png",
-                "Dining_image": "images/Icon Dinning.png",
-                "Bars_image": "images/Bars.png",
-                "Experiences_image": "images/Experiences.png",
-            }
-        )
+        new_booking = {
+            "booking_id": booking_id,
+            "uuid": user_uuid,
+            "date": self.selected_date,
+            "time": self.selected_time,
+            "location": "Pagadian City",
+            "book_option_order": self.current_tab,
+            "status": "Upcoming",
+            "venue_name": "Water Front Hotel",
+            "Coffee_image": "images/Coffee.png",
+            "Brunch_image": "images/Brunch.png",
+            "Diner_image": "images/Diner.png",
+            "Dining_image": "images/Icon Dinning.png",
+            "Bars_image": "images/Bars.png",
+            "Experiences_image": "images/Experiences.png",
+        }
 
-        print(f"Updated Booking: {unbooked_event}")
+        print(f"New Booking: {new_booking}")
 
-        dynamo_write("bookings", unbooked_event)
+        dynamo_write("bookings", new_booking)
 
         print("Booking details successfully updated in DynamoDB")
         self.page.go("/loadingscreen")
