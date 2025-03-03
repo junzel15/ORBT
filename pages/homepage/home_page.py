@@ -36,25 +36,6 @@ class HomePage:
 
         self.page.update()
 
-    def save_booking(self, event_name):
-        user = get_logged_in_user()
-        if not user:
-            print("No user is logged in.")
-            return
-
-        user_uuid = user["uuid"]
-        new_booking = {"uuid": user_uuid, "event_name": event_name}
-
-        print(f"Saving booking: {new_booking}")
-
-        dynamo_write("bookings", new_booking)
-
-        print(f"Event '{event_name}' saved successfully for user {user_uuid}.")
-
-    def on_option_click(self, event_name, route):
-        self.save_booking(event_name)
-        self.go_to(route, self.page, kwargs={"event_name": event_name})
-
     def render(self):
         self.user = get_logged_in_user()
         self.user_name = self.user.get("full_name", "Guest") if self.user else "Guest"
@@ -183,7 +164,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.on_option_click("Dining", "/diner"),
+                        on_click=lambda e: self.go_to("/diner", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -212,7 +193,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.on_option_click("Bars", "/bars"),
+                        on_click=lambda e: self.go_to("/bars", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -241,9 +222,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.on_option_click(
-                            "Experiences", "/experience"
-                        ),
+                        on_click=lambda e: self.go_to("/experience", self.page),
                     ),
                 ],
                 spacing=0,

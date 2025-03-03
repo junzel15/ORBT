@@ -2,7 +2,7 @@ import flet as ft
 from datetime import datetime
 import uuid
 from global_state import get_logged_in_user
-from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
+from dynamodb.dynamoDB_bookings import dynamo_write
 from dynamodb.dynamoDB_bookingDates import dynamo_read_all
 
 
@@ -193,6 +193,7 @@ class DiningPage:
             "book_option_order": self.current_tab,
             "status": "Upcoming",
             "venue_name": "Water Front Hotel",
+            "event_name": "Dining",
             "Coffee_image": "images/Coffee.png",
             "Brunch_image": "images/Brunch.png",
             "Diner_image": "images/Diner.png",

@@ -1,6 +1,6 @@
 import flet as ft
 from global_state import get_logged_in_user
-from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write, dynamo_delete
+from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
 
 
 class BookingDetails(ft.UserControl):
@@ -89,27 +89,12 @@ class BookingDetails(ft.UserControl):
                 print("Error: Booking does not have a 'booking_id' key.")
                 return
 
-            dynamo_delete("bookings", "booking_id", booking_id)
+            updated_booking = {**booking, "status": "Cancelled"}
+            dynamo_write("bookings", updated_booking)
 
-            dynamo_write(
-                "bookings",
-                {
-                    "title": "Cancelled Booking",
-                    "uuid": get_logged_in_user().get("uuid"),
-                    "booking_id": booking_id,
-                    "event_name": booking.get("event_name", "Unknown"),
-                    "status": "Cancelled",
-                    "time": booking.get("time", "Unknown"),
-                    "date": booking.get("date", "Unknown"),
-                    "location": booking.get("location", "Unknown"),
-                    "venue_name": booking.get("venue_name", "Unknown"),
-                    "book_option_order": booking.get("book_option_order", "Unknown"),
-                },
-            )
-
-            print("Booking successfully moved to Cancelled and saved.")
+            print(f"Booking {booking_id} marked as Cancelled.")
         except Exception as e:
-            print(f"Error saving cancelled booking: {e}")
+            print(f"Error updating cancelled booking: {e}")
 
     def build(self):
         self.booking = self.get_booking_details()

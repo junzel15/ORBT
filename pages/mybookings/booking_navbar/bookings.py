@@ -315,7 +315,7 @@ class Bookings(ft.UserControl):
         filtered = [
             b
             for b in self.filtered_bookings
-            if b["status"].strip().lower() == self.current_tab.lower()  # Fix filtering
+            if b["status"].strip().lower() == self.current_tab.lower()
         ]
 
         if not filtered:
@@ -330,6 +330,7 @@ class Bookings(ft.UserControl):
         else:
             for booking in filtered:
                 print(f"Adding booking: {booking}")
+                print(f"Booking date: {booking.get('date', 'No Date Found')}")
                 self.bookings_list.controls.append(
                     BookingCard(
                         booking, self.page, self.update_lists, self.go_to
@@ -347,6 +348,7 @@ class Bookings(ft.UserControl):
                 break
 
         if updated_booking["status"] == "Cancelled":
+            dynamo_write("bookings", updated_booking)
             self.save_cancelled_booking(updated_booking)
 
         self.update_bookings_view()
@@ -397,8 +399,13 @@ class Bookings(ft.UserControl):
                 event_name = booking.get("event_name", "Unknown")
                 book_option_order = booking.get("book_option_order", "Unknown")
                 venue_name = booking.get("venue_name", "Unknown")
+                booking_uuid = booking.get("uuid")
 
                 print(f"Processing booking: {booking}")
+
+                # ✅ Just get the date directly like in BookingDetails
+                formatted_date = booking.get("date", "Unknown Date").strip()
+                time_str = booking.get("time", "Unknown Time")
 
                 image_key = f"{event_name}_image"
                 image_path = booking.get(image_key, "assets/images/default.png")
@@ -413,12 +420,13 @@ class Bookings(ft.UserControl):
 
                 user_bookings_list.append(
                     {
+                        "uuid": booking_uuid,
                         "id": booking.get("booking_id", "No ID"),
                         "event_name": event_name,
                         "emoji": "🍽️",
                         "status": booking.get("status", "Upcoming"),
-                        "time": booking.get("time", "Unknown Time"),
-                        "date": booking.get("date", "Unknown Date"),
+                        "time": time_str,
+                        "date": formatted_date,  # ✅ Directly use the date from the DB
                         "location": booking.get("location", "Unknown Location"),
                         "venue_name": venue_name,
                         "category": book_option_order.upper(),
@@ -429,6 +437,7 @@ class Bookings(ft.UserControl):
 
             print(f"Loaded {len(user_bookings_list)} bookings with images.")
             return user_bookings_list
+
         except Exception as e:
             print(f"Error loading bookings: {e}")
             return []

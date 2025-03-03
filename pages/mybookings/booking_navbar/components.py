@@ -95,7 +95,7 @@ class BookingCard(ft.UserControl):
                                                 weight="bold",
                                             ),
                                             ft.Text(
-                                                self.booking.get("day", "Unknown"),
+                                                self.booking.get("date", "Unknown"),
                                                 size=14,
                                                 weight="bold",
                                             ),

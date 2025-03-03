@@ -1,9 +1,10 @@
 import flet as ft
 from datetime import datetime
 import json
-from global_state import get_logged_in_user, update_user_data
+from global_state import get_logged_in_user
 import uuid
-from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
+from dynamodb.dynamoDB_bookings import dynamo_write
+from dynamodb.dynamoDB_bookingDates import dynamo_read_all
 
 
 class ExperiencePage:
@@ -77,16 +78,32 @@ class ExperiencePage:
 
     def load_booking_data(self):
         try:
+            items = dynamo_read_all("bookingDates")
+            print("Fetched items:", items)
 
-            items = dynamo_read("bookingDates", "id", "all")
-            return items if items else []
+            dinning_items = [item for item in items if item.get("id") == "experiences"]
+
+            if dinning_items and "dates" in dinning_items[0]:
+                corrected_dates = [
+                    {
+                        "select_a_date": date[0],
+                        "select_a_time": (
+                            date[1].split(": ")[1] if ": " in date[1] else date[1]
+                        ),
+                    }
+                    for date in dinning_items[0]["dates"]
+                ]
+                return corrected_dates
+            return []
         except Exception as e:
             print(f"Error loading booking data: {e}")
             return []
 
-    def select_date(self, e, date_str):
+    def select_date(self, e, date_str, tab):
         try:
             formatted_date = date_str.upper()
+            print(f"Selecting date: {formatted_date}")
+
             matching_bookings = [
                 b for b in self.bookings if b["select_a_date"] == formatted_date
             ]
@@ -94,6 +111,8 @@ class ExperiencePage:
             if matching_bookings:
                 self.selected_date = formatted_date
                 self.selected_time = matching_bookings[0]["select_a_time"]
+                self.current_tab = tab
+                print(f"Selected time: {self.selected_time}")
 
                 self.date_text.value = f"{self.selected_date} - {self.selected_time}"
 
@@ -126,6 +145,8 @@ class ExperiencePage:
 
         except ValueError as ex:
             print(f"Error parsing date: {date_str} - {ex}")
+        except Exception as ex:
+            print(f"An unexpected error occurred: {ex}")
 
     def save_date_time_to_user(self):
         user = get_logged_in_user()
@@ -142,6 +163,21 @@ class ExperiencePage:
 
         dynamo_write("bookings", user)
 
+    def save_event_name(self, event_name):
+        user = get_logged_in_user()
+        if not user:
+            print("No user is logged in.")
+            return
+
+        if not event_name:
+            print("⚠️ Warning: event_name is missing! Defaulting to 'Unknown'.")
+            event_name = "Unknown"
+
+        user["event_name"] = event_name
+        print(f"Event '{event_name}' saved successfully for user {user['uuid']}.")
+
+        dynamo_write("bookings", user)
+
     def book_now(self, e):
         user = get_logged_in_user()
         if not user:
@@ -154,43 +190,29 @@ class ExperiencePage:
 
         user_uuid = user["uuid"]
 
-        bookings = dynamo_read("bookings", "uuid", user_uuid)
-
-        print(f"Current bookings: {bookings}")
-
-        unbooked_event = next(
-            (b for b in bookings if b["uuid"] == user_uuid and "booking_id" not in b),
-            None,
-        )
-
-        if not unbooked_event:
-            print("No unbooked event found for this user.")
-            return
-
         booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
         print(f"Generated Booking ID: {booking_id}")
 
-        unbooked_event.update(
-            {
-                "booking_id": booking_id,
-                "date": self.selected_date,
-                "time": self.selected_time,
-                "location": "Pagadian City",
-                "book_option_order": self.current_tab,
-                "status": "Upcoming",
-                "venue_name": "Water Front Hotel",
-                "Coffee_image": "images/Coffee.png",
-                "Brunch_image": "images/Brunch.png",
-                "Diner_image": "images/Diner.png",
-                "Dining_image": "images/Icon Dinning.png",
-                "Bars_image": "images/Bars.png",
-                "Experiences_image": "images/Experiences.png",
-            }
-        )
+        new_booking = {
+            "booking_id": booking_id,
+            "uuid": user_uuid,
+            "date": self.selected_date,
+            "time": self.selected_time,
+            "location": "Pagadian City",
+            "status": "Upcoming",
+            "venue_name": "Water Front Hotel",
+            "event_name": "Experiences",
+            "Coffee_image": "images/Coffee.png",
+            "Brunch_image": "images/Brunch.png",
+            "Diner_image": "images/Diner.png",
+            "Dining_image": "images/Icon Dinning.png",
+            "Bars_image": "images/Bars.png",
+            "Experiences_image": "images/Experiences.png",
+        }
 
-        print(f"Updated Booking: {unbooked_event}")
+        print(f"New Booking: {new_booking}")
 
-        dynamo_write("bookings", unbooked_event)
+        dynamo_write("bookings", new_booking)
 
         print("Booking details successfully updated in DynamoDB")
         self.page.go("/loadingscreen")
@@ -266,7 +288,9 @@ class ExperiencePage:
                         padding=8,
                         bgcolor=ft.colors.with_opacity(0.1, ft.colors.BLACK),
                         border_radius=4,
-                        on_click=lambda e, d=date: self.select_date(e, d),
+                        on_click=lambda e, d=date: self.select_date(
+                            e, d, tab="your_tab_value"
+                        ),
                     )
                     for date in date_list
                 ],
