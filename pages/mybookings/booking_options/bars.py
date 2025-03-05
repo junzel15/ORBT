@@ -3,8 +3,8 @@ from datetime import datetime
 import json
 from global_state import get_logged_in_user
 import uuid
-from dynamodb.dynamoDB_bookings import dynamo_write
-from dynamodb.dynamoDB_bookingDates import dynamo_read_all
+from dynamodb.dynamoDB_bookings import dynamo_write, dynamo_read
+from dynamodb.dynamoDB_bookingDates import dynamo_read_all_dates
 
 
 class BarsPage:
@@ -24,6 +24,9 @@ class BarsPage:
 
         self.dropdown_items = None
         self.date_dropdown = None
+
+        self.bookings = self.load_booking_data()
+        self.user_bookings = self.load_user_bookings()
 
         self.selected_date = "Select a date"
         self.time_text_value = "10:00 AM"
@@ -77,7 +80,7 @@ class BarsPage:
 
     def load_booking_data(self):
         try:
-            items = dynamo_read_all("bookingDates")
+            items = dynamo_read_all_dates("bookingDates")
             print("Fetched items:", items)
 
             dinning_items = [item for item in items if item.get("id") == "bar"]
@@ -96,6 +99,21 @@ class BarsPage:
             return []
         except Exception as e:
             print(f"Error loading booking data: {e}")
+            return []
+
+    def load_user_bookings(self):
+        user = get_logged_in_user()
+        if not user:
+            print("No user is logged in.")
+            return []
+
+        user_uuid = user["uuid"]
+        try:
+            items = dynamo_read("bookings")
+            user_bookings = [item for item in items if item.get("uuid") == user_uuid]
+            return user_bookings
+        except Exception as e:
+            print(f"Error loading user bookings: {e}")
             return []
 
     def select_date(self, e, date_str, tab):
@@ -188,7 +206,6 @@ class BarsPage:
             return
 
         user_uuid = user["uuid"]
-
         booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
         print(f"Generated Booking ID: {booking_id}")
 
@@ -198,6 +215,7 @@ class BarsPage:
             "date": self.selected_date,
             "time": self.selected_time,
             "location": "Pagadian City",
+            "book_option_order": self.current_tab,
             "status": "Upcoming",
             "venue_name": "Water Front Hotel",
             "event_name": "Bars",
@@ -209,13 +227,21 @@ class BarsPage:
             "Experiences_image": "images/Experiences.png",
         }
 
-        print(f"New Booking: {new_booking}")
+        print(f"Saving New Booking: {new_booking}")
 
         dynamo_write("bookings", new_booking)
 
-        print("Booking details successfully updated in DynamoDB")
+        print("Booking successfully saved to DynamoDB.")
+
+        self.user_bookings = self.load_user_bookings()
+        self.display_booking_count()
+
         self.page.go("/loadingscreen")
         self.page.update()
+
+    def display_booking_count(self):
+        booking_count = len(self.user_bookings)
+        print(f"You have {booking_count} bookings.")
 
     def toggle_dropdown(self, e):
         self.dropdown_items.visible = not self.dropdown_items.visible

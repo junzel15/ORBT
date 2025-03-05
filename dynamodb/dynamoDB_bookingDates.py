@@ -1,7 +1,7 @@
 import boto3
 
 
-def dynamo_read_all(table_name, region_name="us-east-1"):
+def dynamo_read_all_dates(table_name, region_name="us-east-1"):
     dynamodb = boto3.resource("dynamodb", region_name=region_name)
     table = dynamodb.Table(table_name)
 
@@ -22,7 +22,7 @@ def dynamo_read_all(table_name, region_name="us-east-1"):
 if __name__ == "__main__":
     TABLE_NAME = "bookingDates"
     region = "us-east-1"
-    all_items = dynamo_read_all(TABLE_NAME, region)
+    all_items = dynamo_read_all_dates(TABLE_NAME, region)
 
     for item in all_items:
         print(item)

@@ -3,11 +3,11 @@ import os
 from global_state import get_logged_in_user
 from pages.mybookings.booking_navbar.components import BookingCard, Tabs, FilterModal
 from pages.mybookings.booking_navbar.helpers import filter_bookings
-from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
+from dynamodb.dynamoDB_bookings import dynamo_read_all, dynamo_write
 
 
 class Bookings(ft.UserControl):
-    def __init__(self, page=None, go_to=None, bookings=None, **kwargs):
+    def __init__(self, page=None, go_to=None):
         super().__init__()
         self.page = page
         self.go_to = go_to
@@ -315,7 +315,7 @@ class Bookings(ft.UserControl):
         filtered = [
             b
             for b in self.filtered_bookings
-            if b["status"].strip().lower() == self.current_tab.lower()
+            if b.get("status", "").strip().lower() == self.current_tab.lower()
         ]
 
         if not filtered:
@@ -329,21 +329,22 @@ class Bookings(ft.UserControl):
             )
         else:
             for booking in filtered:
-                print(f"Adding booking: {booking}")
-                print(f"Booking date: {booking.get('date', 'No Date Found')}")
-                self.bookings_list.controls.append(
-                    BookingCard(
-                        booking, self.page, self.update_lists, self.go_to
-                    ).build()
+                print(
+                    f"Adding booking: {booking['event_name']} on {booking.get('date', 'Unknown')}"
                 )
+                booking_card = BookingCard(
+                    booking, self.page, self.update_lists, self.go_to
+                )
+                self.bookings_list.controls.append(booking_card.build())
 
+        self.bookings_list.update()
         self.update()
 
     def update_lists(self, updated_booking):
         print(f"Updating lists with booking: {updated_booking}")
 
         for booking in self.original_bookings:
-            if booking["id"] == updated_booking["id"]:
+            if booking["booking_id"] == updated_booking["booking_id"]:
                 booking["status"] = updated_booking["status"]
                 break
 
@@ -379,6 +380,21 @@ class Bookings(ft.UserControl):
         except Exception as e:
             print(f"Error saving cancelled booking: {e}")
 
+    def load_user_bookings(self):
+        user = get_logged_in_user()
+        if not user:
+            print("No user is logged in.")
+            return []
+
+        user_uuid = user["uuid"]
+        try:
+            items = dynamo_read_all("bookings")
+            user_bookings = [item for item in items if item.get("uuid") == user_uuid]
+            return user_bookings
+        except Exception as e:
+            print(f"Error loading user bookings: {e}")
+            return []
+
     def load_bookings(self):
         logged_in_user = get_logged_in_user()
         if not logged_in_user:
@@ -386,12 +402,9 @@ class Bookings(ft.UserControl):
             return []
 
         try:
-            user_bookings = dynamo_read("bookings", "uuid", logged_in_user.get("uuid"))
+            user_bookings = dynamo_read_all("bookings")
             if not user_bookings:
                 return []
-
-            if isinstance(user_bookings, dict):
-                user_bookings = [user_bookings]
 
             user_bookings_list = []
 
@@ -400,10 +413,7 @@ class Bookings(ft.UserControl):
                 book_option_order = booking.get("book_option_order", "Unknown")
                 venue_name = booking.get("venue_name", "Unknown")
                 booking_uuid = booking.get("uuid")
-
-                print(f"Processing booking: {booking}")
-
-                # ✅ Just get the date directly like in BookingDetails
+                booking_id = booking.get("booking_id", "No ID")
                 formatted_date = booking.get("date", "Unknown Date").strip()
                 time_str = booking.get("time", "Unknown Time")
 
@@ -421,12 +431,12 @@ class Bookings(ft.UserControl):
                 user_bookings_list.append(
                     {
                         "uuid": booking_uuid,
-                        "id": booking.get("booking_id", "No ID"),
+                        "booking_id": booking_id,
                         "event_name": event_name,
                         "emoji": "🍽️",
                         "status": booking.get("status", "Upcoming"),
                         "time": time_str,
-                        "date": formatted_date,  # ✅ Directly use the date from the DB
+                        "date": formatted_date,
                         "location": booking.get("location", "Unknown Location"),
                         "venue_name": venue_name,
                         "category": book_option_order.upper(),

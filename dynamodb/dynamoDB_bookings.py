@@ -29,6 +29,20 @@ def dynamo_read(table_name, primary_key, primary_value):
         return None
 
 
+def dynamo_read_all(table_name):
+    dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+    table = dynamodb.Table(table_name)
+
+    try:
+        response = table.scan()
+        items = response.get("Items", [])
+        print(f"Fetched items: {items}")
+        return items
+    except ClientError as e:
+        print("Error reading from DynamoDB:", e)
+        return []
+
+
 def dynamo_delete(table_name, primary_key, primary_value):
     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
     table = dynamodb.Table(table_name)

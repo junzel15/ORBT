@@ -99,24 +99,6 @@ class RegistrationPage(ft.UserControl):
 
         dynamo_write("profiles", user_data)
 
-        booking_data = {
-            "uuid": user_uuid,
-            "booking_id": "ORBT-BR0001",
-            "date": "",
-            "time": "",
-            "location": "Boston, U.S.A",
-            "event_name": "",
-            "book_option_order": "",
-            "status": "Upcoming",
-            "venue_name": "Viga, 245-275 Washington St, Boston, MA 02108 ",
-            "Coffee_image": "images/Coffee.png",
-            "Brunch_image": "images/Brunch.png",
-            "Diner_image": "images/Diner.png",
-            "Dining_image": "images/Icon Dinning.png",
-            "Bars_image": "images/Bars.png",
-            "Experiences_image": "images/Experiences.png",
-        }
-
         self.go_to("/verification", self.page, user_email=email)
 
         self.error_message.value = "Account created successfully! OTP sent."

@@ -169,7 +169,7 @@ class BookingCard(ft.UserControl):
                                             self.go_to(
                                                 "/bookingdetails",
                                                 self.page,
-                                                booking_id=self.booking["id"],
+                                                booking_id=self.booking["booking_id"],
                                             )
                                             if self.go_to
                                             else print(
@@ -368,7 +368,7 @@ class BookingCard(ft.UserControl):
                                         "Cancelled", size=14, color="red", weight="bold"
                                     ),
                                     ft.Text(
-                                        str(self.booking.get("id", "N/A")),
+                                        str(self.booking.get("booking_id", "N/A")),
                                         size=12,
                                         weight="bold",
                                         color="#6D6D6D",
