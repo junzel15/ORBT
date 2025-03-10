@@ -180,10 +180,9 @@ class DiningPage:
             print("⚠️ Warning: event_name is missing! Defaulting to 'Unknown'.")
             event_name = "Unknown"
 
-        user["event_name"] = event_name
-        print(f"Event '{event_name}' saved successfully for user {user['uuid']}.")
+        self.selected_event_name = event_name
 
-        dynamo_write("bookings", user)
+        print(f"Event '{event_name}' saved successfully.")
 
     def book_now(self, e):
         user = get_logged_in_user()
@@ -195,20 +194,26 @@ class DiningPage:
             print("Please select a date, time, and tab before booking.")
             return
 
-        user_uuid = user["uuid"]
+        if not hasattr(self, "selected_event_name") or not self.selected_event_name:
+            print("⚠️ Warning: No event_name found! Defaulting to 'Unknown'.")
+            self.selected_event_name = "Unknown"
+
+        event_name = self.selected_event_name
+        print(f"Booking for event: {event_name}")
+
         booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
         print(f"Generated Booking ID: {booking_id}")
 
         new_booking = {
             "booking_id": booking_id,
-            "uuid": user_uuid,
+            "uuid": user["uuid"],
+            "event_name": event_name,
             "date": self.selected_date,
             "time": self.selected_time,
             "location": "Pagadian City",
             "book_option_order": self.current_tab,
             "status": "Upcoming",
             "venue_name": "Water Front Hotel",
-            "event_name": "Dining",
             "Coffee_image": "images/Coffee.png",
             "Brunch_image": "images/Brunch.png",
             "Diner_image": "images/Diner.png",

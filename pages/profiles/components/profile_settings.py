@@ -1,4 +1,5 @@
 import flet as ft
+import global_state
 
 
 class ProfileSettingsPage(ft.UserControl):
@@ -111,13 +112,18 @@ class ProfileSettingsPage(ft.UserControl):
             padding=ft.padding.symmetric(horizontal=10, vertical=15),
             height=50,
             ink=True,
-            on_click=lambda e: self.go_to("./login", self.page),
+            on_click=self.handle_logout,
         )
 
         self.main_content = ft.Column(
             controls=[self.header_section, self.items_section, self.logout_item],
             expand=True,
         )
+
+    def handle_logout(self, e):
+        global_state.logout_user()
+        self.page.clean()
+        self.go_to("/login", self.page)
 
     def render(self):
         return ft.Column(controls=[self.main_content], expand=True)

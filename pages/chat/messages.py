@@ -1,14 +1,16 @@
 import flet as ft
 from flet import UserControl
 from pages.chat import stream_chat
+import asyncio
 
 
-class MessagesPage(ft.UserControl):
+class MessagesPage(UserControl):
     def __init__(self, page: ft.Page, go_to):
         super().__init__()
         self.page = page
         self.go_to = go_to
         self.channel_id = "general"
+        self.chat_type = "all"
 
         self.page.title = "Messages"
         self.page.padding = 0
@@ -26,7 +28,7 @@ class MessagesPage(ft.UserControl):
                         icon=ft.icons.ARROW_BACK,
                         icon_size=24,
                         bgcolor="transparent",
-                        on_click=lambda e: self.go_to("/homepage", page),
+                        on_click=lambda e: self.go_to("/homepage", self.page),
                     ),
                     ft.Text("Messages", size=18, weight="bold"),
                 ],
@@ -37,45 +39,56 @@ class MessagesPage(ft.UserControl):
         )
 
         self.search_section = ft.Container(
-            content=ft.TextField(
-                hint_text="Search",
-                prefix_icon=ft.icons.SEARCH,
-                expand=True,
-                border_radius=5,
+            content=ft.Row(
+                [
+                    ft.TextField(
+                        hint_text="Search",
+                        prefix_icon=ft.icons.SEARCH,
+                        expand=True,
+                        border_radius=5,
+                    ),
+                    ft.IconButton(
+                        icon=ft.icons.CREATE_OUTLINED,
+                        icon_size=24,
+                        on_click=lambda e: self.go_to("/newmessages", self.page),
+                    ),
+                ],
+                alignment="spaceBetween",
             ),
             padding=15,
         )
 
+        self.all_button = ft.ElevatedButton(
+            "All",
+            expand=True,
+            color="white",
+            bgcolor="#6200EE",
+            on_click=lambda e: self.set_chat_type("all"),
+        )
+        self.direct_button = ft.ElevatedButton(
+            "Direct",
+            expand=True,
+            color="black",
+            bgcolor="white",
+            on_click=lambda e: self.set_chat_type("direct"),
+        )
+        self.group_chat_button = ft.ElevatedButton(
+            "Group Chat",
+            expand=True,
+            color="black",
+            bgcolor="white",
+            on_click=lambda e: self.set_chat_type("group"),
+        )
+
         self.filter_section = ft.Container(
             content=ft.Row(
-                [
-                    ft.ElevatedButton(
-                        "All", expand=True, color="white", bgcolor="#6200EE"
-                    ),
-                    ft.ElevatedButton("Direct", expand=True, color="black"),
-                    ft.ElevatedButton("Group Chat", expand=True, color="black"),
-                ],
+                [self.all_button, self.direct_button, self.group_chat_button],
                 alignment="spaceEvenly",
             ),
             padding=15,
         )
 
         self.messages_column = ft.Column()
-        self.load_messages()
-
-        self.message_input = ft.TextField(
-            hint_text="Type a message...",
-            expand=True,
-            border_radius=5,
-            on_submit=self.send_message,
-        )
-
-        self.send_button = ft.IconButton(icon=ft.icons.SEND, on_click=self.send_message)
-
-        self.input_section = ft.Row(
-            [self.message_input, self.send_button], alignment="spaceBetween"
-        )
-
         self.messages_section = ft.Container(content=self.messages_column, padding=15)
 
         self.main_content = ft.ListView(
@@ -84,7 +97,6 @@ class MessagesPage(ft.UserControl):
                 self.search_section,
                 self.filter_section,
                 self.messages_section,
-                self.input_section,
             ],
             expand=True,
             padding=ft.padding.all(16),
@@ -94,67 +106,86 @@ class MessagesPage(ft.UserControl):
             content=ft.Row(
                 controls=[
                     ft.IconButton(
-                        content=ft.Image(src="images/Home.png", width=24, height=24),
+                        content=ft.Image(
+                            src="images/Home.png",
+                            width=24,
+                            height=24,
+                        ),
                         icon_size=24,
-                        on_click=lambda _: self.go_to("/homepage", page),
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/homepage", self.page),
                     ),
                     ft.IconButton(
-                        content=ft.Image(src="images/Star.png", width=24, height=24),
+                        content=ft.Image(
+                            src="images/Star.png",
+                            width=24,
+                            height=24,
+                        ),
                         icon_size=24,
-                        on_click=lambda _: self.go_to("/bookings", page),
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/bookings", self.page),
                     ),
                     ft.IconButton(
-                        content=ft.Image(src="images/Message.png", width=24, height=24),
+                        content=ft.Image(
+                            src="images/Message.png",
+                            width=24,
+                            height=24,
+                        ),
                         icon_size=24,
-                        on_click=lambda e: self.go_to("/messages", page),
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/messages", self.page),
                     ),
                     ft.IconButton(
-                        content=ft.Image(src="images/Profile.png", width=24, height=24),
+                        content=ft.Image(
+                            src="images/Profile.png",
+                            width=24,
+                            height=24,
+                        ),
                         icon_size=24,
-                        on_click=lambda e: self.go_to("/profile", page),
+                        icon_color="#000000",
+                        on_click=lambda _: self.go_to("/profile", self.page),
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_AROUND,
             ),
             bgcolor="#FFFFFF",
             border_radius=30,
+            padding=ft.padding.symmetric(vertical=10),
         )
 
-        self.page.controls.append(self.main_content)
-        self.page.controls.append(self.bottom_nav)
+        asyncio.run(self.async_load_messages())
 
-        self.page.update()
+    async def async_load_messages(self):
+        await self.load_messages()
 
-        print("MessagesPage initialized")
+    def build(self):
+        return ft.Column(
+            [
+                ft.Container(content=self.main_content, expand=True),
+                ft.Container(
+                    content=self.bottom_nav,
+                    alignment=ft.alignment.bottom_center,
+                    bgcolor="#FFFFFF",
+                    padding=ft.padding.all(10),
+                ),
+            ]
+        )
 
-    def load_messages(self):
-        messages = stream_chat.get_messages(self.channel_id)
-        print("Loaded messages:", messages)
+    async def async_load_messages(self):
+        messages = await asyncio.to_thread(stream_chat.get_messages, self.channel_id)
         self.messages_column.controls.clear()
+
         for msg in messages:
-            print("Processing message:", msg)
             self.messages_column.controls.append(
                 self.message_item(
-                    msg.get("user_id", "Unknown"),
-                    msg.get("text", ""),
-                    msg.get("created_at", ""),
+                    sender=msg.get("user", {}).get("id", "Unknown"),
+                    message=msg.get("text", ""),
+                    time=msg.get("created_at", ""),
                 )
             )
         self.page.update()
 
-    def send_message(self, e):
-        message_text = self.message_input.value.strip()
-        if message_text:
-            stream_chat.send_message(self.channel_id, message_text)
-            self.message_input.value = ""
-            self.load_messages()
-        self.page.update()
-
     def message_item(self, sender, message, time):
-        sender_name = sender if sender else "Unknown"
-        message_text = message if message else "(No Message)"
-        timestamp = time if time else "Unknown Time"
-
         return ft.Container(
             padding=10,
             content=ft.Row(
@@ -162,17 +193,35 @@ class MessagesPage(ft.UserControl):
                     ft.Icon(ft.icons.PERSON, size=40, color="#6200EE"),
                     ft.Column(
                         [
-                            ft.Text(sender_name, weight="bold", size=14),
-                            ft.Text(message_text, size=12, color="gray"),
+                            ft.Text(sender, weight="bold", size=14),
+                            ft.Text(message, size=12, color="gray"),
                         ],
                         spacing=2,
                         expand=True,
                     ),
-                    ft.Text(timestamp, size=12, color="gray"),
+                    ft.Text(time, size=12, color="gray"),
                 ],
                 alignment="spaceBetween",
             ),
         )
+
+    def set_chat_type(self, chat_type):
+        self.chat_type = chat_type
+
+        self.all_button.bgcolor = "#6200EE" if chat_type == "all" else "white"
+        self.all_button.color = "white" if chat_type == "all" else "black"
+
+        self.direct_button.bgcolor = "#6200EE" if chat_type == "direct" else "white"
+        self.direct_button.color = "white" if chat_type == "direct" else "black"
+
+        self.group_chat_button.bgcolor = "#6200EE" if chat_type == "group" else "white"
+        self.group_chat_button.color = "white" if chat_type == "group" else "black"
+
+        self.all_button.update()
+        self.direct_button.update()
+        self.group_chat_button.update()
+
+        asyncio.create_task(self.async_load_messages())
 
     def set_mobile_view(self):
         self.page.window_width = 400

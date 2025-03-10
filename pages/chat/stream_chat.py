@@ -24,21 +24,19 @@ def get_authenticated_user():
 
     user_id = user["uuid"]
     token = chat_client.create_token(user_id)
-
     return user_id, token
 
 
 def get_or_create_channel(channel_id):
-    user_id, _ = get_authenticated_user()
-
     try:
-        channel = chat_client.channel(
-            "messaging", channel_id, {"name": f"Chat {channel_id}"}
-        )
+        user_id, _ = get_authenticated_user()
+        print(f"Retrieving channel: {channel_id} for user {user_id}")
+
+        channel = chat_client.channel("messaging", channel_id)
         channel.create(user_id)
         return channel
     except Exception as e:
-        print(f"Error creating or retrieving channel: {e}")
+        print(f"Error retrieving channel {channel_id}: {e}")
         return None
 
 
@@ -48,27 +46,22 @@ def send_message(channel_id, message):
 
     if channel:
         try:
-            response = channel.send_message({"text": message, "user_id": user_id})
-            return response
+            return channel.send_message({"text": message}, user_id=user_id)
         except Exception as e:
             print(f"Error sending message: {e}")
-            return None
 
 
 def get_messages(channel_id):
     channel = get_or_create_channel(channel_id)
-
     if not channel:
-        print(f"Failed to retrieve channel: {channel_id}")
+        print(f"Failed to retrieve channel {channel_id}")
         return []
 
     try:
         response = channel.query()
         messages = response.get("messages", [])
+        print(f"Retrieved messages: {messages}")
         return messages
-    except AttributeError as e:
-        print(f"Channel object does not have query method: {e}")
     except Exception as e:
         print(f"Error retrieving messages: {e}")
-
-    return []
+        return []

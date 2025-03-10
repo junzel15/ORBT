@@ -7,6 +7,11 @@ from pages.registration.components.country_code_selector import CountryPhoneCode
 from pages.registration.components.country_data import load_country_data
 import uuid
 from dynamodb.dynamoDB_profiles import dynamo_write, dynamo_read
+import time
+import boto3
+import json
+from twilio.rest import Client
+from botocore.exceptions import ClientError
 
 
 class RegistrationPage(ft.UserControl):
@@ -50,6 +55,34 @@ class RegistrationPage(ft.UserControl):
 
     def generate_otp(self):
         return str(random.randint(1000, 9999))
+
+    def get_secret(self, secret_name, secret_key):
+        region_name = "us-east-1"
+        session = boto3.session.Session()
+        client = session.client(service_name="secretsmanager", region_name=region_name)
+
+        try:
+            get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        except ClientError as e:
+            # For a list of exceptions thrown, see
+            # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+            raise e
+
+        secret = get_secret_value_response["SecretString"]
+        try:
+            secret_dict = json.loads(secret)
+            secret_value = secret_dict.get(secret_key)
+            return secret_value
+        except json.JSONDecodeError as e:
+            raise Exception(f"The secret is not valid JSON: {e}")
+        return secret_dict
+
+    def send(self, phone_number):
+        client = Client(self.account_sid, self.auth_token)
+
+        verification = client.verify.v2.services(
+            self.service_token
+        ).verifications.create(to=phone_number, channel="sms")
 
     def register_user(self, e):
         full_name = self.full_name_input.value.strip()
@@ -98,6 +131,13 @@ class RegistrationPage(ft.UserControl):
         }
 
         dynamo_write("profiles", user_data)
+
+        self.service_token = self.get_secret("twilio_api", "VERIFY_SERVICE_SID")
+        self.account_sid = self.get_secret("twilio_api", "TWILIO_ACCOUNT_SID")
+        self.auth_token = self.get_secret("twilio_api", "TWILIO_AUTH_TOKEN")
+        user_data = dynamo_read("profiles", "email", email)
+        phone_number = user_data["phone_number"]
+        self.send(phone_number)
 
         self.go_to("/verification", self.page, user_email=email)
 

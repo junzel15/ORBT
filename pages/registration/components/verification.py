@@ -1,4 +1,10 @@
 import flet as ft
+from dynamodb.dynamoDB_profiles import dynamo_read
+import time
+import boto3
+import json
+from twilio.rest import Client
+from botocore.exceptions import ClientError
 
 
 class VerificationPage(ft.UserControl):
@@ -9,7 +15,7 @@ class VerificationPage(ft.UserControl):
         self.page = page
         self.text_fields = []
         self.verify_button = None
-        self.user_email = user_email  # Store the user email
+        self.user_email = user_email
 
         self.page.window_width = 400
         self.page.window_height = 680
@@ -173,6 +179,56 @@ class VerificationPage(ft.UserControl):
         print("Back Click")
         self.page.go("/registration")
 
+    def verify(self, code, phone_number):
+        client = Client(self.account_sid, self.auth_token)
+
+        verification_check = client.verify.v2.services(
+            self.service_token
+        ).verification_checks.create(to=phone_number, code=code)
+
+        verified_body = verification_check
+        print(verified_body)
+        verified = verification_check.status
+
+        if verified == "approved":
+            self.otp_verified = "approved"
+            print("approved!")
+        elif verified == "pending":
+            self.otp_verified = "pending"
+            print("wrong code entered")
+
+    def get_secret(self, secret_name, secret_key):
+        region_name = "us-east-1"
+        session = boto3.session.Session()
+        client = session.client(service_name="secretsmanager", region_name=region_name)
+
+        try:
+            get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        except ClientError as e:
+            # For a list of exceptions thrown, see
+            # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+            raise e
+
+        secret = get_secret_value_response["SecretString"]
+        try:
+            secret_dict = json.loads(secret)
+            secret_value = secret_dict.get(secret_key)
+            return secret_value
+        except json.JSONDecodeError as e:
+            raise Exception(f"The secret is not valid JSON: {e}")
+        return secret_dict
+
     def on_verify_click(self, _):
+        print("hehe")
+
+        self.service_token = self.get_secret("twilio_api", "VERIFY_SERVICE_SID")
+        self.account_sid = self.get_secret("twilio_api", "TWILIO_ACCOUNT_SID")
+        self.auth_token = self.get_secret("twilio_api", "TWILIO_AUTH_TOKEN")
+        user_data = dynamo_read("profiles", "email", self.user_email)
+        self.phone_number = user_data["phone_number"]
+        self.entered_otp = "".join(field.value for field in self.text_fields)
+        self.verify(self.entered_otp, self.phone_number)
+
         print("Verify Click")
-        self.go_to("/confirmation", self.page, user_email=self.user_email)
+        if self.otp_verified == "approved":
+            self.go_to("/confirmation", self.page, user_email=self.user_email)

@@ -20,6 +20,8 @@ from pages.profiles.profile_page import ProfilePage
 from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
 from pages.chat.messages import MessagesPage
+from pages.chat.new_message import NewMessagePage
+from pages.chat.conversation import ConversationPage
 from pages.login.login_page import LoginPage
 from pages.login.components.forgot_password import ForgotPassword
 from pages.login.components.otp import OtpPage
@@ -60,6 +62,8 @@ ROUTES = {
     "/settings": ProfileSettingsPage,
     "/edit": ProfileEditPage,
     "/messages": MessagesPage,
+    "/newmessages": NewMessagePage,
+    "/conversation": ConversationPage,
     "/login": LoginPage,
     "/forgotpassword": ForgotPassword,
     "/otp": OtpPage,
