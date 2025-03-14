@@ -172,20 +172,35 @@ class MessagesPage(UserControl):
         )
 
     async def async_load_messages(self):
-        messages = await asyncio.to_thread(stream_chat.get_messages, self.channel_id)
-        self.messages_column.controls.clear()
+        try:
+            if self.chat_type == "all":
+                messages = await asyncio.to_thread(stream_chat.get_all_messages)
+            elif self.chat_type == "direct":
+                messages = await asyncio.to_thread(stream_chat.get_direct_messages)
+            elif self.chat_type == "group":
+                messages = await asyncio.to_thread(stream_chat.get_group_messages)
+            else:
+                messages = []
 
-        for msg in messages:
-            self.messages_column.controls.append(
-                self.message_item(
-                    sender=msg.get("user", {}).get("id", "Unknown"),
-                    message=msg.get("text", ""),
-                    time=msg.get("created_at", ""),
+            print("Fetched messages:", messages)
+
+            self.messages_column.controls.clear()
+
+            for msg in messages:
+                self.messages_column.controls.append(
+                    self.message_item(
+                        channel_id=msg.get("channel_id"),
+                        sender=msg.get("user", {}).get("id", "Unknown"),
+                        message=msg.get("text", ""),
+                        time=msg.get("created_at", ""),
+                        is_group=msg.get("is_group", False),
+                    )
                 )
-            )
-        self.page.update()
+            self.page.update()
+        except Exception as e:
+            print("Error loading messages:", e)
 
-    def message_item(self, sender, message, time):
+    def message_item(self, channel_id, sender, message, time, is_group):
         return ft.Container(
             padding=10,
             content=ft.Row(
@@ -202,6 +217,9 @@ class MessagesPage(UserControl):
                     ft.Text(time, size=12, color="gray"),
                 ],
                 alignment="spaceBetween",
+            ),
+            on_click=lambda e: self.go_to(
+                f"/conversation?channel_id={channel_id}", self.page
             ),
         )
 

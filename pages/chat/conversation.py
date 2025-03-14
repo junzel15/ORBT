@@ -153,7 +153,6 @@ class ConversationPage(UserControl):
                 )
 
     def add_message_to_ui(self, sender, message, time):
-
         message_item = self.message_item(sender, message, time)
         self.messages_column.controls.append(message_item)
 

@@ -1,5 +1,7 @@
 import flet as ft
 from global_state import get_logged_in_user
+import boto3
+from botocore.exceptions import ClientError
 
 
 class ProfilePage:
@@ -23,7 +25,6 @@ class ProfilePage:
         self.page.update()
 
     def render(self):
-
         self.user = get_logged_in_user() or {}
         self.user_name = self.user.get("full_name", "Guest")
         self.user_address = self.user.get("address") or "N/A"
@@ -99,8 +100,16 @@ class ProfilePage:
                     ),
                     ft.Row(
                         [
-                            ft.Text("350 following", size=14, weight="bold"),
-                            ft.Text("647 followers", size=14, weight="bold"),
+                            ft.Text(
+                                f"{self.get_following_count()} following",
+                                size=14,
+                                weight="bold",
+                            ),
+                            ft.Text(
+                                f"{self.get_followers_count()} followers",
+                                size=14,
+                                weight="bold",
+                            ),
                         ],
                         alignment="center",
                         spacing=20,
@@ -227,6 +236,12 @@ class ProfilePage:
                 profile_header,
                 bio_section,
                 interest_section,
+                ft.ElevatedButton(
+                    "Add Friend",
+                    on_click=self.add_friend,
+                    bgcolor="#6200EE",
+                    color="white",
+                ),
             ],
             expand=True,
             padding=ft.padding.all(16),
@@ -240,3 +255,49 @@ class ProfilePage:
             expand=True,
             spacing=0,
         )
+
+    def add_friend(self, e):
+        friend_email = input("Enter friend's email to add: ")
+        if friend_email:
+            success = self.update_dynamodb_friend_list(friend_email)
+            if success:
+                print(f"{friend_email} added as a friend successfully.")
+            else:
+                print(f"Failed to add {friend_email} as a friend.")
+
+    def update_dynamodb_friend_list(self, friend_email):
+        dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        table = dynamodb.Table("profiles")
+
+        try:
+            response = table.update_item(
+                Key={"email": self.user["email"]},
+                UpdateExpression="SET friends = list_append(if_not_exists(friends, :empty_list), :new_friend)",
+                ExpressionAttributeValues={
+                    ":new_friend": [friend_email],
+                    ":empty_list": [],
+                },
+            )
+            print("DynamoDB updated successfully:", response)
+            return True
+        except ClientError as e:
+            print("Error updating DynamoDB:", e)
+            return False
+
+    def get_following_count(self):
+        return len(self.user.get("friends", []))
+
+    def get_followers_count(self):
+        dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        table = dynamodb.Table("profiles")
+
+        try:
+            response = table.scan(
+                FilterExpression=boto3.dynamodb.conditions.Attr("friends").contains(
+                    self.user["email"]
+                )
+            )
+            return len(response.get("Items", []))
+        except ClientError as e:
+            print("Error scanning DynamoDB:", e)
+            return 0
