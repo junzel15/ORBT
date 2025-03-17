@@ -21,6 +21,7 @@ from pages.profiles.components.profile_settings import ProfileSettingsPage
 from pages.profiles.components.profile_edit import ProfileEditPage
 from pages.chat.messages import MessagesPage
 from pages.chat.new_message import NewMessagePage
+from pages.chat.group_chat import GroupChatPages
 from pages.chat.conversation import ConversationPage
 from pages.login.login_page import LoginPage
 from pages.login.components.forgot_password import ForgotPassword
@@ -63,6 +64,7 @@ ROUTES = {
     "/edit": ProfileEditPage,
     "/messages": MessagesPage,
     "/newmessages": NewMessagePage,
+    "/groupchat": GroupChatPages,
     "/conversation": ConversationPage,
     "/login": LoginPage,
     "/forgotpassword": ForgotPassword,

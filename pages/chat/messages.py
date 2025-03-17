@@ -20,6 +20,7 @@ class MessagesPage(UserControl):
         self.set_mobile_view()
         self.page.on_resize = self.adjust_window_size
         self.adjust_window_size()
+        self.page.on_mount = self.on_mount
 
         self.header_section = ft.Container(
             content=ft.Row(
@@ -155,8 +156,8 @@ class MessagesPage(UserControl):
 
         asyncio.run(self.async_load_messages())
 
-    async def async_load_messages(self):
-        await self.load_messages()
+    async def on_mount(self):
+        await self.async_load_messages()
 
     def build(self):
         return ft.Column(
@@ -224,6 +225,7 @@ class MessagesPage(UserControl):
         )
 
     def set_chat_type(self, chat_type):
+        print(f"Chat type selected: {chat_type}")
         self.chat_type = chat_type
 
         self.all_button.bgcolor = "#6200EE" if chat_type == "all" else "white"
@@ -239,7 +241,13 @@ class MessagesPage(UserControl):
         self.direct_button.update()
         self.group_chat_button.update()
 
-        asyncio.create_task(self.async_load_messages())
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        loop.create_task(self.async_load_messages())
 
     def set_mobile_view(self):
         self.page.window_width = 400

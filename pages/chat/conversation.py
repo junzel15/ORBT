@@ -6,7 +6,18 @@ import urllib.parse
 
 
 class ConversationPage(UserControl):
-    def __init__(self, page: ft.Page, go_to, channel_id=None, contact_name=""):
+
+    def __init__(
+        self,
+        page: ft.Page,
+        go_to,
+        channel_id=None,
+        contact_name="",
+        group_name=None,
+        users=None,
+    ):
+        self.users = users or []
+
         super().__init__()
         self.page = page
         self.go_to = go_to
@@ -21,6 +32,7 @@ class ConversationPage(UserControl):
         self.page.padding = 0
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
+        self.group_name = group_name
 
         self.header_section = ft.Container(
             content=ft.Row(
