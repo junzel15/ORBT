@@ -22,11 +22,19 @@ def get_authenticated_user():
 
 
 def get_messages(channel_id):
-    user_id, _ = get_authenticated_user()
-    channel = chat_client.channel("messaging", channel_id)
-    response = channel.query()
-    messages = response.get("messages", [])
-    return messages
+    try:
+        user_id, _ = get_authenticated_user()
+        channel = chat_client.channel("messaging", channel_id)
+        response = channel.query()
+        messages = response.get("messages", [])
+
+        if not messages:
+            print(f"Debug: Response from query() - {response}")
+
+        return messages
+    except Exception as e:
+        print(f"Error loading messages: {e}")
+        return []
 
 
 def get_direct_messages():
@@ -66,6 +74,29 @@ def create_group(group_name):
     return channel.id
 
 
+def create_group_channel(channel_id, group_name, users, created_by):
+
+    for user in users:
+        chat_client.upsert_user(
+            {
+                "id": user["id"],
+                "name": user["name"],
+            }
+        )
+
+    channel = chat_client.channel(
+        "messaging",
+        channel_id,
+        {
+            "name": group_name,
+            "members": [user["id"] for user in users],
+            "created_by": {"id": created_by},
+        },
+    )
+    channel.create(created_by)
+    return channel.id
+
+
 def add_member_to_group(group_id, member_id):
     channel = chat_client.channel("messaging", group_id)
     try:
@@ -74,3 +105,17 @@ def add_member_to_group(group_id, member_id):
     except Exception as e:
         print(f"Error adding member to group: {e}")
         return False
+
+
+def send_message(channel_id, message_text):
+    try:
+        user_id, _ = get_authenticated_user()
+        channel = chat_client.channel("messaging", channel_id)
+
+        message_payload = {"text": message_text}
+        response = channel.send_message(message_payload, user_id=user_id)
+
+        return response if "message" in response else None
+    except Exception as e:
+        print(f"Error sending message: {e}")
+        return None

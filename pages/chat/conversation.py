@@ -28,11 +28,12 @@ class ConversationPage(UserControl):
         self.messages_column = ft.Column()
         self.conversation_list_column = ft.Column()
 
-        self.page.title = f"Chat with {self.contact_name}"
         self.page.padding = 0
         self.page.scroll = "adaptive"
         self.page.bgcolor = "#F8F9FA"
+
         self.group_name = group_name
+        self.page.title = f"Chat with {self.group_name or self.contact_name}"
 
         self.header_section = ft.Container(
             content=ft.Row(
@@ -42,7 +43,9 @@ class ConversationPage(UserControl):
                         icon_size=24,
                         on_click=lambda e: self.go_to("/messages", self.page),
                     ),
-                    ft.Text(self.contact_name, size=18, weight="bold"),
+                    ft.Text(
+                        self.group_name or self.contact_name, size=18, weight="bold"
+                    ),
                 ],
                 alignment="start",
                 vertical_alignment="center",
@@ -50,15 +53,18 @@ class ConversationPage(UserControl):
             padding=15,
         )
 
-        self.messages_section = ft.Container(content=self.messages_column, padding=15)
+        self.messages_list_view = ft.ListView(
+            expand=True,
+            spacing=10,
+            padding=10,
+            auto_scroll=True,
+        )
 
-        self.conversation_list_section = ft.Container(
-            content=self.conversation_list_column,
+        self.messages_section = ft.Container(
+            content=self.messages_list_view,
+            expand=True,
             padding=15,
-            bgcolor="#EAEAEA",
-            height=400,
-            width=400,
-            border_radius=10,
+            bgcolor="#F8F9FA",
         )
 
         self.input_field = ft.TextField(
@@ -120,53 +126,83 @@ class ConversationPage(UserControl):
             bgcolor="white",
         )
 
-        self.main_content = ft.ListView(
+        self.main_content = ft.Column(
             controls=[
                 self.header_section,
-                self.messages_section,
-                self.conversation_list_section,
+                ft.Container(content=self.messages_section, expand=True),
                 self.input_section,
             ],
             expand=True,
-            padding=ft.padding.all(16),
         )
 
     def did_mount(self):
         self.page.run_task(self.load_messages)
 
     async def load_messages(self):
-        messages = await asyncio.to_thread(stream_chat.get_messages, self.channel_id)
-        self.messages_column.controls.clear()
-        self.conversation_list_column.controls.clear()
-
-        for msg in messages:
-            self.add_message_to_ui(
-                sender=msg.get("user", {}).get("id", "Unknown"),
-                message=msg.get("text", ""),
-                time=msg.get("created_at", ""),
+        try:
+            messages = await asyncio.to_thread(
+                stream_chat.get_messages, self.channel_id
             )
 
-        self.page.update()
+            self.messages_column.controls.clear()
+            self.conversation_list_column.controls.clear()
+
+            seen_message_ids = set()
+
+            for msg in messages:
+                msg_id = msg.get("id")
+                if msg_id and msg_id not in seen_message_ids:
+                    seen_message_ids.add(msg_id)
+                    self.add_message_to_ui(
+                        sender=msg.get("user", {}).get("id", "Unknown"),
+                        message=msg.get("text", ""),
+                        time=msg.get("created_at", ""),
+                    )
+
+            self.page.update()
+
+        except Exception as e:
+            print(f"Error loading messages: {e}")
 
     async def send_message(self, e):
         message_text = self.input_field.value.strip()
-        if message_text:
-            success = await asyncio.to_thread(
-                stream_chat.send_message, self.channel_id, message_text
-            )
-            if success:
-                self.input_field.value = ""
-                self.input_field.update()
 
-                self.add_message_to_ui(
-                    sender="You",
-                    message=message_text,
-                    time="Just now",
+        if message_text:
+            try:
+                print(f"Attempting to send message: {message_text}")
+
+                user_id, _ = stream_chat.get_authenticated_user()
+                response = await asyncio.to_thread(
+                    stream_chat.send_message, self.channel_id, message_text
                 )
 
+                if response and "message" in response:
+                    sent_message = response["message"]
+                    self.add_message_to_ui(
+                        sender="You",
+                        message=sent_message["text"],
+                        time="Just now",
+                    )
+
+                    self.input_field.value = ""
+                    self.input_field.update()
+
+                    self.messages_section.update()
+                    self.page.update()
+
+                else:
+                    print("Failed to send message to stream.")
+
+            except Exception as e:
+                print(f"Error sending message: {e}")
+
     def add_message_to_ui(self, sender, message, time):
+        print(f"Adding message to UI: {sender}: {message}")
         message_item = self.message_item(sender, message, time)
-        self.messages_column.controls.append(message_item)
+        self.messages_list_view.controls.append(message_item)
+
+        self.messages_list_view.auto_scroll = True
+        self.messages_list_view.update()
 
         self.conversation_list_column.controls.append(
             ft.Container(

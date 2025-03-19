@@ -125,12 +125,33 @@ class GroupChatPages(UserControl):
         group_name = self.group_name_field.value.strip()
         channel_id = f"group_{'_'.join(user['id'] for user in self.selected_users)}"
 
+        self.user_id, self.token = stream_chat.get_authenticated_user()
+
+        if not self.user_id:
+            print("Error: No authenticated user found.")
+            return
+
+        self.selected_users.append({"id": self.user_id, "name": "You"})
+
         print(f"Creating group: {group_name} with users {self.selected_users}")
 
-        self.go_to("/conversation", self.page, channel_id=channel_id)
+        response = stream_chat.create_group_channel(
+            channel_id=channel_id,
+            group_name=group_name,
+            users=self.selected_users,
+            created_by=self.user_id,
+        )
+
+        if response:
+            self.go_to(
+                "/conversation",
+                self.page,
+                channel_id=channel_id,
+                group_name=group_name,
+                users=self.selected_users,
+            )
 
     def refresh_contacts(self):
-
         try:
             self.user_id, self.token = stream_chat.get_authenticated_user()
         except ValueError:
@@ -144,7 +165,7 @@ class GroupChatPages(UserControl):
         for contact in self.suggested_contacts:
             self.contacts_section.controls.append(self.contact_item(contact))
 
-        self.update()  # Ensure UI updates
+        self.update()
 
     def get_group_messages(self):
         # TEMPORARY CONTACT
@@ -152,6 +173,7 @@ class GroupChatPages(UserControl):
             {"id": "test_one", "name": "Test One"},
             {"id": "test_two", "name": "Test Two"},
             {"id": "test_three", "name": "Test Three"},
+            {"id": "test_four", "name": "Test Four"},
         ]
 
     def build(self):

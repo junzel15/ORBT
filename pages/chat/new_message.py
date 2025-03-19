@@ -81,10 +81,33 @@ class NewMessagePage(UserControl):
         )
 
     def start_direct_message(self, contact_id, contact_name):
-        channel_id = f"dm_{contact_id}"
-        self.go_to(
-            "/conversation", self.page, channel_id=channel_id, contact_name=contact_name
-        )
+        try:
+            channel_id = f"dm_{contact_id}"
+            user_id, _ = stream_chat.get_authenticated_user()
+
+            if not user_id:
+                print("Error: User ID not found.")
+                return
+
+            stream_chat.chat_client.upsert_user(
+                {"id": contact_id, "name": contact_name}
+            )
+
+            channel = stream_chat.chat_client.channel(
+                "messaging",
+                channel_id,
+                {"members": [user_id, contact_id], "created_by": {"id": user_id}},
+            )
+            channel.create(user_id)
+
+            self.go_to(
+                "/conversation",
+                self.page,
+                channel_id=channel_id,
+                contact_name=contact_name,
+            )
+        except Exception as e:
+            print(f"Error starting direct message: {e}")
 
     def refresh_contacts(self):
         try:
@@ -105,6 +128,7 @@ class NewMessagePage(UserControl):
                 {"id": "test_one", "name": "Test One"},
                 {"id": "test_two", "name": "Test Two"},
                 {"id": "test_three", "name": "Test Three"},
+                {"id": "test_four", "name": "Test Four"},
             ]
 
         try:
@@ -119,12 +143,14 @@ class NewMessagePage(UserControl):
                 {"id": "test_one", "name": "Test One"},
                 {"id": "test_two", "name": "Test Two"},
                 {"id": "test_three", "name": "Test Three"},
+                {"id": "test_four", "name": "Test Four"},
             ]
         except Exception:
             return [
                 {"id": "test_one", "name": "Test One"},
                 {"id": "test_two", "name": "Test Two"},
                 {"id": "test_three", "name": "Test Three"},
+                {"id": "test_four", "name": "Test Four"},
             ]
 
     def build(self):
