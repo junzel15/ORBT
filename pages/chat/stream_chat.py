@@ -14,8 +14,10 @@ chat_client = StreamChat(api_key=STREAM_API_KEY, api_secret=STREAM_API_SECRET)
 def get_authenticated_user():
     user = get_logged_in_user()
     if not user:
+        print("Debug: No user logged in!")
         raise ValueError("No user is logged in!")
 
+    print("Debug: Logged in user:", user)
     user_id = user["uuid"]
     token = chat_client.create_token(user_id)
     return user_id, token
@@ -41,9 +43,15 @@ def get_direct_messages():
     user_id, _ = get_authenticated_user()
     filters = {"members": {"$in": [user_id]}, "member_count": 2}
     response = chat_client.query_channels(filters, watch=True, state=True)
+
     messages = []
-    for channel in response["channels"]:
-        messages.extend(get_messages(channel["id"]))
+    for channel in response.get("channels", []):
+        channel_id = channel.get("id")
+        if not channel_id:
+            print(f"Warning: Skipping channel without ID: {channel}")
+            continue
+        messages.extend(get_messages(channel_id))
+
     return messages
 
 
@@ -51,9 +59,15 @@ def get_group_messages():
     user_id, _ = get_authenticated_user()
     filters = {"members": {"$in": [user_id]}, "member_count": {"$gt": 2}}
     response = chat_client.query_channels(filters, watch=True, state=True)
+
     messages = []
-    for channel in response["channels"]:
-        messages.extend(get_messages(channel["id"]))
+    for channel in response.get("channels", []):
+        channel_id = channel.get("id")
+        if not channel_id:
+            print(f"Warning: Skipping channel without ID: {channel}")
+            continue
+        messages.extend(get_messages(channel_id))
+
     return messages
 
 
@@ -61,9 +75,15 @@ def get_all_messages():
     user_id, _ = get_authenticated_user()
     filters = {"members": {"$in": [user_id]}}
     response = chat_client.query_channels(filters, watch=True, state=True)
+
     messages = []
-    for channel in response["channels"]:
-        messages.extend(get_messages(channel["id"]))
+    for channel in response.get("channels", []):
+        channel_id = channel.get("id")
+        if not channel_id:
+            print(f"Warning: Skipping channel without ID: {channel}")
+            continue
+        messages.extend(get_messages(channel_id))
+
     return messages
 
 

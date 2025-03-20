@@ -6,7 +6,6 @@ import urllib.parse
 
 
 class ConversationPage(UserControl):
-
     def __init__(
         self,
         page: ft.Page,
@@ -17,7 +16,6 @@ class ConversationPage(UserControl):
         users=None,
     ):
         self.users = users or []
-
         super().__init__()
         self.page = page
         self.go_to = go_to
@@ -25,8 +23,6 @@ class ConversationPage(UserControl):
         self.contact_name = (
             urllib.parse.unquote(contact_name) if contact_name else "Unknown"
         )
-        self.messages_column = ft.Column()
-        self.conversation_list_column = ft.Column()
 
         self.page.padding = 0
         self.page.scroll = "adaptive"
@@ -54,16 +50,16 @@ class ConversationPage(UserControl):
         )
 
         self.messages_list_view = ft.ListView(
-            expand=True,
-            spacing=10,
-            padding=10,
+            spacing=5,
+            padding=5,
             auto_scroll=True,
+            expand=True,
         )
 
         self.messages_section = ft.Container(
             content=self.messages_list_view,
-            expand=True,
-            padding=15,
+            height=470,
+            padding=10,
             bgcolor="#F8F9FA",
         )
 
@@ -83,23 +79,17 @@ class ConversationPage(UserControl):
                         icon=ft.icons.CAMERA_ALT,
                         icon_size=20,
                         on_click=self.open_camera,
-                        style=ft.ButtonStyle(color="#6200EE"),
                     ),
                     self.input_field,
                     ft.IconButton(
-                        icon=ft.icons.MIC,
-                        icon_size=20,
-                        on_click=self.start_recording,
-                        style=ft.ButtonStyle(color="#6200EE"),
+                        icon=ft.icons.MIC, icon_size=20, on_click=self.start_recording
                     ),
                     ft.IconButton(
-                        icon=ft.icons.IMAGE,
-                        icon_size=20,
-                        on_click=self.import_image,
-                        style=ft.ButtonStyle(color="#6200EE"),
+                        icon=ft.icons.IMAGE, icon_size=20, on_click=self.import_image
                     ),
                 ],
                 alignment="spaceBetween",
+                vertical_alignment="center",
             ),
             border_radius=30,
             padding=10,
@@ -111,7 +101,6 @@ class ConversationPage(UserControl):
             icon=ft.icons.SEND,
             icon_size=24,
             on_click=self.send_message,
-            style=ft.ButtonStyle(color="#6200EE"),
         )
 
         self.input_section = ft.Container(
@@ -121,18 +110,22 @@ class ConversationPage(UserControl):
                     self.send_button,
                 ],
                 alignment="center",
+                vertical_alignment="center",
             ),
-            padding=10,
+            height=60,
+            padding=5,
             bgcolor="white",
+            border_radius=10,
         )
 
         self.main_content = ft.Column(
             controls=[
                 self.header_section,
-                ft.Container(content=self.messages_section, expand=True),
+                self.messages_section,
                 self.input_section,
             ],
             expand=True,
+            scroll="adaptive",
         )
 
     def did_mount(self):
@@ -144,8 +137,7 @@ class ConversationPage(UserControl):
                 stream_chat.get_messages, self.channel_id
             )
 
-            self.messages_column.controls.clear()
-            self.conversation_list_column.controls.clear()
+            self.messages_list_view.controls.clear()
 
             seen_message_ids = set()
 
@@ -203,22 +195,6 @@ class ConversationPage(UserControl):
 
         self.messages_list_view.auto_scroll = True
         self.messages_list_view.update()
-
-        self.conversation_list_column.controls.append(
-            ft.Container(
-                content=ft.Row(
-                    [
-                        ft.Icon(ft.icons.PERSON, size=30, color="#6200EE"),
-                        ft.Text(f"{sender}: {message}", size=12),
-                    ],
-                    alignment="start",
-                ),
-                padding=10,
-                bgcolor="#FFFFFF",
-                border_radius=10,
-                margin=ft.margin.only(bottom=5),
-            )
-        )
 
         self.page.update()
 

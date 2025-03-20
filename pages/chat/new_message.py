@@ -2,6 +2,12 @@ import flet as ft
 from flet import UserControl
 from pages.chat import stream_chat
 
+import boto3
+
+
+dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+friends_table = dynamodb.Table("friends")
+
 
 class NewMessagePage(UserControl):
     def __init__(self, page: ft.Page, go_to):
@@ -14,13 +20,17 @@ class NewMessagePage(UserControl):
         self.page.padding = 0
         self.page.bgcolor = "#F8F9FA"
 
+        self.page.window_width = 400
+        self.page.window_height = 680
+        self.page.update()
+
         self.header_section = ft.Container(
             content=ft.Row(
                 controls=[
                     ft.IconButton(
                         icon=ft.icons.ARROW_BACK,
                         icon_size=24,
-                        on_click=lambda e: self.go_to("/homepage", self.page),
+                        on_click=lambda e: self.go_to("/messages", self.page),
                     ),
                     ft.Text("New Message", size=18, weight="bold"),
                 ],
@@ -122,36 +132,20 @@ class NewMessagePage(UserControl):
         self.page.update()
 
     def get_direct_messages(self):
-        # TEMPORARY CONTACT
         if not self.user_id:
-            return [
-                {"id": "test_one", "name": "Test One"},
-                {"id": "test_two", "name": "Test Two"},
-                {"id": "test_three", "name": "Test Three"},
-                {"id": "test_four", "name": "Test Four"},
-            ]
+            return []
 
         try:
-            messages = stream_chat.get_direct_messages()
-            contacts = set()
-            for msg in messages:
-                for member in msg["channel"]["members"]:
-                    if member["user_id"] != self.user_id:
-                        contacts.add((member["user_id"], member["user"]["name"]))
+            response = friends_table.scan()
+            contacts = response.get("Items", [])
 
-            return [{"id": user_id, "name": name} for user_id, name in contacts] or [
-                {"id": "test_one", "name": "Test One"},
-                {"id": "test_two", "name": "Test Two"},
-                {"id": "test_three", "name": "Test Three"},
-                {"id": "test_four", "name": "Test Four"},
-            ]
-        except Exception:
             return [
-                {"id": "test_one", "name": "Test One"},
-                {"id": "test_two", "name": "Test Two"},
-                {"id": "test_three", "name": "Test Three"},
-                {"id": "test_four", "name": "Test Four"},
+                {"id": contact["friend_id"], "name": contact["name"]}
+                for contact in contacts
             ]
+        except Exception as e:
+            print(f"Error fetching contacts from DynamoDB: {e}")
+            return []
 
     def build(self):
         return self.content

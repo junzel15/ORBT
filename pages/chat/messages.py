@@ -20,7 +20,6 @@ class MessagesPage(UserControl):
         self.set_mobile_view()
         self.page.on_resize = self.adjust_window_size
         self.adjust_window_size()
-        self.page.on_mount = self.on_mount
 
         self.header_section = ft.Container(
             content=ft.Row(
@@ -107,43 +106,23 @@ class MessagesPage(UserControl):
             content=ft.Row(
                 controls=[
                     ft.IconButton(
-                        content=ft.Image(
-                            src="images/Home.png",
-                            width=24,
-                            height=24,
-                        ),
+                        content=ft.Image(src="images/Home.png", width=24, height=24),
                         icon_size=24,
-                        icon_color="#000000",
                         on_click=lambda _: self.go_to("/homepage", self.page),
                     ),
                     ft.IconButton(
-                        content=ft.Image(
-                            src="images/Star.png",
-                            width=24,
-                            height=24,
-                        ),
+                        content=ft.Image(src="images/Star.png", width=24, height=24),
                         icon_size=24,
-                        icon_color="#000000",
                         on_click=lambda _: self.go_to("/bookings", self.page),
                     ),
                     ft.IconButton(
-                        content=ft.Image(
-                            src="images/Message.png",
-                            width=24,
-                            height=24,
-                        ),
+                        content=ft.Image(src="images/Message.png", width=24, height=24),
                         icon_size=24,
-                        icon_color="#000000",
                         on_click=lambda _: self.go_to("/messages", self.page),
                     ),
                     ft.IconButton(
-                        content=ft.Image(
-                            src="images/Profile.png",
-                            width=24,
-                            height=24,
-                        ),
+                        content=ft.Image(src="images/Profile.png", width=24, height=24),
                         icon_size=24,
-                        icon_color="#000000",
                         on_click=lambda _: self.go_to("/profile", self.page),
                     ),
                 ],
@@ -154,12 +133,8 @@ class MessagesPage(UserControl):
             padding=ft.padding.symmetric(vertical=10),
         )
 
-        asyncio.run(self.async_load_messages())
-
-    async def on_mount(self):
-        await self.async_load_messages()
-
     def build(self):
+        self.page.on_mount = self.on_mount
         return ft.Column(
             [
                 ft.Container(content=self.main_content, expand=True),
@@ -171,6 +146,9 @@ class MessagesPage(UserControl):
                 ),
             ]
         )
+
+    async def on_mount(self):
+        await self.async_load_messages()
 
     async def async_load_messages(self):
         try:
@@ -188,16 +166,33 @@ class MessagesPage(UserControl):
             self.messages_column.controls.clear()
 
             for msg in messages:
-                self.messages_column.controls.append(
-                    self.message_item(
-                        channel_id=msg.get("channel_id"),
-                        sender=msg.get("user", {}).get("id", "Unknown"),
-                        message=msg.get("text", ""),
-                        time=msg.get("created_at", ""),
-                        is_group=msg.get("is_group", False),
+                if not msg:
+                    continue
+
+                sender_info = msg.get("user", {})
+                sender_id = sender_info.get("id", "Unknown")
+                sender_name = sender_info.get("name", "Unknown User")
+
+                message_text = msg.get("text", "")
+                time = msg.get("created_at", "")
+                formatted_time = time[:19] if time else "Unknown Time"
+
+                is_group = self.chat_type == "group"
+
+                if message_text:
+                    self.messages_column.controls.append(
+                        self.message_item(
+                            channel_id=msg.get("cid", ""),
+                            sender=sender_name,
+                            message=message_text,
+                            time=formatted_time,
+                            is_group=is_group,
+                        )
                     )
-                )
+
+            self.messages_column.update()
             self.page.update()
+
         except Exception as e:
             print("Error loading messages:", e)
 
@@ -206,7 +201,11 @@ class MessagesPage(UserControl):
             padding=10,
             content=ft.Row(
                 [
-                    ft.Icon(ft.icons.PERSON, size=40, color="#6200EE"),
+                    ft.Icon(
+                        ft.icons.GROUP if is_group else ft.icons.PERSON,
+                        size=40,
+                        color="#6200EE",
+                    ),
                     ft.Column(
                         [
                             ft.Text(sender, weight="bold", size=14),
@@ -241,13 +240,7 @@ class MessagesPage(UserControl):
         self.direct_button.update()
         self.group_chat_button.update()
 
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-        loop.create_task(self.async_load_messages())
+        self.page.run_task(self.async_load_messages)
 
     def set_mobile_view(self):
         self.page.window_width = 400
@@ -262,7 +255,5 @@ class MessagesPage(UserControl):
         elif 481 <= screen_width <= 1024:
             self.page.window_width = min(screen_width, 800)
             self.page.window_height = min(screen_height, 1000)
-        else:
-            self.page.window_width = min(screen_width, 1200)
-            self.page.window_height = min(screen_height, 900)
+
         self.page.update()
