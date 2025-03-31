@@ -83,17 +83,17 @@ class BarsPage:
             items = dynamo_read_all_dates("bookingDates")
             print("Fetched items:", items)
 
-            dinning_items = [item for item in items if item.get("id") == "bar"]
+            bar_items = [item for item in items if item.get("id") == "bar"]
 
-            if dinning_items and "dates" in dinning_items[0]:
+            if bar_items and "dates" in bar_items[0]:
                 corrected_dates = [
                     {
-                        "select_a_date": date[0],
+                        "select_a_date": date[0].upper(),
                         "select_a_time": (
                             date[1].split(": ")[1] if ": " in date[1] else date[1]
                         ),
                     }
-                    for date in dinning_items[0]["dates"]
+                    for date in bar_items[0]["dates"]
                 ]
                 return corrected_dates
             return []
@@ -198,27 +198,32 @@ class BarsPage:
     def book_now(self, e):
         user = get_logged_in_user()
         if not user:
-            print("No user is logged in.")
+            print(" No user is logged in.")
             return
 
         if not self.selected_date or not self.selected_time or not self.current_tab:
             print("Please select a date, time, and tab before booking.")
             return
 
-        user_uuid = user["uuid"]
-        booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
-        print(f"Generated Booking ID: {booking_id}")
+        if not hasattr(self, "selected_event_name") or not self.selected_event_name:
+            print("Warning: No event_name found! Defaulting to 'Unknown'.")
+            self.selected_event_name = "Unknown"
+
+        event_name = self.selected_event_name
+        booking_id = f"ORBT-{str(uuid.uuid4())[:8]}"
+
+        print("Generated Booking ID: {booking_id}")
 
         new_booking = {
             "booking_id": booking_id,
-            "uuid": user_uuid,
+            "uuid": user["uuid"],
+            "event_name": "Bars",
             "date": self.selected_date,
             "time": self.selected_time,
             "location": "Pagadian City",
             "book_option_order": self.current_tab,
             "status": "Upcoming",
             "venue_name": "Water Front Hotel",
-            "event_name": "Bars",
             "Coffee_image": "images/Coffee.png",
             "Brunch_image": "images/Brunch.png",
             "Diner_image": "images/Diner.png",
@@ -227,16 +232,13 @@ class BarsPage:
             "Experiences_image": "images/Experiences.png",
         }
 
-        print(f"Saving New Booking: {new_booking}")
+        print("Saving New Booking: {new_booking}")
 
         dynamo_write("bookings", new_booking)
-
         print("Booking successfully saved to DynamoDB.")
 
-        self.user_bookings = self.load_user_bookings()
-        self.display_booking_count()
+        self.page.go(f"/loadingscreen?booking_id={booking_id}")
 
-        self.page.go("/loadingscreen")
         self.page.update()
 
     def display_booking_count(self):
@@ -252,7 +254,9 @@ class BarsPage:
         self.page.on_resize = self.on_resize
         date_list = sorted(
             {b["select_a_date"] for b in self.bookings},
-            key=lambda date: datetime.strptime(date, "%B %d, %Y"),
+            key=lambda date: datetime.strptime(
+                date if "," in date else date.replace(" ", ", ", 1), "%B %d, %Y"
+            ),
         )
 
         header = ft.Row(

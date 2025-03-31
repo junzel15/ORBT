@@ -4,7 +4,7 @@ from global_state import get_logged_in_user
 
 class HomePage:
 
-    def __init__(self, page: ft.Page, go_to, user):
+    def __init__(self, page: ft.Page, go_to):
         self.page = page
         self.go_to = go_to
         self.user = get_logged_in_user()
@@ -34,24 +34,6 @@ class HomePage:
             self.page.window_height = min(screen_height, 900)
 
         self.page.update()
-
-    def save_booking(self, event_name):
-        user = get_logged_in_user()
-        if not user:
-            print("No user is logged in.")
-            return
-
-        if not event_name:
-            print("⚠️ Warning: event_name is missing! Defaulting to 'Unknown'.")
-            event_name = "Unknown"
-
-        self.selected_event_name = event_name
-        print(f"Event '{event_name}' saved successfully.")
-
-    def on_option_click(self, event_name, route):
-        print(f"on_option_click called with event_name: {event_name}, route: {route}")
-        self.save_booking(event_name)
-        self.go_to(route, self.page, kwargs={"event_name": event_name})
 
     def render(self):
         self.user = get_logged_in_user()
@@ -181,7 +163,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.on_option_click("Dining", "/diner"),
+                        on_click=lambda e: self.go_to("/diner", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -210,7 +192,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.on_option_click("Bars", "/bars"),
+                        on_click=lambda e: self.go_to("/bars", self.page),
                     ),
                     ft.Divider(height=1, color="#FFFFFF22"),
                     ft.Container(
@@ -239,9 +221,7 @@ class HomePage:
                         ),
                         padding=ft.padding.all(16),
                         border_radius=12,
-                        on_click=lambda e: self.on_option_click(
-                            "Experiences", "/experience"
-                        ),
+                        on_click=lambda e: self.go_to("/experience", self.page),
                     ),
                 ],
                 spacing=0,

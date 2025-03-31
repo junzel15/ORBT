@@ -79,7 +79,7 @@ class DiningPage:
             if dinning_items and "dates" in dinning_items[0]:
                 corrected_dates = [
                     {
-                        "select_a_date": date[0],
+                        "select_a_date": date[0].upper(),
                         "select_a_time": (
                             date[1].split(": ")[1] if ": " in date[1] else date[1]
                         ),
@@ -177,7 +177,7 @@ class DiningPage:
             return
 
         if not event_name:
-            print("⚠️ Warning: event_name is missing! Defaulting to 'Unknown'.")
+            print("Warning: event_name is missing! Defaulting to 'Unknown'.")
             event_name = "Unknown"
 
         self.selected_event_name = event_name
@@ -187,7 +187,7 @@ class DiningPage:
     def book_now(self, e):
         user = get_logged_in_user()
         if not user:
-            print("No user is logged in.")
+            print(" No user is logged in.")
             return
 
         if not self.selected_date or not self.selected_time or not self.current_tab:
@@ -195,19 +195,18 @@ class DiningPage:
             return
 
         if not hasattr(self, "selected_event_name") or not self.selected_event_name:
-            print("⚠️ Warning: No event_name found! Defaulting to 'Unknown'.")
+            print("Warning: No event_name found! Defaulting to 'Unknown'.")
             self.selected_event_name = "Unknown"
 
         event_name = self.selected_event_name
-        print(f"Booking for event: {event_name}")
+        booking_id = f"ORBT-{str(uuid.uuid4())[:8]}"
 
-        booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
-        print(f"Generated Booking ID: {booking_id}")
+        print("Generated Booking ID: {booking_id}")
 
         new_booking = {
             "booking_id": booking_id,
             "uuid": user["uuid"],
-            "event_name": event_name,
+            "event_name": "Dining",
             "date": self.selected_date,
             "time": self.selected_time,
             "location": "Pagadian City",
@@ -222,16 +221,13 @@ class DiningPage:
             "Experiences_image": "images/Experiences.png",
         }
 
-        print(f"Saving New Booking: {new_booking}")
+        print("Saving New Booking: {new_booking}")
 
         dynamo_write("bookings", new_booking)
-
         print("Booking successfully saved to DynamoDB.")
 
-        self.user_bookings = self.load_user_bookings()
-        self.display_booking_count()
+        self.page.go(f"/loadingscreen?booking_id={booking_id}")
 
-        self.page.go("/loadingscreen")
         self.page.update()
 
     def display_booking_count(self):

@@ -84,17 +84,19 @@ class ExperiencePage:
             items = dynamo_read_all_dates("bookingDates")
             print("Fetched items:", items)
 
-            dinning_items = [item for item in items if item.get("id") == "experiences"]
+            experiences_items = [
+                item for item in items if item.get("id") == "experiences"
+            ]
 
-            if dinning_items and "dates" in dinning_items[0]:
+            if experiences_items and "dates" in experiences_items[0]:
                 corrected_dates = [
                     {
-                        "select_a_date": date[0],
+                        "select_a_date": date[0].upper(),
                         "select_a_time": (
                             date[1].split(": ")[1] if ": " in date[1] else date[1]
                         ),
                     }
-                    for date in dinning_items[0]["dates"]
+                    for date in experiences_items[0]["dates"]
                 ]
                 return corrected_dates
             return []
@@ -199,27 +201,32 @@ class ExperiencePage:
     def book_now(self, e):
         user = get_logged_in_user()
         if not user:
-            print("No user is logged in.")
+            print(" No user is logged in.")
             return
 
         if not self.selected_date or not self.selected_time or not self.current_tab:
             print("Please select a date, time, and tab before booking.")
             return
 
-        user_uuid = user["uuid"]
-        booking_id = f"ORBT - {str(uuid.uuid4())[:8]}"
-        print(f"Generated Booking ID: {booking_id}")
+        if not hasattr(self, "selected_event_name") or not self.selected_event_name:
+            print("Warning: No event_name found! Defaulting to 'Unknown'.")
+            self.selected_event_name = "Unknown"
+
+        event_name = self.selected_event_name
+        booking_id = f"ORBT-{str(uuid.uuid4())[:8]}"
+
+        print("Generated Booking ID: {booking_id}")
 
         new_booking = {
             "booking_id": booking_id,
-            "uuid": user_uuid,
+            "uuid": user["uuid"],
+            "event_name": "Experiences",
             "date": self.selected_date,
             "time": self.selected_time,
             "location": "Pagadian City",
             "book_option_order": self.current_tab,
             "status": "Upcoming",
             "venue_name": "Water Front Hotel",
-            "event_name": "Experiences",
             "Coffee_image": "images/Coffee.png",
             "Brunch_image": "images/Brunch.png",
             "Diner_image": "images/Diner.png",
@@ -228,16 +235,13 @@ class ExperiencePage:
             "Experiences_image": "images/Experiences.png",
         }
 
-        print(f"Saving New Booking: {new_booking}")
+        print("Saving New Booking: {new_booking}")
 
         dynamo_write("bookings", new_booking)
-
         print("Booking successfully saved to DynamoDB.")
 
-        self.user_bookings = self.load_user_bookings()
-        self.display_booking_count()
+        self.page.go(f"/loadingscreen?booking_id={booking_id}")
 
-        self.page.go("/loadingscreen")
         self.page.update()
 
     def display_booking_count(self):

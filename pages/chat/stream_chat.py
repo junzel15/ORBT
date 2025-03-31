@@ -11,15 +11,14 @@ STREAM_API_SECRET = os.getenv("STREAM_API_SECRET")
 chat_client = StreamChat(api_key=STREAM_API_KEY, api_secret=STREAM_API_SECRET)
 
 
-def get_authenticated_user():
+def get_authenticated_user(contact_id=None):
     user = get_logged_in_user()
     if not user:
-        print("Debug: No user logged in!")
         raise ValueError("No user is logged in!")
 
-    print("Debug: Logged in user:", user)
-    user_id = user["uuid"]
+    user_id = contact_id or user["uuid"]
     token = chat_client.create_token(user_id)
+    print(f"Authenticated User ID: {user_id}")
     return user_id, token
 
 
@@ -30,8 +29,7 @@ def get_messages(channel_id):
         response = channel.query()
         messages = response.get("messages", [])
 
-        if not messages:
-            print(f"Debug: Response from query() - {response}")
+        print(f"Debug: Messages fetched for channel {channel_id}: {messages}")
 
         return messages
     except Exception as e:
@@ -41,7 +39,8 @@ def get_messages(channel_id):
 
 def get_direct_messages():
     user_id, _ = get_authenticated_user()
-    filters = {"members": {"$in": [user_id]}, "member_count": 2}
+    filters = {"type": "messaging", "members": {"$in": [user_id]}}
+
     response = chat_client.query_channels(filters, watch=True, state=True)
 
     messages = []
@@ -57,7 +56,8 @@ def get_direct_messages():
 
 def get_group_messages():
     user_id, _ = get_authenticated_user()
-    filters = {"members": {"$in": [user_id]}, "member_count": {"$gt": 2}}
+    filters = {"type": "messaging", "members": {"$in": [user_id]}}
+
     response = chat_client.query_channels(filters, watch=True, state=True)
 
     messages = []
@@ -72,19 +72,32 @@ def get_group_messages():
 
 
 def get_all_messages():
-    user_id, _ = get_authenticated_user()
-    filters = {"members": {"$in": [user_id]}}
-    response = chat_client.query_channels(filters, watch=True, state=True)
+    try:
+        user_id, _ = get_authenticated_user()
+        filters = {"type": "messaging", "members": {"$in": [user_id]}}
+        print(f"Fetching messages for user {user_id} with filters: {filters}")
 
-    messages = []
-    for channel in response.get("channels", []):
-        channel_id = channel.get("id")
-        if not channel_id:
-            print(f"Warning: Skipping channel without ID: {channel}")
-            continue
-        messages.extend(get_messages(channel_id))
+        response = chat_client.query_channels(filters, watch=True, state=True)
+        print("DEBUG: Channels response:", response)
 
-    return messages
+        if not response.get("channels"):
+            print("No channels found for this user!")
+            return []
+
+        messages = []
+        for channel in response["channels"]:
+            channel_id = channel.get("id")
+            if channel_id:
+                print(f"Fetching messages from channel: {channel_id}")
+                messages.extend(get_messages(channel_id))
+            else:
+                print(f"⚠️ Warning: Channel with no ID found!")
+
+        print(f"Total messages fetched: {len(messages)}")
+        return messages
+    except Exception as e:
+        print(f"Error fetching all messages: {e}")
+        return []
 
 
 def create_group(group_name):

@@ -21,11 +21,46 @@ class BookingCard(ft.UserControl):
         status = self.booking["status"]
 
         if status == "Upcoming":
-            return self.upcoming_card()
+            return self.filtered_section(
+                self.upcoming_card(), ["This Week", "Next Week", "Later"]
+            )
         elif status == "Completed":
-            return self.completed_card()
+            return self.filtered_section(
+                self.completed_card(), ["This Week", "Next Week", "Later"]
+            )
         elif status == "Cancelled":
-            return self.cancelled_card()
+            return self.filtered_section(
+                self.cancelled_card(), ["This Week", "Next Week", "Later"]
+            )
+
+    def filtered_section(self, card, filters):
+        return ft.Column(
+            [ft.Row([ft.TextButton(filter_text) for filter_text in filters]), card]
+        )
+
+    def upcoming_card(self):
+        return self.card_common("Upcoming")
+
+    def completed_card(self):
+        return self.card_common("Completed")
+
+    def cancelled_card(self):
+        return self.card_common("Cancelled")
+
+    def card_common(self, status):
+        return ft.Container(
+            content=ft.Column(
+                spacing=10,
+                controls=[
+                    ft.Text(
+                        f"{status} Booking Card for {self.booking.get('event_name', 'Unknown Event')}"
+                    )
+                ],
+            ),
+            padding=15,
+            border_radius=15,
+            bgcolor="#EFE6FF" if status == "Upcoming" else "white",
+        )
 
     def upcoming_card(self):
         event_name = self.booking.get("event_name", "Unknown Event")

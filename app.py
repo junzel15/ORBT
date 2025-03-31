@@ -97,7 +97,7 @@ def go_to(route, page, **kwargs):
 
     print(f"Navigating to {route} with kwargs: {kwargs}")
 
-    base_route = route.split("/")[1]
+    base_route = route.split("?")[0].split("/")[1]
 
     if f"/{base_route}" in ROUTES:
         view_class = ROUTES[f"/{base_route}"]

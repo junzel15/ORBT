@@ -1,21 +1,40 @@
 import flet as ft
 from global_state import get_logged_in_user
 from dynamodb.dynamoDB_bookings import dynamo_read, dynamo_write
+import urllib.parse
 
 
 class BookingDetails(ft.UserControl):
-    def __init__(self, page: ft.Page, go_to, booking_id=None):
+    def __init__(self, page: ft.Page, go_to):
         super().__init__()
         self.page = page
         self.go_to = go_to
+        self.booking_id = self.get_query_param("booking_id")
         self.user_data = get_logged_in_user()
-        self.booking_id = booking_id
 
         self.set_mobile_view()
-
         self.page.on_resize = self.adjust_window_size
         self.adjust_window_size()
         self.page.update()
+
+    def get_query_param(self, param_name):
+        try:
+            if not self.page or not self.page.route:
+                print(" No valid route found, cannot extract query parameters.")
+                return None
+
+            if "?" not in self.page.route:
+                print(f" Route does not contain query parameters: {self.page.route}")
+                return None
+
+            query_string = self.page.route.split("?", 1)[1]
+            params = dict(urllib.parse.parse_qsl(query_string))
+            print(f"Extracted params: {params}")
+            return params.get(param_name)
+
+        except Exception as e:
+            print(f"Error parsing query param: {e}")
+            return None
 
     def set_mobile_view(self):
         self.page.window_width = 400
@@ -40,10 +59,15 @@ class BookingDetails(ft.UserControl):
         try:
             if self.booking_id:
                 print(f"Fetching booking for ID: {self.booking_id}")
-                booking = dynamo_read("bookings", "booking_id", self.booking_id)
-                if isinstance(booking, dict):
-                    return booking
-                print(f"Booking ID {self.booking_id} not found or invalid format!")
+            if self.booking_id:
+                print(f"Fetching booking for ID: {self.booking_id}")
+                booking = dynamo_read("bookings", "booking_id", self.booking_id.strip())
+            else:
+                print("⚠️ No valid booking ID found.")
+                return None
+            if isinstance(booking, dict):
+                return booking
+            print(f"Booking ID {self.booking_id} not found or invalid format!")
 
             logged_in_user = get_logged_in_user()
             print(f"Logged-in user: {logged_in_user}")
